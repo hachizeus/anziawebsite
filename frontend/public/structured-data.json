@@ -1,0 +1,58 @@
+{
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  "name": "Makini Realtors",
+  "url": "https://Anzia Electronics .co.ke",
+  "logo": "https://Anzia Electronics .co.ke/images/logo.png",
+  "image": "https://Anzia Electronics .co.ke/images/about_enhanced.jpg",
+  "description": "We offer professional property management services across East Africa, ensuring your rental properties are well-managed and your tenants are satisfied.",
+  "areaServed": ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret", "East Africa"],
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "123 Main Street",
+    "addressLocality": "Nairobi",
+    "addressRegion": "Nairobi",
+    "postalCode": "00100",
+    "addressCountry": "KE"
+  },
+  "telephone": "+254-123-456-789",
+  "priceRange": "$",
+  "sameAs": [
+    "https://www.facebook.com/share/15qX1kK637/?mibextid=wwXIfr",
+    "https://x.com/Anzia Electronics ?s=11",
+    "https://www.instagram.com/makini.realtors?utm_source=qr",
+    "https://www.youtube.com/@Anzia Electronics ",
+    "https://www.linkedin.com/company/107895153/admin/dashboard/",
+    "https://www.threads.com/@makini.realtors?igshid=NTc4MTIwNjQ2YQ=="
+  ],
+  "makesOffer": [
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Professional Property Management"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Tenant Placement and Screening"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Rent Collection and Financial Management"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Property Maintenance and Asset Management"
+      }
+    }
+  ]
+}

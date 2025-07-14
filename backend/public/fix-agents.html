@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix Agent Profiles</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 4px;
+      display: none;
+    }
+    .success {
+      background-color: #dff0d8;
+      border: 1px solid #d6e9c6;
+      color: #3c763d;
+    }
+    .error {
+      background-color: #f2dede;
+      border: 1px solid #ebccd1;
+      color: #a94442;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Fix Agent Profiles</h1>
+    <p>This tool will create agent profiles for all users with the agent role who don't have a profile yet.</p>
+    <button id="fixButton">Fix Agent Profiles</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('fixButton').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = 'Processing...';
+      resultDiv.className = '';
+      resultDiv.style.display = 'block';
+      
+      try {
+        const response = await fetch('/api/fix/fix-agents');
+        const data = await response.json();
+        
+        if (data.success) {
+          resultDiv.className = 'success';
+          resultDiv.innerHTML = `
+            <h3>Success!</h3>
+            <p>${data.message}</p>
+            <pre>${JSON.stringify(data.createdAgents, null, 2)}</pre>
+          `;
+        } else {
+          resultDiv.className = 'error';
+          resultDiv.innerHTML = `
+            <h3>Error</h3>
+            <p>${data.message}</p>
+            <pre>${JSON.stringify(data.error, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.innerHTML = `
+          <h3>Error</h3>
+          <p>Failed to fix agent profiles</p>
+          <pre>${error.message}</pre>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Picture Display Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .profile-pic {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #3b82f6;
+        }
+        .fallback {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { background-color: #d1fae5; color: #065f46; }
+        .error { background-color: #fee2e2; color: #991b1b; }
+        .info { background-color: #dbeafe; color: #1e40af; }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Profile Picture Display Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Check Backend API Response</h2>
+        <button onclick="testBackendAPI()">Test Agent Profile API</button>
+        <div id="backend-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Check ImageKit URL</h2>
+        <button onclick="testImageKitURL()">Test ImageKit Image</button>
+        <div id="imagekit-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Check localStorage Data</h2>
+        <button onclick="testLocalStorage()">Check localStorage</button>
+        <div id="localstorage-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Profile Picture Display</h2>
+        <div id="profile-display">
+            <p>Profile pictures will appear here after running tests...</p>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:4000';
+        
+        async function testBackendAPI() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.innerHTML = '<div class="info">Testing backend API...</div>';
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    resultDiv.innerHTML = '<div class="error">No authentication token found. Please login first.</div>';
+                    return;
+                }
+                
+                const response = await fetch(`${BACKEND_URL}/api/agents/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Backend API Response:', data);
+                
+                if (data.success && data.agent) {
+                    const profilePicture = data.agent.profilePicture;
+                    resultDiv.innerHTML = `
+                        <div class="success">✓ Backend API working</div>
+                        <div class="info">Profile Picture URL: ${profilePicture || 'Not set'}</div>
+                        <pre>${JSON.stringify(data.agent, null, 2)}</pre>
+                    `;
+                    
+                    // Display the profile picture if available
+                    if (profilePicture) {
+                        displayProfilePicture(profilePicture, 'Backend API');
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div class="error">Backend API returned unsuccessful response</div>';
+                }
+            } catch (error) {
+                console.error('Backend API Error:', error);
+                resultDiv.innerHTML = `<div class="error">Backend API Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testImageKitURL() {
+            const resultDiv = document.getElementById('imagekit-result');
+            
+            // Get the ImageKit URL from the previous test or localStorage
+            const userData = localStorage.getItem('userData');
+            let imageUrl = null;
+            
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    imageUrl = user.profilePicture || user.profileImage;
+                } catch (e) {
+                    console.error('Error parsing userData:', e);
+                }
+            }
+            
+            if (!imageUrl) {
+                resultDiv.innerHTML = '<div class="error">No ImageKit URL found. Please run Backend API test first or upload a profile picture.</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="info">Testing ImageKit URL...</div>';
+            
+            try {
+                const response = await fetch(imageUrl, { method: 'HEAD' });
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✓ ImageKit URL accessible</div>
+                        <div class="info">URL: ${imageUrl}</div>
+                        <div class="info">Status: ${response.status} ${response.statusText}</div>
+                    `;
+                    displayProfilePicture(imageUrl, 'ImageKit URL');
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">ImageKit URL not accessible</div>
+                        <div class="info">URL: ${imageUrl}</div>
+                        <div class="info">Status: ${response.status} ${response.statusText}</div>
+                    `;
+                }
+            } catch (error) {
+                console.error('ImageKit URL Error:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">ImageKit URL Error: ${error.message}</div>
+                    <div class="info">URL: ${imageUrl}</div>
+                `;
+            }
+        }
+        
+        function testLocalStorage() {
+            const resultDiv = document.getElementById('localstorage-result');
+            
+            try {
+                const token = localStorage.getItem('token');
+                const userData = localStorage.getItem('userData');
+                
+                if (!token) {
+                    resultDiv.innerHTML = '<div class="error">No authentication token in localStorage</div>';
+                    return;
+                }
+                
+                if (!userData) {
+                    resultDiv.innerHTML = '<div class="error">No user data in localStorage</div>';
+                    return;
+                }
+                
+                const user = JSON.parse(userData);
+                const profilePicture = user.profilePicture || user.profileImage;
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✓ localStorage data found</div>
+                    <div class="info">User: ${user.name || 'Unknown'}</div>
+                    <div class="info">Email: ${user.email || 'Unknown'}</div>
+                    <div class="info">Role: ${user.role || 'Unknown'}</div>
+                    <div class="info">Profile Picture: ${profilePicture || 'Not set'}</div>
+                    <pre>${JSON.stringify(user, null, 2)}</pre>
+                `;
+                
+                if (profilePicture) {
+                    displayProfilePicture(profilePicture, 'localStorage');
+                }
+            } catch (error) {
+                console.error('localStorage Error:', error);
+                resultDiv.innerHTML = `<div class="error">localStorage Error: ${error.message}</div>`;
+            }
+        }
+        
+        function displayProfilePicture(url, source) {
+            const displayDiv = document.getElementById('profile-display');
+            
+            const container = document.createElement('div');
+            container.style.margin = '10px 0';
+            container.innerHTML = `
+                <h4>Profile Picture from ${source}:</h4>
+                <img src="${url}" alt="Profile Picture" class="profile-pic" 
+                     onload="this.nextElementSibling.innerHTML='✓ Image loaded successfully'" 
+                     onerror="this.style.display='none'; this.nextElementSibling.innerHTML='✗ Image failed to load'; this.nextElementSibling.className='error';">
+                <div class="info">Loading...</div>
+                <div class="info">URL: ${url}</div>
+            `;
+            
+            displayDiv.appendChild(container);
+        }
+        
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            console.log('Profile Picture Display Test loaded');
+            testLocalStorage();
+        });
+    </script>
+</body>
+</html>

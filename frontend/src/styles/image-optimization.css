@@ -1,0 +1,106 @@
+/**
+ * Image Optimization CSS
+ * 
+ * This file contains CSS rules to optimize image loading and prevent layout shifts.
+ */
+
+/* Set default aspect ratios for common image types */
+.img-property-card {
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+.img-hero {
+  aspect-ratio: 2/1;
+  object-fit: cover;
+}
+
+.img-team-member {
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+
+.img-blog-thumbnail {
+  aspect-ratio: 3/2;
+  object-fit: cover;
+}
+
+.img-testimonial {
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.img-logo {
+  aspect-ratio: 3/1;
+  object-fit: contain;
+}
+
+.img-icon {
+  aspect-ratio: 1/1;
+  object-fit: contain;
+}
+
+/* Prevent layout shifts by setting explicit dimensions */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Add blur-up loading effect */
+.blur-load {
+  background-size: cover;
+  background-position: center;
+}
+
+.blur-load.loaded > img {
+  opacity: 1;
+}
+
+.blur-load > img {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+/* Responsive image containers */
+.img-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Prevent images from being larger than viewport */
+img {
+  max-width: 100vw;
+}
+
+/* Optimize images in property cards */
+.property-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Optimize hero images */
+.hero-section img {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: cover;
+}
+
+/* Optimize team member images */
+.team-member img {
+  width: 100%;
+  border-radius: 50%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+
+/* Optimize blog images */
+.blog-post img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+}

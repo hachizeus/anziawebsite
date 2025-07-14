@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# Important pages for indexing
+Allow: /properties
+Allow: /properties/nairobi
+Allow: /properties/mombasa
+Allow: /about
+Allow: /contact
+Allow: /services
+Allow: /blog
+
+# Block access to admin areas
+Disallow: /admin/
+Disallow: /dashboard/
+
+# Allow all bots to all static files
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+
+# Sitemap location
+Sitemap: https://Anzia Electronics .co.ke/sitemap.xml

@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: makini-backend
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: MONGODB_URI
+        value: mongodb+srv://Makini:kkxA8io@makini.xwm8fkh.mongodb.net/?retryWrites=true&w=majority&appName=Makini
+      - key: JWT_SECRET
+        value: cd57c4c40415b68b920360bc1537f5d026ea58496733d8f37a948b12794e82c30e5b2a809f87a6c6ccc50f830aacedbe2b8922306ba90b322b17f41b3e03fc6c
+      - key: COOKIE_SECRET
+        value: a8d7f9e3c5b2a1d4e6f8c9b2d5a7e9f1c3b6a8d4f7e2c5b9a3d6f8c2e5a7d9f3
+      - key: COOKIE_MAX_AGE
+        value: 2592000000
+      - key: EMAIL_USER
+        value: support@Anzia Electronics .co.ke
+      - key: EMAIL_PASS
+        value: kkxA8io%
+      - key: IMAGEKIT_PUBLIC_KEY
+        value: public_7w2Q/T5e02+8LY1zoPC/FZXj/HE=
+      - key: IMAGEKIT_PRIVATE_KEY
+        value: private_rAy6lptP0bDqw9DwkvTbHqxP3v4=
+      - key: IMAGEKIT_URL_ENDPOINT
+        value: https://ik.imagekit.io/ezuymndjw
+      - key: WEBSITE_URL
+        value: https://Anzia Electronics .co.ke
+      - key: FRONTEND_URL
+        value: https://Anzia Electronics .co.ke
+      - key: INQUIRY_EMAIL
+        value: inquiries@Anzia Electronics .co.ke
+      - key: ADMIN_EMAIL
+        value: management@Anzia Electronics .co.ke
+      - key: ADMIN_PASSWORD
+        value: kkxA8io%
