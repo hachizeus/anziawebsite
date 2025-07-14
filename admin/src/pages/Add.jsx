@@ -142,10 +142,7 @@ const ProductForm = () => {
 
       const token = localStorage.getItem("token");
       
-      // Create a local API URL that bypasses CORS
-      const apiUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:4000/api/products/add'
-        : `${backendurl}/api/products/add`;
+      const apiUrl = `${backendurl}/api/products/add`;
       
       const response = await axios.post(apiUrl, formdata, {
         headers: {

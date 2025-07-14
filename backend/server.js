@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import connectdb from './config/mongodb.js';
+// MongoDB removed - using Supabase only
 import { trackAPIStats } from './middleware/statsMiddleware.js';
 import { configureSecurityMiddleware } from './middleware/security.js';
 import cspMiddleware from './middleware/cspMiddleware.js';
@@ -47,9 +47,8 @@ import testProfilePictureRoutes from './routes/testProfilePicture.js';
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
 dotenv.config({ path: envFile });
 
-// Log MongoDB URI first few characters to debug connection issues
-const mongoUriStart = process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 20) + '...' : 'not set';
-console.log(`Using MongoDB URI: ${mongoUriStart}`);
+// Using Supabase as primary database
+console.log('Database: Supabase configured');
 
 console.log("Environment variables loaded:", {
   ADMIN_EMAIL_SET: !!process.env.ADMIN_EMAIL,
@@ -157,13 +156,8 @@ app.use(cspMiddleware());
 app.use(securityLogger);
 app.use(trackAPIStats);
 
-// Database connection
-try {
-  await connectdb();
-  console.log('Database connected successfully');
-} catch (err) {
-  console.error('Database connection error:', err);
-}
+// Supabase connection is handled in config/supabase.js
+console.log('Supabase client initialized');
 
 // Test routes removed
 

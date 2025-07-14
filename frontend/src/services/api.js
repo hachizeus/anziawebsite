@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
-import axios from 'axios';
 
-const supabaseUrl = 'https://kasdvsdakhvfgynmjcxi.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imthc2R2c2Rha2h2Zmd5bm1qY3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NzcxOTAsImV4cCI6MjA2ODA1MzE5MH0.OKqPtJnqh_v_M5-ImU2Ag9ovYJqS4l3o4DcVJk-Jv60';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://kasdvsdakhvfgynmjcxi.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imthc2R2c2Rha2h2Zmd5bm1qY3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NzcxOTAsImV4cCI6MjA2ODA1MzE5MH0.OKqPtJnqh_v_M5-ImU2Ag9ovYJqS4l3o4DcVJk-Jv60';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
