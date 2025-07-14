@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, Loader } from '../utils/icons.jsx';
 import { toast } from 'react-toastify';
-import api from '../services/api.js';
+import { supabase, registerUser } from '../services/api.js';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });

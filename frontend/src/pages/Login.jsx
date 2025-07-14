@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader } from '../utils/icons.jsx';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import api from '../services/api.js';
+import { supabase, loginUser } from '../services/api.js';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });

@@ -1,17 +1,14 @@
 import jwt from "jsonwebtoken";
-import userModel from "../models/Usermodel.js";
-import { getTokenFromHeader } from '../services/tokenService.js';
-import { generateAccessToken } from '../utils/tokenUtils.js';
-import { csrfProtection } from './csrfMiddleware.js';
+import { supabase } from '../config/supabase.js';
 
 // Protection middleware - NEVER FAIL
 export const protect = async (req, res, next) => {
   try {
-    const token = getTokenFromHeader(req);
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
     if (!token) {
-      // Set default user if no token
-      req.user = { _id: 'default', role: 'user' };
+      req.user = { id: 'default', role: 'user' };
       return next();
     }
 
@@ -20,7 +17,7 @@ export const protect = async (req, res, next) => {
     // Handle admin token
     if (decoded.isAdmin === true || decoded.email === process.env.ADMIN_EMAIL) {
       req.user = {
-        _id: 'admin',
+        id: 'admin',
         email: decoded.email,
         isAdmin: true,
         role: 'admin'
@@ -31,18 +28,16 @@ export const protect = async (req, res, next) => {
     // For regular users
     if (decoded.id) {
       req.user = {
-        _id: decoded.id,
+        id: decoded.id,
         role: decoded.role || 'user'
       };
       return next();
     }
 
-    // Default user if token is invalid
-    req.user = { _id: 'default', role: 'user' };
+    req.user = { id: 'default', role: 'user' };
     next();
   } catch (error) {
-    // Always continue even on error
-    req.user = { _id: 'default', role: 'user' };
+    req.user = { id: 'default', role: 'user' };
     next();
   }
 };

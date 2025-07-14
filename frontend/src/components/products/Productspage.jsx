@@ -12,7 +12,7 @@ import {
   Eye,
   X
 } from '../../utils/icons.jsx';
-import api from '../../services/api.js';
+import { getProducts } from '../../services/api.js';
 
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();

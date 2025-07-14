@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash, Eye, Upload } from '../utils/icons.jsx';
 import { toast } from 'react-toastify';
-import api from '../services/api.js';
+import { supabase } from '../services/api.js';
 
 const Admin = () => {
   const [products, setProducts] = useState([]);

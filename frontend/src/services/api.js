@@ -5,46 +5,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIU
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Fallback API for backend routes
-const API_URL = 'http://localhost:4000/api';
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  },
-  timeout: 30000,
-  withCredentials: false
-});
-
-// Retry functionality disabled - using localhost only
-
-// Add a request interceptor to include token from localStorage
-api.interceptors.request.use(
-  (config) => {
-    // Get token from localStorage
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Add a response interceptor with simple error handling
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    console.error('API Error:', error.response?.status, error.message);
-    return Promise.reject(error);
-  }
-);
+// Backend API URL
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
 
 // Direct Supabase operations
 export const getProducts = async (filters = {}) => {
@@ -85,5 +47,35 @@ export const getProductById = async (id) => {
   }
 };
 
-export default api;
+// User authentication functions
+export const registerUser = async (userData) => {
+  const { data, error } = await supabase.auth.signUp({
+    email: userData.email,
+    password: userData.password,
+    options: {
+      data: {
+        name: userData.name
+      }
+    }
+  });
+  
+  if (error) throw error;
+  return { success: true, user: data.user };
+};
+
+export const loginUser = async (email, password) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+  
+  if (error) throw error;
+  return { success: true, user: data.user, session: data.session };
+};
+
+export const logoutUser = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+  return { success: true };
+};
 

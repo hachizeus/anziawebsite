@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import api from "../services/api";
+import { supabase, loginUser, logoutUser } from "../services/api";
 
 const AuthContext = createContext(null);
 
@@ -33,12 +33,10 @@ export const AuthProvider = ({ children }) => {
   
   const handleLogout = async () => {
     try {
-      // Call logout endpoint to invalidate refresh token
-      await api.post('/api/users/logout');
+      await logoutUser();
     } catch (error) {
       console.error('Logout API error:', error);
     } finally {
-      // Clear local storage and state
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
       localStorage.removeItem("loginTime");

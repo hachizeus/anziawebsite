@@ -15,33 +15,7 @@ import { securityLogger } from './middleware/securityLogger.js';
 import productRouter from './routes/ProductRouter.js';
 import productRoutes from './routes/productRoutes.js';
 import userrouter from './routes/UserRoute.js';
-import formrouter from './routes/formrouter.js';
-import newsrouter from './routes/newsRoute.js';
-import blogRoutes from './routes/blogRoutes.js';
-import appointmentRouter from './routes/appointmentRoute.js';
-import adminRouter from './routes/adminRoute.js';
 import adminUtilsRouter from './routes/adminRoutes.js';
-import adminUtilsRoutes from './routes/adminUtilsRoutes.js';
-import adminPropertyRoutes from './routes/adminPropertyRoutes.js';
-import adminNotificationRoutes from './routes/adminNotificationRoutes.js';
-import inquiryRoutes from './routes/inquiryRoutes.js';
-import documentRoutes from './routes/documentRoutes.js';
-import tenantRoutes from './routes/tenantRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import financialRoutes from './routes/financialRoutes.js';
-import analyticsRoutes from './routes/analyticsRoutes.js';
-import notificationRoutes from './routes/notificationRoutes.js';
-import agentRoutes from './routes/agentRoutes.js';
-import agentManagementRoutes from './routes/agentManagementRoutes.js';
-import agentDetailRoutes from './routes/agentDetailRoutes.js';
-import uploadRoutes from './routes/uploadRoutes.js';
-import authRoutes from './routes/authRoutes.js';
-import secureAuthRoutes from './routes/secureAuthRoutes.js';
-import adminAuthRoutes from './routes/adminAuthRoutes.js';
-import maintenanceRoutes from './routes/maintenanceRoutes.js';
-import csrfRoutes from './routes/csrfRoutes.js';
-import newsletterRoutes from './routes/newsletterRoutes.js';
-import testProfilePictureRoutes from './routes/testProfilePicture.js';
 
 // Load environment variables at the very beginning
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
@@ -165,48 +139,11 @@ console.log('Supabase client initialized');
 app.use('/api/products', productRoutes);
 app.use('/api/legacy-products', productRouter);
 app.use('/api/users', userrouter);
-app.use('/api/forms', formrouter);
-app.use('/api/news', newsrouter);
-app.use('/api/blogs', blogRoutes);
-app.use('/api/appointments', appointmentRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/admin-utils', adminUtilsRouter);
-app.use('/api/admin-system', adminUtilsRoutes);
-app.use('/api/admin-property', adminPropertyRoutes);
-app.use('/api/admin-notifications', adminNotificationRoutes);
-app.use('/api', productRoutes);
-app.use('/api', inquiryRoutes);
-app.use('/api/documents', documentRoutes);
-app.use('/api/tenants', tenantRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/financial', financialRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/agents', agentRoutes);
-app.use('/api/agent-management', agentManagementRoutes);
-app.use('/api', agentDetailRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/auth', authRoutes); // Legacy auth routes
-app.use('/api/secure-auth', secureAuthRoutes); // Enhanced secure auth routes
-// Login rate limiter disabled for admin auth routes
-app.use('/api/admin-auth', adminAuthRoutes); // Simple admin auth routes without cookies
-app.use('/api/maintenance', maintenanceRoutes); // Add maintenance routes
-app.use('/api/auth', csrfRoutes); // Add CSRF routes
-app.use('/api/newsletter', newsletterRoutes); // Add newsletter routes
-app.use('/api/test', testProfilePictureRoutes); // Add test profile picture routes
+app.use('/api/admin', adminUtilsRouter);
 
 // Test routes removed
 
-// Mock API middleware for development
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    const { mockBlogApi } = await import('./middleware/mockBlogMiddleware.js');
-    app.use(mockBlogApi);
-    console.log('Mock blog API middleware enabled');
-  } catch (err) {
-    console.error('Failed to load mock blog API middleware:', err);
-  }
-}
+// Development middleware removed
 
 // Import global error handler
 import { globalErrorHandler, catchAllHandler } from './middleware/errorHandler.js';
@@ -229,15 +166,9 @@ app.get('/status', (req, res) => {
   res.status(200).json({ status: 'OK', time: new Date().toISOString() });
 });
 
-// Fix agents endpoint
-import { fixAgents } from './scripts/fixAgentsInApp.js';
-app.get('/fix-agents', async (req, res) => {
-  try {
-    const result = await fixAgents();
-    res.json({ success: true, ...result });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 // Root endpoint - health check HTML
