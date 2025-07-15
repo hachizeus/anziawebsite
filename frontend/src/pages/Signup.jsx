@@ -20,15 +20,16 @@ const Signup = () => {
     
     try {
       const { confirmPassword, ...signupData } = formData;
-      const response = await api.post('/users/register', signupData);
-      if (response.data.success) {
-        toast.success('Registration successful! Please login.');
+      const result = await registerUser(signupData);
+      if (result.success) {
+        toast.success('Registration successful! Please check your email to verify your account.');
         navigate('/login');
       } else {
-        toast.error(response.data.message || 'Registration failed');
+        toast.error('Registration failed');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      console.error('Registration error:', error);
+      toast.error(error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

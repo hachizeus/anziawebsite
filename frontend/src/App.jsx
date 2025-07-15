@@ -6,7 +6,7 @@ import Footer from './components/footer';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import Categories from './pages/Categories';
-import Deals from './pages/Deals';
+// Deals page removed
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Cart from './pages/Cart';
@@ -60,7 +60,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/categories" element={<Categories />} />
-            <Route path="/deals" element={<Deals />} />
+            {/* Deals route removed */}
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

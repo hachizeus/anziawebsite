@@ -17,16 +17,17 @@ const Login = () => {
     setLoading(true);
     
     try {
-      const response = await api.post('/users/login', formData);
-      if (response.data.success) {
-        login(response.data.user, response.data.token);
+      const result = await loginUser(formData.email, formData.password);
+      if (result.success) {
+        login(result.session.access_token, result.user);
         toast.success('Login successful!');
         navigate('/');
       } else {
-        toast.error(response.data.message || 'Login failed');
+        toast.error('Login failed');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      console.error('Login error:', error);
+      toast.error(error.message || 'Login failed');
     } finally {
       setLoading(false);
     }

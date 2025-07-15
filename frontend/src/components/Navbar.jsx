@@ -104,9 +104,9 @@ const Navbar = () => {
   
   // Navigation links
   const navLinks = [
+    { name: "Home", path: "/", icon: Home },
     { name: "Products", path: "/products", icon: Search },
     { name: "Categories", path: "/categories", icon: Search },
-    { name: "Deals", path: "/deals", icon: Star },
     { name: "About", path: "/about", icon: Users },
     { name: "Contact", path: "/contact", icon: MessageCircle },
   ];

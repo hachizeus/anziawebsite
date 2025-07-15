@@ -40,9 +40,9 @@ const ProductsPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/products/list');
-      if (response.data.success) {
-        const products = response.data.products || [];
+      const result = await getProducts();
+      if (result.success) {
+        const products = result.products || [];
         setProducts(products);
         setFilteredProducts(products);
       }
