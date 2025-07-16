@@ -22,8 +22,13 @@ import trackingRoutes from './routes/trackingRoutes.js';
 import imagekitRoutes from './routes/imagekitRoutes.js';
 
 // Load environment variables at the very beginning
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
-dotenv.config({ path: envFile });
+try {
+  const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+  dotenv.config({ path: envFile });
+  console.log('Environment file loaded:', envFile);
+} catch (error) {
+  console.log('Using environment variables from process.env');
+}
 
 // Using MongoDB as primary database
 console.log('Database: MongoDB configured');

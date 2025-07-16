@@ -5,12 +5,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "setup": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../admin && npm install",
-    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\" \"cd admin && npm run dev\"",
-    "build": "cd backend && npm run build && cd ../frontend && npm run build && cd ../admin && npm run build",
+    "setup": "npm install && cd backend && npm install",
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm install",
     "start": "cd backend && npm start",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "render-build": "cd backend && npm install && cd ../frontend && npm install && npm run build && cd ../admin && npm install && npm run build"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
 
   "keywords": [
