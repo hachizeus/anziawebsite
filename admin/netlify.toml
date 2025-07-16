@@ -1,5 +1,5 @@
 [build]
-  command = "npm install && npm run build"
+  command = "npm install date-fns && npm run build"
   publish = "dist"
 
 [[redirects]]
