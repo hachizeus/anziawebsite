@@ -18,6 +18,11 @@ export default defineConfig({
       }
     }
   },
+  preview: {
+    port: process.env.PORT || 5174,
+    strictPort: true,
+    host: true
+  },
   css: {
     devSourcemap: true
   },

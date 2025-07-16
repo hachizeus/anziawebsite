@@ -152,7 +152,8 @@ export default defineConfig(({ mode }) => ({
   },
   // Optimize preview
   preview: {
-    port: 5173,
+    port: process.env.PORT || 5173,
     strictPort: true,
+    host: true
   }
 }))
