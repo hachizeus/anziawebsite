@@ -9,6 +9,7 @@
     "dev": "cd backend && npm run dev",
     "build": "cd backend && npm install",
     "start": "cd backend && npm start",
+    "preview": "cd backend && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
 
