@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: anzia-admin
+    name: anzia-frontend
     env: node
     plan: free
     buildCommand: npm install && npm run build

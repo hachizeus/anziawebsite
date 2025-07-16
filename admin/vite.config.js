@@ -12,9 +12,9 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: process.env.VITE_API_BASE_URL || 'http://localhost:4000',
         changeOrigin: true,
-        secure: false
+        secure: true
       }
     }
   },
