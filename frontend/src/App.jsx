@@ -79,12 +79,8 @@ function App() {
     // Initialize lazy loading for images
     initLazyLoading();
     
-    // Add security headers
-    document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.remove();
-    const meta = document.createElement('meta');
-    meta.httpEquiv = 'Content-Security-Policy';
-    meta.content = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.google-analytics.com; connect-src 'self' https://anziabackend.netlify.app https://api.imagekit.io https://www.google-analytics.com;";
-    document.head.appendChild(meta);
+    // Don't override CSP headers - they're already set in index.html
+    // Keep the existing CSP from index.html
   }, []);
 
   return (
