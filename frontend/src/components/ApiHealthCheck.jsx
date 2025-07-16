@@ -10,9 +10,10 @@ const ApiHealthCheck = () => {
   useEffect(() => {
     const checkApiHealth = async () => {
       try {
-        // Use only the Netlify backend
-        const baseUrl = import.meta.env.VITE_NETLIFY_BACKEND_URL;
-        const endpoints = ['/status', '/', '/api/products/list'];
+        // Use relative URL for API health check
+        const baseUrl = '';
+        // Start with the most likely working endpoint
+        const endpoints = ['/api/products/list'];
         
         console.log('Checking API health at:', baseUrl);
         

@@ -7,7 +7,9 @@ const createApiClient = () => {
     timeout: 30000,
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    // Add CORS settings
+    withCredentials: false
   });
 
   // Request interceptor
