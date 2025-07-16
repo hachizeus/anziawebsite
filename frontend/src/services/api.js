@@ -2,11 +2,14 @@
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
 
 // Check if we're using Netlify functions
-const isNetlify = API_URL.includes('netlify') || window.location.hostname.includes('netlify.app');
-const NETLIFY_FUNCTION_URL = isNetlify ? '/.netlify/functions' : null;
+const isNetlify = window.location.hostname.includes('netlify.app');
+const NETLIFY_FUNCTION_URL = '/.netlify/functions';
 
-// Netlify production URL - use this as fallback when localhost backend is unavailable
-const NETLIFY_PRODUCTION_URL = 'https://anzia-api.onrender.com/api';
+// Netlify API URL from environment variables
+const NETLIFY_API_URL = import.meta.env.VITE_NETLIFY_API_URL || '/.netlify/functions/api';
+
+// Use this as fallback when localhost backend is unavailable
+const FALLBACK_URL = 'https://real-estate-backend-vybd.onrender.com';
 
 console.log('Using API URL:', isNetlify ? NETLIFY_FUNCTION_URL : API_URL);
 
@@ -38,19 +41,23 @@ export const getProducts = async (filters = {}) => {
   try {
     console.log('Fetching products from API...');
     
-    // For localhost, check if local API is available, if not use Netlify production API
+    // Determine which API endpoint to use
     let url;
-    if (isLocalhost) {
+    if (isNetlify) {
+      // On Netlify, use the Netlify Functions
+      url = `${NETLIFY_API_URL}/products`;
+      console.log('Using Netlify Functions for products');
+    } else if (isLocalhost) {
+      // On localhost, try local API first, then fallback
       const isLocalApiAvailable = await checkApiAvailability(API_URL);
       if (!isLocalApiAvailable) {
-        console.log('Local API not available, using Netlify production API');
-        url = `${NETLIFY_PRODUCTION_URL}/frontend/products`;
+        console.log('Local API not available, using fallback API');
+        url = `${FALLBACK_URL}/frontend/products`;
       } else {
         url = `${API_URL}/frontend/products`;
       }
-    } else if (isNetlify) {
-      url = `${NETLIFY_FUNCTION_URL}/products`;
     } else {
+      // Default case
       url = `${API_URL}/frontend/products`;
     }
     // Build query parameters
@@ -110,7 +117,16 @@ export const getProductById = async (id) => {
     console.log('Fetching product by ID:', id);
     let url;
     if (isNetlify) {
-      url = `${NETLIFY_FUNCTION_URL}/products/${id}`;
+      url = `${NETLIFY_API_URL}/products/${id}`;
+      console.log('Using Netlify Functions for product details');
+    } else if (isLocalhost) {
+      const isLocalApiAvailable = await checkApiAvailability(API_URL);
+      if (!isLocalApiAvailable) {
+        console.log('Local API not available, using fallback API');
+        url = `${FALLBACK_URL}/frontend/products/${id}`;
+      } else {
+        url = `${API_URL}/frontend/products/${id}`;
+      }
     } else {
       url = `${API_URL}/frontend/products/${id}`;
     }
@@ -139,7 +155,26 @@ export const getProductById = async (id) => {
 // User authentication functions
 export const registerUser = async (userData) => {
   try {
-    const response = await fetch(`${API_URL}/users/register`, {
+    let registerUrl;
+    
+    if (isNetlify) {
+      registerUrl = `${NETLIFY_API_URL}/users/register`;
+      console.log('Using Netlify Functions for registration');
+    } else if (isLocalhost) {
+      const isLocalApiAvailable = await checkApiAvailability(API_URL);
+      if (!isLocalApiAvailable) {
+        console.log('Local API not available, using fallback API for registration');
+        registerUrl = `${FALLBACK_URL}/users/register`;
+      } else {
+        registerUrl = `${API_URL}/users/register`;
+      }
+    } else {
+      registerUrl = `${API_URL}/users/register`;
+    }
+    
+    console.log('Register URL:', registerUrl);
+    
+    const response = await fetch(registerUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -162,7 +197,26 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (email, password) => {
   try {
-    const response = await fetch(`${API_URL}/users/login`, {
+    let loginUrl;
+    
+    if (isNetlify) {
+      loginUrl = `${NETLIFY_API_URL}/users/login`;
+      console.log('Using Netlify Functions for login');
+    } else if (isLocalhost) {
+      const isLocalApiAvailable = await checkApiAvailability(API_URL);
+      if (!isLocalApiAvailable) {
+        console.log('Local API not available, using fallback API for login');
+        loginUrl = `${FALLBACK_URL}/users/login`;
+      } else {
+        loginUrl = `${API_URL}/users/login`;
+      }
+    } else {
+      loginUrl = `${API_URL}/users/login`;
+    }
+    
+    console.log('Login URL:', loginUrl);
+    
+    const response = await fetch(loginUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -191,7 +245,26 @@ export const loginUser = async (email, password) => {
 
 export const logoutUser = async () => {
   try {
-    const response = await fetch(`${API_URL}/auth/logout`, {
+    let logoutUrl;
+    
+    if (isNetlify) {
+      logoutUrl = `${NETLIFY_API_URL}/auth/logout`;
+      console.log('Using Netlify Functions for logout');
+    } else if (isLocalhost) {
+      const isLocalApiAvailable = await checkApiAvailability(API_URL);
+      if (!isLocalApiAvailable) {
+        console.log('Local API not available, using fallback API for logout');
+        logoutUrl = `${FALLBACK_URL}/auth/logout`;
+      } else {
+        logoutUrl = `${API_URL}/auth/logout`;
+      }
+    } else {
+      logoutUrl = `${API_URL}/auth/logout`;
+    }
+    
+    console.log('Logout URL:', logoutUrl);
+    
+    const response = await fetch(logoutUrl, {
       method: 'POST',
       credentials: 'include' // Important for cookies
     });
@@ -212,8 +285,26 @@ export const logoutUser = async () => {
 export const getImageKitAuth = async () => {
   try {
     const token = localStorage.getItem('token');
+    let imageKitUrl;
     
-    const response = await fetch(`${API_URL}/imagekit/auth`, {
+    if (isNetlify) {
+      imageKitUrl = `${NETLIFY_API_URL}/imagekit/auth`;
+      console.log('Using Netlify Functions for ImageKit auth');
+    } else if (isLocalhost) {
+      const isLocalApiAvailable = await checkApiAvailability(API_URL);
+      if (!isLocalApiAvailable) {
+        console.log('Local API not available, using fallback API for ImageKit auth');
+        imageKitUrl = `${FALLBACK_URL}/imagekit/auth`;
+      } else {
+        imageKitUrl = `${API_URL}/imagekit/auth`;
+      }
+    } else {
+      imageKitUrl = `${API_URL}/imagekit/auth`;
+    }
+    
+    console.log('ImageKit Auth URL:', imageKitUrl);
+    
+    const response = await fetch(imageKitUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`

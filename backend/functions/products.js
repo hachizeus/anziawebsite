@@ -20,11 +20,11 @@ exports.handler = async function(event, context) {
   try {
     // Sample products data
     const products = [
-      { id: 1, name: 'Laptop', price: 999, category: 'Electronics' },
-      { id: 2, name: 'Smartphone', price: 699, category: 'Electronics' },
-      { id: 3, name: 'Headphones', price: 199, category: 'Audio' },
-      { id: 4, name: 'Monitor', price: 349, category: 'Electronics' },
-      { id: 5, name: 'Keyboard', price: 89, category: 'Accessories' }
+      { id: 1, name: 'Laptop', price: 999, category: 'Electronics', image: 'https://ik.imagekit.io/q5jukn457/laptop.jpg' },
+      { id: 2, name: 'Smartphone', price: 699, category: 'Electronics', image: 'https://ik.imagekit.io/q5jukn457/smartphone.jpg' },
+      { id: 3, name: 'Headphones', price: 199, category: 'Audio', image: 'https://ik.imagekit.io/q5jukn457/headphones.jpg' },
+      { id: 4, name: 'Monitor', price: 349, category: 'Electronics', image: 'https://ik.imagekit.io/q5jukn457/monitor.jpg' },
+      { id: 5, name: 'Keyboard', price: 89, category: 'Accessories', image: 'https://ik.imagekit.io/q5jukn457/keyboard.jpg' }
     ];
 
     return {
