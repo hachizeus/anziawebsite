@@ -5,6 +5,9 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
 const isNetlify = API_URL.includes('netlify') || window.location.hostname.includes('netlify.app');
 const NETLIFY_FUNCTION_URL = isNetlify ? '/.netlify/functions' : null;
 
+// Netlify production URL - use this as fallback when localhost backend is unavailable
+const NETLIFY_PRODUCTION_URL = 'https://anzia-api.onrender.com/api';
+
 console.log('Using API URL:', isNetlify ? NETLIFY_FUNCTION_URL : API_URL);
 
 // ImageKit URL
@@ -14,10 +17,42 @@ console.log('Using ImageKit URL:', IMAGEKIT_URL);
 // Check if we're in development mode on localhost
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
+// Check if an API endpoint is available
+const checkApiAvailability = async (url) => {
+  try {
+    const response = await fetch(`${url}/health`, { 
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      mode: 'cors',
+      timeout: 3000 // 3 second timeout
+    });
+    return response.ok;
+  } catch (error) {
+    console.log('API availability check failed:', error);
+    return false;
+  }
+};
+
 // Get all products
 export const getProducts = async (filters = {}) => {
   try {
     console.log('Fetching products from API...');
+    
+    // For localhost, check if local API is available, if not use Netlify production API
+    let url;
+    if (isLocalhost) {
+      const isLocalApiAvailable = await checkApiAvailability(API_URL);
+      if (!isLocalApiAvailable) {
+        console.log('Local API not available, using Netlify production API');
+        url = `${NETLIFY_PRODUCTION_URL}/frontend/products`;
+      } else {
+        url = `${API_URL}/frontend/products`;
+      }
+    } else if (isNetlify) {
+      url = `${NETLIFY_FUNCTION_URL}/products`;
+    } else {
+      url = `${API_URL}/frontend/products`;
+    }
     // Build query parameters
     const queryParams = new URLSearchParams();
     if (filters.category && filters.category !== 'all') {
@@ -36,13 +71,9 @@ export const getProducts = async (filters = {}) => {
       queryParams.append('sortBy', filters.sortBy);
     }
     
-    // Fetch products from API
-    let url;
-    if (isNetlify) {
-      url = `${NETLIFY_FUNCTION_URL}/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    } else {
-      url = `${API_URL}/frontend/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    }
+    // Add query parameters to URL
+    url = `${url}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    
     console.log('Fetching products from URL:', url);
     const response = await fetch(url);
     console.log('API response status:', response.status);
