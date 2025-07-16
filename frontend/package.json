@@ -17,6 +17,7 @@
     "build": "node copy-assets.js && vite build && node scripts/copy-htaccess.js",
     "lint": "eslint .",
     "preview": "vite preview",
+    "start": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "optimize:images": "node scripts/convert-to-webp.js",
