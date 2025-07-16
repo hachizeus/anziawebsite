@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader } from '../utils/icons.jsx';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { supabase, loginUser } from '../services/api.js';
+import { loginUser } from '../services/api.js';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -19,7 +19,7 @@ const Login = () => {
     try {
       const result = await loginUser(formData.email, formData.password);
       if (result.success) {
-        login(result.session.access_token, result.user);
+        login(result.token, result.user);
         toast.success('Login successful!');
         navigate('/');
       } else {

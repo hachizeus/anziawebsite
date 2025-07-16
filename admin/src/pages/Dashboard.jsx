@@ -161,7 +161,7 @@ const Dashboard = () => {
       // Calculate products by category
       const productsByCategory = {};
       const categoryColors = {
-        'Power Tools & Workshop Gear': 'rgba(54, 162, 235, 0.6)',
+        'Power Tools & Workshop Gear': 'rgba(79, 70, 229, 0.6)', // primary color
         'Generators & Power Equipment': 'rgba(255, 99, 132, 0.6)',
         'Electronics & Appliances': 'rgba(255, 206, 86, 0.6)',
         'Other': 'rgba(153, 102, 255, 0.6)'
@@ -223,7 +223,7 @@ const Dashboard = () => {
       title: "Total Products",
       value: stats.totalProducts,
       icon: Home,
-      color: "bg-blue-500",
+      color: "bg-primary-500",
       description: "Total products listed",
     },
     {
@@ -260,7 +260,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+          <Loader className="w-8 h-8 text-primary-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading dashboard data...</p>
         </div>
       </div>
@@ -278,7 +278,7 @@ const Dashboard = () => {
           <p className="text-gray-500 mb-4">{stats.error}</p>
           <button
             onClick={fetchStats}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 
               transition-colors duration-200 flex items-center gap-2 mx-auto"
           >
             <TrendingUp className="w-4 h-4" />
@@ -304,7 +304,7 @@ const Dashboard = () => {
           </div>
           <button
             onClick={fetchStats}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 
               transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
           >
             <TrendingUp className="w-4 h-4" />
@@ -412,7 +412,13 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-md mb-6 sm:mb-8"
         >
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6">Product Categories</h2>
+          <div className="flex justify-between items-center mb-3 sm:mb-4 md:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Product Categories</h2>
+            <Link to="/add" className="text-sm text-primary-600 hover:text-primary-700 flex items-center">
+              <Plus className="w-4 h-4 mr-1" />
+              Add Product
+            </Link>
+          </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
             {Object.entries(PRODUCT_CATEGORIES).map(([category, icon], index) => (
@@ -422,7 +428,7 @@ const Dashboard = () => {
               >
                 <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                   <div className={`p-1.5 sm:p-2 rounded-full ${
-                    index === 0 ? 'bg-blue-100 text-blue-600' : 
+                    index === 0 ? 'bg-primary-100 text-primary-600' : 
                     index === 1 ? 'bg-red-100 text-red-600' : 
                     'bg-yellow-100 text-yellow-600'
                   }`}>
@@ -462,6 +468,21 @@ const Dashboard = () => {
                     </>
                   )}
                 </div>
+                
+                <div className="mt-4 flex justify-between items-center">
+                  <Link 
+                    to={`/list?category=${encodeURIComponent(category)}`}
+                    className="text-xs sm:text-sm text-primary-600 hover:text-primary-700"
+                  >
+                    View Products
+                  </Link>
+                  <Link 
+                    to={`/add?category=${encodeURIComponent(category)}`}
+                    className="text-xs sm:text-sm bg-primary-50 text-primary-600 px-2 py-1 rounded hover:bg-primary-100"
+                  >
+                    Add New
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
@@ -489,15 +510,15 @@ const Dashboard = () => {
                   className="flex items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 hover:bg-gray-50 rounded-lg 
                     transition-colors duration-200"
                 >
-                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                  <div className="p-1.5 sm:p-2 bg-primary-100 rounded-lg flex-shrink-0">
                     {activity.type === 'property' ? (
-                      <Home className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                      <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
                     ) : activity.type === 'customer' ? (
                       <Users className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
                     ) : activity.type === 'order' ? (
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
                     ) : (
-                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
                     )}
                   </div>
                   <div className="min-w-0">

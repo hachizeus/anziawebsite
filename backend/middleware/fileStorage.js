@@ -1,8 +1,6 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import ImageKit from 'imagekit';
+import imagekit from '../config/imagekit.js';
 
 // Configure storage - ensure we're using memory storage only
 const storage = multer.memoryStorage();
@@ -24,6 +22,8 @@ const fileFilter = (req, file, cb) => {
     'image/jpeg',
     'image/png',
     'image/gif',
+    'image/webp',
+    'image/svg+xml',
     // Others
     'application/zip',
     'application/x-zip-compressed'
@@ -32,7 +32,7 @@ const fileFilter = (req, file, cb) => {
   if (allowedFileTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only documents, images, and zip files are allowed.'), false);
+    cb(new Error(`Invalid file type: ${file.mimetype}. Only documents, images, and zip files are allowed.`), false);
   }
 };
 
@@ -45,98 +45,79 @@ const upload = multer({
   }
 });
 
-// Upload file to storage and return URL
-export const uploadToStorage = async (file) => {
+// Upload file to ImageKit and return URL
+export const uploadToStorage = async (file, folder = '/documents') => {
   try {
-    console.log('ImageKit config:', {
-      publicKey: process.env.IMAGEKIT_PUBLIC_KEY ? 'exists' : 'missing',
-      privateKey: process.env.IMAGEKIT_PRIVATE_KEY ? 'exists' : 'missing',
-      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT ? 'exists' : 'missing'
-    });
-    
-    if (!process.env.IMAGEKIT_PUBLIC_KEY || !process.env.IMAGEKIT_PRIVATE_KEY || !process.env.IMAGEKIT_URL_ENDPOINT) {
-      throw new Error('ImageKit configuration missing');
-    }
-    
-    const imagekit = new ImageKit({
-      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-      privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
-    });
-    
-    // Use base64 encoding like in product controller
+    // Use base64 encoding for the file
     const encodedFile = file.buffer.toString('base64');
     const uniqueFilename = `${uuidv4()}-${file.originalname}`;
     
     console.log('Uploading to ImageKit:', {
       fileName: uniqueFilename,
+      folder: folder,
       bufferSize: encodedFile.length
     });
     
     const result = await imagekit.upload({
       file: encodedFile,
       fileName: uniqueFilename,
-      folder: '/documents'
+      folder: folder,
+      useUniqueFileName: true,
+      tags: ['api-upload']
     });
     
     console.log('ImageKit upload success:', result.url);
     return result.url;
   } catch (error) {
     console.error('Error uploading to ImageKit:', error);
-    
-    // Create a directory for uploads if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'uploads', 'documents');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    // Generate a unique filename
-    const uniqueFilename = `${uuidv4()}-${file.originalname}`;
-    const filePath = path.join(uploadDir, uniqueFilename);
-    
-    // Write the file to disk
-    fs.writeFileSync(filePath, file.buffer);
-    
-    // Return a local URL
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-    const localUrl = `${baseUrl}/uploads/documents/${uniqueFilename}`;
-    
-    console.log('Fallback to local storage:', localUrl);
-    return localUrl;
+    throw new Error(`Failed to upload file: ${error.message}`);
   }
 };
 
-// Delete file from storage
+// Delete file from ImageKit
 export const deleteFromStorage = async (fileUrl) => {
   try {
-    // Check if it's an ImageKit URL
-    if (fileUrl.includes('imagekit.io')) {
-      const imagekit = new ImageKit({
-        publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-        privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-        urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
-      });
-      
-      // Extract file ID from URL
-      const fileId = fileUrl.split('/').pop().split('.')[0];
-      
-      // Delete from ImageKit
-      await imagekit.deleteFile(fileId);
-    } else {
-      // Local file deletion as fallback
-      const filename = fileUrl.split('/').pop();
-      const filePath = path.join(process.cwd(), 'uploads/documents', filename);
-      
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+    if (!fileUrl || !fileUrl.includes('ik.imagekit.io')) {
+      console.warn('Not an ImageKit URL, skipping delete:', fileUrl);
+      return false;
     }
+    
+    // Extract file ID from URL
+    const urlParts = fileUrl.split('/');
+    const fileIdWithExt = urlParts[urlParts.length - 1];
+    const fileId = fileIdWithExt.split('.')[0];
+    
+    if (!fileId) {
+      console.warn('Could not extract file ID from URL:', fileUrl);
+      return false;
+    }
+    
+    // Delete from ImageKit
+    await imagekit.deleteFile(fileId);
+    console.log('File deleted successfully from ImageKit:', fileId);
     
     return true;
   } catch (error) {
-    console.error('Error deleting file:', error);
+    console.error('Error deleting file from ImageKit:', error);
     return false;
   }
+};
+
+// Upload multiple files to ImageKit
+export const uploadMultipleFiles = async (files, folder = '/documents') => {
+  try {
+    const uploadPromises = files.map(file => uploadToStorage(file, folder));
+    const urls = await Promise.all(uploadPromises);
+    return urls;
+  } catch (error) {
+    console.error('Error uploading multiple files:', error);
+    throw new Error(`Failed to upload multiple files: ${error.message}`);
+  }
+};
+
+// Get ImageKit authentication parameters for frontend uploads
+export const getAuthenticationParameters = () => {
+  return imagekit.getAuthenticationParameters();
 };
 
 export default upload;

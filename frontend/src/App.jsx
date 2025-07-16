@@ -12,6 +12,7 @@ import Signup from './pages/Signup';
 import Cart from './pages/Cart';
 import Contact from './pages/Contact';
 import About from './pages/About';
+import Help from './pages/Help';
 import Admin from './pages/Admin';
 import ProductDetail from './components/products/productdetail';
 import UserDashboard from './components/UserDashboard';
@@ -67,6 +68,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            <Route path="/help" element={<Help />} />
             
             <Route 
               path="/admin" 

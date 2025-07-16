@@ -1,56 +1,64 @@
-import { supabase, supabaseAdmin } from '../config/supabase.js';
+import { getCollection } from '../config/mongodb.js';
+import { ObjectId } from 'mongodb';
+import { uploadToStorage } from '../middleware/fileStorage.js';
 
 // Get all products
 export const getAllProducts = async (req, res) => {
   try {
     const { category, search, minPrice, maxPrice, sortBy, featured } = req.query;
     
-    let query = supabase.from('products').select('*');
+    // Build query filter
+    const filter = {};
 
     // Category filter
     if (category && category !== 'all') {
-      query = query.eq('category', category);
+      filter.category = category;
     }
 
     // Search filter
     if (search) {
-      query = query.or(`name.ilike.%${search}%,brand.ilike.%${search}%,category.ilike.%${search}%,description.ilike.%${search}%`);
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
     }
 
     // Price filter
-    if (minPrice) {
-      query = query.gte('price', parseInt(minPrice));
-    }
-    if (maxPrice) {
-      query = query.lte('price', parseInt(maxPrice));
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseFloat(minPrice);
+      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
     }
 
     // Featured filter
     if (featured === 'true') {
-      query = query.not('original_price', 'is', null);
+      filter.original_price = { $ne: null };
     }
 
-    // Sort
+    // Sort options
+    const sortOptions = {};
     switch (sortBy) {
       case 'price-low':
-        query = query.order('price', { ascending: true });
+        sortOptions.price = 1;
         break;
       case 'price-high':
-        query = query.order('price', { ascending: false });
+        sortOptions.price = -1;
         break;
       case 'name':
-        query = query.order('name', { ascending: true });
+        sortOptions.name = 1;
         break;
       case 'rating':
-        query = query.order('rating', { ascending: false });
+        sortOptions.rating = -1;
         break;
       default:
-        query = query.order('created_at', { ascending: false });
+        sortOptions.created_at = -1;
     }
 
-    const { data: products, error } = await query;
-    
-    if (error) throw error;
+    // Get products collection
+    const productsCollection = await getCollection('products');
+    const products = await productsCollection.find(filter).sort(sortOptions).toArray();
     
     res.json({
       success: true,
@@ -68,13 +76,21 @@ export const getAllProducts = async (req, res) => {
 // Get product by ID
 export const getProductById = async (req, res) => {
   try {
-    const { data: product, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', req.params.id)
-      .single();
+    const productsCollection = await getCollection('products');
     
-    if (error || !product) {
+    let productId;
+    try {
+      productId = new ObjectId(req.params.id);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID format'
+      });
+    }
+    
+    const product = await productsCollection.findOne({ _id: productId });
+    
+    if (!product) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
@@ -97,12 +113,32 @@ export const getProductById = async (req, res) => {
 // Add new product
 export const addProduct = async (req, res) => {
   try {
+    // Parse features properly
+    let features = [];
+    if (req.body.features) {
+      if (typeof req.body.features === 'string') {
+        if (req.body.features.startsWith('[')) {
+          try {
+            features = JSON.parse(req.body.features);
+          } catch (e) {
+            features = req.body.features.split(',').map(f => f.trim());
+          }
+        } else {
+          features = req.body.features.split(',').map(f => f.trim());
+        }
+      } else {
+        features = req.body.features;
+      }
+    }
+
     const productData = {
       ...req.body,
       price: parseFloat(req.body.price),
       original_price: req.body.originalPrice ? parseFloat(req.body.originalPrice) : null,
       stock_quantity: parseInt(req.body.stockQuantity) || 0,
-      features: req.body.features ? req.body.features.split(',').map(f => f.trim()) : []
+      features: features,
+      created_at: new Date(),
+      updated_at: new Date()
     };
 
     // Handle image uploads
@@ -111,18 +147,11 @@ export const addProduct = async (req, res) => {
       for (let i = 1; i <= 4; i++) {
         const file = req.files[`image${i}`];
         if (file && file[0]) {
-          const fileName = `${Date.now()}-${file[0].originalname}`;
-          const { data, error } = await supabaseAdmin.storage
-            .from('product-images')
-            .upload(fileName, file[0].buffer, {
-              contentType: file[0].mimetype
-            });
-          
-          if (!error) {
-            const { data: { publicUrl } } = supabaseAdmin.storage
-              .from('product-images')
-              .getPublicUrl(fileName);
-            imageUrls.push(publicUrl);
+          try {
+            const imageUrl = await uploadToStorage(file[0], '/product-images');
+            imageUrls.push(imageUrl);
+          } catch (uploadError) {
+            console.error(`Error uploading image ${i}:`, uploadError);
           }
         }
       }
@@ -132,13 +161,17 @@ export const addProduct = async (req, res) => {
       productData.images = imageUrls;
     }
 
-    const { data: product, error } = await supabase
-      .from('products')
-      .insert([productData])
-      .select()
-      .single();
+    console.log('Product data being inserted:', productData);
+
+    const productsCollection = await getCollection('products');
+    const result = await productsCollection.insertOne(productData);
     
-    if (error) throw error;
+    if (!result.acknowledged) {
+      throw new Error('Failed to insert product');
+    }
+    
+    // Get the inserted product
+    const product = await productsCollection.findOne({ _id: result.insertedId });
     
     res.status(201).json({
       success: true,
@@ -149,7 +182,8 @@ export const addProduct = async (req, res) => {
     console.error('Error creating product:', error);
     res.status(500).json({
       success: false,
-      message: 'Error creating product'
+      message: 'Error creating product',
+      error: error.message
     });
   }
 };
@@ -157,22 +191,78 @@ export const addProduct = async (req, res) => {
 // Update product
 export const updateProduct = async (req, res) => {
   try {
+    // Parse features properly
+    let features = [];
+    if (req.body.features) {
+      if (typeof req.body.features === 'string') {
+        if (req.body.features.startsWith('[')) {
+          try {
+            features = JSON.parse(req.body.features);
+          } catch (e) {
+            features = req.body.features.split(',').map(f => f.trim());
+          }
+        } else {
+          features = req.body.features.split(',').map(f => f.trim());
+        }
+      } else {
+        features = req.body.features;
+      }
+    }
+
     const productData = {
       ...req.body,
       price: parseFloat(req.body.price),
       original_price: req.body.originalPrice ? parseFloat(req.body.originalPrice) : null,
       stock_quantity: parseInt(req.body.stockQuantity) || 0,
-      features: req.body.features ? req.body.features.split(',').map(f => f.trim()) : []
+      features: features,
+      updated_at: new Date()
     };
 
-    const { data: product, error } = await supabase
-      .from('products')
-      .update(productData)
-      .eq('id', req.params.id)
-      .select()
-      .single();
+    // Handle image uploads if there are any
+    if (req.files && Object.keys(req.files).length > 0) {
+      const imageUrls = [];
+      for (let i = 1; i <= 4; i++) {
+        const file = req.files[`image${i}`];
+        if (file && file[0]) {
+          try {
+            const imageUrl = await uploadToStorage(file[0], '/product-images');
+            imageUrls.push(imageUrl);
+          } catch (uploadError) {
+            console.error(`Error uploading image ${i}:`, uploadError);
+          }
+        }
+      }
+
+      if (imageUrls.length > 0) {
+        productData.images = imageUrls;
+      }
+    }
+
+    let productId;
+    try {
+      productId = new ObjectId(req.params.id);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID format'
+      });
+    }
+
+    const productsCollection = await getCollection('products');
+    const result = await productsCollection.updateOne(
+      { _id: productId },
+      { $set: productData }
+    );
     
-    if (error) throw error;
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+    
+    // Get the updated product
+    const product = await productsCollection.findOne({ _id: productId });
     
     res.json({
       success: true,
@@ -191,12 +281,25 @@ export const updateProduct = async (req, res) => {
 // Delete product
 export const deleteProduct = async (req, res) => {
   try {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', req.params.id);
+    let productId;
+    try {
+      productId = new ObjectId(req.params.id);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID format'
+      });
+    }
+
+    const productsCollection = await getCollection('products');
+    const result = await productsCollection.deleteOne({ _id: productId });
     
-    if (error) throw error;
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
     
     res.json({
       success: true,
@@ -211,9 +314,75 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
+// Toggle product availability
+export const toggleProductAvailability = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product ID is required'
+      });
+    }
+    
+    let objectId;
+    try {
+      objectId = new ObjectId(productId);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID format'
+      });
+    }
+    
+    const productsCollection = await getCollection('products');
+    
+    // First get the current product to check its availability
+    const product = await productsCollection.findOne({ _id: objectId });
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+    
+    // Toggle the availability
+    const newAvailability = product.availability === 'in-stock' ? 'out-of-stock' : 'in-stock';
+    
+    // Update the product
+    const result = await productsCollection.updateOne(
+      { _id: objectId },
+      { $set: { availability: newAvailability, updated_at: new Date() } }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+    
+    // Get the updated product
+    const updatedProduct = await productsCollection.findOne({ _id: objectId });
+    
+    res.json({
+      success: true,
+      message: `Product availability updated to ${newAvailability}`,
+      product: updatedProduct
+    });
+  } catch (error) {
+    console.error('Error toggling product availability:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating product availability'
+    });
+  }
+};
+
 // Legacy exports for compatibility
 export const createProduct = addProduct;
 export const getAvailableProducts = getAllProducts;
 export const getFeaturedProducts = getAllProducts;
 export const getProductsByCategory = getAllProducts;
-export const toggleProductAvailability = updateProduct;

@@ -114,7 +114,7 @@ const Sidebar = () => {
           <Link
             to="/dashboard"
             className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/dashboard') ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+              isActive('/dashboard') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
             <Home className="w-5 h-5 min-w-[20px]" />
@@ -125,7 +125,7 @@ const Sidebar = () => {
           <Link
             to="/list"
             className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/list') ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+              isActive('/list') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
             <List className="w-5 h-5 min-w-[20px]" />
@@ -136,7 +136,7 @@ const Sidebar = () => {
           <Link
             to="/add"
             className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/add') ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+              isActive('/add') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
             <Plus className="w-5 h-5 min-w-[20px]" />
@@ -147,7 +147,7 @@ const Sidebar = () => {
           <Link
             to="/orders"
             className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/orders') ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+              isActive('/orders') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
             <Calendar className="w-5 h-5 min-w-[20px]" />
@@ -159,7 +159,7 @@ const Sidebar = () => {
             <button
               onClick={() => toggleMenu('analytics')}
               className={`w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 transition-colors ${
-                isSubActive(['/analytics']) ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+                isSubActive(['/analytics']) ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
               }`}
             >
               <div className="flex items-center">
@@ -176,7 +176,7 @@ const Sidebar = () => {
                 <Link
                   to="/analytics/dashboard"
                   className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/analytics/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-700'
+                    isActive('/analytics/dashboard') ? 'text-primary-600 font-medium' : 'text-gray-700'
                   }`}
                 >
                   <PieChart className="w-4 h-4 min-w-[16px]" />
@@ -186,7 +186,7 @@ const Sidebar = () => {
                 <Link
                   to="/analytics/financial"
                   className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/analytics/financial') ? 'text-blue-600 font-medium' : 'text-gray-700'
+                    isActive('/analytics/financial') ? 'text-primary-600 font-medium' : 'text-gray-700'
                   }`}
                 >
                   <DollarSign className="w-4 h-4 min-w-[16px]" />
@@ -196,7 +196,7 @@ const Sidebar = () => {
                 <Link
                   to="/analytics/properties"
                   className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/analytics/properties') ? 'text-blue-600 font-medium' : 'text-gray-700'
+                    isActive('/analytics/properties') ? 'text-primary-600 font-medium' : 'text-gray-700'
                   }`}
                 >
                   <Home className="w-4 h-4 min-w-[16px]" />
@@ -206,54 +206,14 @@ const Sidebar = () => {
             )}
           </div>
           
-          {/* Documents Dropdown */}
-          <div>
-            <button
-              onClick={() => toggleMenu('documents')}
-              className={`w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 transition-colors ${
-                isSubActive(['/documents']) ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
-              }`}
-            >
-              <div className="flex items-center">
-                <FileText className="w-5 h-5 min-w-[20px]" />
-                {expanded && <span className="ml-4 whitespace-nowrap">Documents</span>}
-              </div>
-              {expanded && (
-                <ChevronRight className={`w-4 h-4 transition-transform ${expandedMenus.documents ? 'rotate-90' : ''}`} />
-              )}
-            </button>
-            
-            {expanded && expandedMenus.documents && (
-              <div className="pl-4 space-y-1 bg-gray-50">
-                <Link
-                  to="/documents"
-                  className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/documents') ? 'text-blue-600 font-medium' : 'text-gray-700'
-                  }`}
-                >
-                  <List className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 whitespace-nowrap">All Documents</span>
-                </Link>
-                
-                <Link
-                  to="/documents/upload"
-                  className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/documents/upload') ? 'text-blue-600 font-medium' : 'text-gray-700'
-                  }`}
-                >
-                  <Plus className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 whitespace-nowrap">Upload Document</span>
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Documents section removed */}
           
           {/* Blog Management Dropdown */}
           <div>
             <button
               onClick={() => toggleMenu('blogs')}
               className={`w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 transition-colors ${
-                isSubActive(['/blogs']) ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+                isSubActive(['/blogs']) ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
               }`}
             >
               <div className="flex items-center">
@@ -270,7 +230,7 @@ const Sidebar = () => {
                 <Link
                   to="/blogs"
                   className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/blogs') ? 'text-blue-600 font-medium' : 'text-gray-700'
+                    isActive('/blogs') ? 'text-primary-600 font-medium' : 'text-gray-700'
                   }`}
                 >
                   <List className="w-4 h-4 min-w-[16px]" />
@@ -280,7 +240,7 @@ const Sidebar = () => {
                 <Link
                   to="/blogs/create"
                   className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/blogs/create') ? 'text-blue-600 font-medium' : 'text-gray-700'
+                    isActive('/blogs/create') ? 'text-primary-600 font-medium' : 'text-gray-700'
                   }`}
                 >
                   <Plus className="w-4 h-4 min-w-[16px]" />
@@ -294,7 +254,7 @@ const Sidebar = () => {
           <Link
             to="/users"
             className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/users') ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+              isActive('/users') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
             <User className="w-5 h-5 min-w-[20px]" />
@@ -305,7 +265,7 @@ const Sidebar = () => {
           <Link
             to="/newsletter"
             className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/newsletter') ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700'
+              isActive('/newsletter') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
             <Mail className="w-5 h-5 min-w-[20px]" />

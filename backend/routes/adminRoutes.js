@@ -1,5 +1,5 @@
 import express from 'express';
-import { supabase } from '../config/supabase.js';
+import { getCollection } from '../config/mongodb.js';
 
 const router = express.Router();
 
@@ -7,14 +7,12 @@ const router = express.Router();
 router.get('/stats', async (req, res) => {
   try {
     // Get product count
-    const { count: productCount } = await supabase
-      .from('products')
-      .select('*', { count: 'exact', head: true });
+    const productsCollection = await getCollection('products');
+    const productCount = await productsCollection.countDocuments();
     
     // Get user count
-    const { count: userCount } = await supabase
-      .from('user_profiles')
-      .select('*', { count: 'exact', head: true });
+    const usersCollection = await getCollection('users');
+    const userCount = await usersCollection.countDocuments();
     
     res.json({
       success: true,

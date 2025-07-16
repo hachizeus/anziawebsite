@@ -133,7 +133,7 @@ const ProductForm = () => {
       formdata.append('availability', formData.availability);
       formdata.append('condition', formData.condition);
       formdata.append('warranty', formData.warranty);
-      formdata.append('features', JSON.stringify(formData.features));
+      formdata.append('features', JSON.stringify(formData.features || []));
       
       // Append images
       formData.images.forEach((image, index) => {
@@ -142,7 +142,7 @@ const ProductForm = () => {
 
       const token = localStorage.getItem("token");
       
-      const apiUrl = `${backendurl}/api/products/add`;
+      const apiUrl = `${backendurl}/api/legacy-products/add`;
       
       const response = await axios.post(apiUrl, formdata, {
         headers: {

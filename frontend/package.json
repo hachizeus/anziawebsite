@@ -33,7 +33,7 @@
     "@radix-ui/react-slot": "^1.1.1",
     "@react-spring/web": "^9.7.5",
     "@shadcn/ui": "^0.0.4",
-    "@supabase/supabase-js": "^2.51.0",
+
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",

@@ -43,7 +43,7 @@ const ProductListings = () => {
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${backendurl}/api/products/list`);
+      const response = await axios.get(`${backendurl}/api/legacy-products/list`);
       if (response.data.success) {
         const parsedProducts = response.data.products.map(product => ({
           ...product,
@@ -69,7 +69,7 @@ const ProductListings = () => {
   const handleRemoveProduct = async (productId, productName) => {
     if (window.confirm(`Are you sure you want to remove "${productName}"?`)) {
       try {
-        const response = await axios.delete(`${backendurl}/api/products/remove/${productId}`);
+        const response = await axios.delete(`${backendurl}/api/legacy-products/remove/${productId}`);
 
         if (response.data.success) {
           toast.success("Product removed successfully");
@@ -86,18 +86,18 @@ const ProductListings = () => {
   
   const handleToggleAvailability = async (productId) => {
     try {
-      const token = localStorage.getItem("token");
+      console.log('Toggling availability for product:', productId);
       const response = await axios.post(
-        `${backendurl}/api/products/toggle-availability`, 
-        { productId },
-        { headers: { Authorization: `Bearer ${token}` }}
+        `${backendurl}/api/legacy-products/toggle-availability`, 
+        { productId }
       );
 
       if (response.data.success) {
-        toast.success(`Product availability updated`);
+        const newStatus = response.data.product.availability;
+        toast.success(`Product availability updated to ${newStatus.replace('-', ' ')}`);
         await fetchProducts();
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || 'Failed to update availability');
       }
     } catch (error) {
       console.error("Error toggling product availability:", error);
@@ -217,11 +217,17 @@ const ProductListings = () => {
               >
                 {/* Product Image */}
                 <div className="relative h-48">
-                  <img
-                    src={product.image1 || "/placeholder.jpg"}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-400">No Image</span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-4 left-4">
                     <span className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full">

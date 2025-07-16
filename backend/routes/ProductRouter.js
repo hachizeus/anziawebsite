@@ -29,6 +29,6 @@ productRouter.put('/update/:id', upload.fields([
     { name: "image4", maxCount: 1 }
 ]), updateProduct);
 productRouter.get('/single/:id', getProductById);
-productRouter.post('/toggle-availability', protect, admin, toggleProductAvailability);
+productRouter.post('/toggle-availability', toggleProductAvailability);
 
 export default productRouter;

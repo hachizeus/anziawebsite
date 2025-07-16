@@ -1,81 +1,185 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://kasdvsdakhvfgynmjcxi.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imthc2R2c2Rha2h2Zmd5bm1qY3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NzcxOTAsImV4cCI6MjA2ODA1MzE5MH0.OKqPtJnqh_v_M5-ImU2Ag9ovYJqS4l3o4DcVJk-Jv60';
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 // Backend API URL
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+console.log('Using API URL:', API_URL);
 
-// Direct Supabase operations
+// ImageKit URL
+const IMAGEKIT_URL = import.meta.env.VITE_IMAGEKIT_URL || 'https://ik.imagekit.io/q5jukn457';
+console.log('Using ImageKit URL:', IMAGEKIT_URL);
+
+// Get all products
 export const getProducts = async (filters = {}) => {
   try {
-    let query = supabase.from('products').select('*');
+    console.log('Fetching products from API...');
     
+    // Build query parameters
+    const queryParams = new URLSearchParams();
     if (filters.category && filters.category !== 'all') {
-      query = query.eq('category', filters.category);
+      queryParams.append('category', filters.category);
     }
-    
     if (filters.search) {
-      query = query.or(`name.ilike.%${filters.search}%,brand.ilike.%${filters.search}%`);
+      queryParams.append('search', filters.search);
+    }
+    if (filters.minPrice) {
+      queryParams.append('minPrice', filters.minPrice);
+    }
+    if (filters.maxPrice) {
+      queryParams.append('maxPrice', filters.maxPrice);
+    }
+    if (filters.sortBy) {
+      queryParams.append('sortBy', filters.sortBy);
     }
     
-    const { data, error } = await query.order('created_at', { ascending: false });
+    // Fetch products from API
+    const url = `${API_URL}/frontend/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const response = await fetch(url);
+    console.log('API response status:', response.status);
     
-    if (error) throw error;
-    return { success: true, products: data || [] };
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('API result:', result);
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to fetch products');
+    }
+    
+    let products = result.products || [];
+    console.log('Products count:', products.length);
+    
+    // Log the first product to see its structure
+    if (products.length > 0) {
+      console.log('First product structure:', products[0]);
+    }
+    
+    return { success: true, products };
   } catch (error) {
     console.error('Error fetching products:', error);
-    return { success: false, products: [] };
+    return { success: false, products: [], error: error.message };
   }
 };
 
+// Get product by ID
 export const getProductById = async (id) => {
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .single();
+    console.log('Fetching product by ID:', id);
     
-    if (error) throw error;
-    return { success: true, product: data };
+    const response = await fetch(`${API_URL}/frontend/products/${id}`);
+    console.log('API response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('API result:', result);
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to fetch product');
+    }
+    
+    return { success: true, product: result.product };
   } catch (error) {
     console.error('Error fetching product:', error);
-    return { success: false, product: null };
+    return { success: false, product: null, error: error.message };
   }
 };
 
 // User authentication functions
 export const registerUser = async (userData) => {
-  const { data, error } = await supabase.auth.signUp({
-    email: userData.email,
-    password: userData.password,
-    options: {
-      data: {
-        name: userData.name
-      }
+  try {
+    const response = await fetch(`${API_URL}/users/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Registration failed');
     }
-  });
-  
-  if (error) throw error;
-  return { success: true, user: data.user };
+    
+    const data = await response.json();
+    return { success: true, user: data.user };
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
 };
 
 export const loginUser = async (email, password) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-  
-  if (error) throw error;
-  return { success: true, user: data.user, session: data.session };
+  try {
+    const response = await fetch(`${API_URL}/users/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password }),
+      credentials: 'include' // Important for cookies
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Login failed');
+    }
+    
+    const data = await response.json();
+    return { 
+      success: true, 
+      user: data.user, 
+      token: data.token,
+      session: { access_token: data.token } // Add this for compatibility
+    };
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
 };
 
 export const logoutUser = async () => {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
-  return { success: true };
+  try {
+    const response = await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include' // Important for cookies
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Logout failed');
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Logout error:', error);
+    throw error;
+  }
 };
 
+// Get ImageKit authentication parameters for frontend uploads
+export const getImageKitAuth = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch(`${API_URL}/imagekit/auth`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to get ImageKit authentication');
+    }
+    
+    const data = await response.json();
+    return { success: true, authParams: data.authParams };
+  } catch (error) {
+    console.error('ImageKit auth error:', error);
+    throw error;
+  }
+};

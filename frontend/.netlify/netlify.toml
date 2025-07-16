@@ -1,0 +1,57 @@
+headersOrigin = "config"
+redirectsOrigin = "config"
+plugins = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "C:\\Users\\victo\\Desktop\\Real-Estate-Website\\frontend\\dist"
+publishOrigin = "config"
+commandOrigin = "config"
+base = "C:\\Users\\victo\\Desktop\\Real-Estate-Website\\frontend"
+command = "npm run build"
+
+[build.environment]
+NODE_VERSION = "18"
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+Access-Control-Allow-Origin = "https://makini-realtors-backend.onrender.com"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+Access-Control-Allow-Headers = "Content-Type, Authorization, Accept, Origin, X-Requested-With"
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+Access-Control-Allow-Headers = "Content-Type, Authorization, Accept, Origin, X-Requested-With"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

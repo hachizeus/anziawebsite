@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Loader } from '../utils/icons.jsx';
 import { toast } from "react-toastify";
 import { useAuth } from '../context/AuthContext';
-import { supabase, loginUser, registerUser } from '../services/api';
+import { loginUser, registerUser } from '../services/api';
 import axios from 'axios';
 
 const Login = () => {

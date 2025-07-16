@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import { supabase } from '../config/supabase.js';
 
 // Protection middleware - NEVER FAIL
 export const protect = async (req, res, next) => {

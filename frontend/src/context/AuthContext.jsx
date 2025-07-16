@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { supabase, loginUser, logoutUser } from "../services/api";
+import { loginUser, logoutUser } from "../services/api";
 
 const AuthContext = createContext(null);
 
@@ -11,8 +11,12 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = () => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("userData");
+    const loginTime = localStorage.getItem("loginTime");
     
-    if (token && userData) {
+    // Check if token is expired (24 hours)
+    const isTokenExpired = loginTime && (Date.now() - parseInt(loginTime)) > 24 * 60 * 60 * 1000;
+    
+    if (token && userData && !isTokenExpired) {
       try {
         const parsedUserData = JSON.parse(userData);
         console.log("Using cached user data:", parsedUserData);
@@ -22,8 +26,19 @@ export const AuthProvider = ({ children }) => {
         console.error("Error parsing user data:", error);
         setIsLoggedIn(false);
         setUser(null);
+        // Clear invalid data
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("loginTime");
       }
     } else {
+      // Clear expired token
+      if (isTokenExpired) {
+        console.log("Token expired, logging out");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("loginTime");
+      }
       setIsLoggedIn(false);
       setUser(null);
     }

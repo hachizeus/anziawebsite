@@ -102,6 +102,41 @@ const Navbar = () => {
   const isTenant = userRole === 'tenant';
   const isAgent = userRole === 'agent';
   
+  // Get cart count from localStorage
+  const [cartCount, setCartCount] = useState(0);
+  
+  useEffect(() => {
+    const updateCartCount = () => {
+      try {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const count = cart.length; // Count number of unique items, not quantities
+        console.log('Cart count updated:', count, 'items in cart:', cart);
+        setCartCount(count);
+      } catch (e) {
+        console.error('Error getting cart count:', e);
+        setCartCount(0);
+      }
+    };
+    
+    // Initial count
+    updateCartCount();
+    
+    // Listen for storage changes
+    window.addEventListener('storage', updateCartCount);
+    
+    // Custom event for cart updates
+    window.addEventListener('cartUpdated', updateCartCount);
+    
+    // Set up interval to periodically check cart (backup for missed events)
+    const intervalId = setInterval(updateCartCount, 2000);
+    
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+      window.removeEventListener('cartUpdated', updateCartCount);
+      clearInterval(intervalId);
+    };
+  }, []);
+
   // Navigation links
   const navLinks = [
     { name: "Home", path: "/", icon: Home },
@@ -109,6 +144,18 @@ const Navbar = () => {
     { name: "Categories", path: "/categories", icon: Search },
     { name: "About", path: "/about", icon: Users },
     { name: "Contact", path: "/contact", icon: MessageCircle },
+    { 
+      name: "Help", 
+      path: "/help", 
+      icon: Star,
+      dropdown: [
+        { name: "FAQs", path: "/help#faqs" },
+        { name: "Shipping", path: "/help#shipping" },
+        { name: "Returns & Refunds", path: "/help#returns" },
+        { name: "Payment", path: "/help#payment" },
+        { name: "Contact Us", path: "/help#contact" },
+      ]
+    },
   ];
   
   // Add Dashboard link for users
@@ -153,44 +200,53 @@ const Navbar = () => {
           {/* Auth Buttons - Right */}
           <div className="hidden md:flex items-center">
             {isLoggedIn ? (
-              <div className="relative" ref={dropdownRef}>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    console.log('User object:', user);
-                    console.log('Profile picture URL:', user?.profilePicture || user?.profileImage);
-                    toggleDropdown();
-                  }}
-                  className="flex items-center space-x-1 focus:outline-none"
-                  aria-label="User menu"
-                  aria-expanded={isDropdownOpen}
-                >
-                  <div className="relative">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-primary-500 to-primary-700 flex items-center justify-center text-white font-medium text-sm shadow-md hover:shadow-lg transition-shadow">
-                      {(user?.profilePicture || user?.profileImage) ? (
-                        <img 
-                          src={user.profilePicture || user.profileImage}
-                          alt={user?.name} 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            const parent = e.target.parentNode;
-                            if (parent && !parent.querySelector('.fallback-initials')) {
-                              const fallback = document.createElement('span');
-                              fallback.className = 'fallback-initials';
-                              fallback.textContent = getInitials(user?.name || "");
-                              parent.appendChild(fallback);
-                            }
-                          }}
-                        />
-                      ) : (
-                        getInitials(user?.name || "")
-                      )}
+              <div className="flex items-center space-x-4">
+                <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
+                  <ShoppingCart className="w-6 h-6" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+                <div className="relative" ref={dropdownRef}>
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      console.log('User object:', user);
+                      console.log('Profile picture URL:', user?.profilePicture || user?.profileImage);
+                      toggleDropdown();
+                    }}
+                    className="flex items-center space-x-1 focus:outline-none"
+                    aria-label="User menu"
+                    aria-expanded={isDropdownOpen}
+                  >
+                    <div className="relative">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-primary-500 to-primary-700 flex items-center justify-center text-white font-medium text-sm shadow-md hover:shadow-lg transition-shadow">
+                        {(user?.profilePicture || user?.profileImage) ? (
+                          <img 
+                            src={user.profilePicture || user.profileImage}
+                            alt={user?.name} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const parent = e.target.parentNode;
+                              if (parent && !parent.querySelector('.fallback-initials')) {
+                                const fallback = document.createElement('span');
+                                fallback.className = 'fallback-initials';
+                                fallback.textContent = getInitials(user?.name || "");
+                                parent.appendChild(fallback);
+                              }
+                            }}
+                          />
+                        ) : (
+                          getInitials(user?.name || "")
+                        )}
+                      </div>
+                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border-1 border-white rounded-full"></div>
                     </div>
-                    <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border-1 border-white rounded-full"></div>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </motion.button>
+                    <ChevronDown className="w-4 h-4 text-gray-600" />
+                  </motion.button>
 
                 {/* Dropdown Menu */}
                 <AnimatePresence>
@@ -209,7 +265,6 @@ const Navbar = () => {
                           {userRole === 'admin' ? 'Administrator' : 'Customer'}
                         </p>
                       </div>
-
 
                       
                       <button
@@ -234,14 +289,17 @@ const Navbar = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                </div>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
                 <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
                   <ShoppingCart className="w-6 h-6" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    0
-                  </span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
                 </Link>
                 <Link
                   to="/login"
@@ -298,9 +356,47 @@ const Navbar = () => {
             <div className="px-2 pt-3 pb-4">
               <div className="flex flex-col space-y-1 pb-3">
                 {/* Navigation Links */}
-                {navLinks.map(({ name, path, icon: Icon }) => {
+                {navLinks.map(({ name, path, icon: Icon, dropdown }) => {
                   const isActive =
                     path === "/" ? location.pathname === path : location.pathname.startsWith(path);
+
+                  if (dropdown) {
+                    return (
+                      <div key={name} className="space-y-1">
+                        <motion.div whileTap={{ scale: 0.97 }}>
+                          <Link
+                            to={path}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                              ${
+                                isActive
+                                  ? "bg-primary-500 text-white font-medium"
+                                  : "text-gray-800 hover:bg-primary-500 hover:text-white"
+                              }
+                            `}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <Icon className="w-5 h-5" />
+                            {name}
+                          </Link>
+                        </motion.div>
+                        
+                        <div className="pl-4 space-y-1">
+                          {dropdown.map((item) => (
+                            <motion.div key={item.name} whileTap={{ scale: 0.97 }}>
+                              <Link
+                                to={item.path}
+                                className="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
+                                {item.name}
+                              </Link>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
 
                   return (
                     <motion.div key={name} whileTap={{ scale: 0.97 }}>
@@ -427,6 +523,8 @@ const Navbar = () => {
 const NavLinks = ({ currentPath, navLinks }) => {
   // Special animation for sparkles
   const [sparkleKey, setSparkleKey] = useState(0);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const dropdownRefs = useRef({});
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -436,13 +534,65 @@ const NavLinks = ({ currentPath, navLinks }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const isAIHubActive = currentPath.startsWith("/ai-property-hub");
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdown && dropdownRefs.current[openDropdown] && 
+          !dropdownRefs.current[openDropdown].contains(event.target)) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openDropdown]);
+
+  const toggleDropdown = (name) => {
+    setOpenDropdown(openDropdown === name ? null : name);
+  };
 
   return (
     <div className="flex items-center space-x-2">
-      {navLinks.map(({ name, path, icon: Icon }) => {
+      {navLinks.map(({ name, path, icon: Icon, dropdown }) => {
         const isActive =
           path === "/" ? currentPath === path : currentPath.startsWith(path);
+
+        if (dropdown) {
+          return (
+            <div key={name} className="relative" ref={el => dropdownRefs.current[name] = el}>
+              <button
+                onClick={() => toggleDropdown(name)}
+                className={`relative font-medium transition-colors duration-200 flex items-center gap-1 px-2 py-1.5 rounded-md text-sm
+                  ${
+                    isActive
+                      ? "text-white bg-primary-500"
+                      : "text-gray-800 hover:text-white hover:bg-primary-500"
+                  }
+                `}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{name}</span>
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {openDropdown === name && (
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  {dropdown.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600"
+                      onClick={() => setOpenDropdown(null)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
 
         return (
           <Link
@@ -458,12 +608,9 @@ const NavLinks = ({ currentPath, navLinks }) => {
           >
             <Icon className="w-3.5 h-3.5" />
             <span>{name}</span>
-
           </Link>
         );
       })}
-
-
     </div>
   );
 };
@@ -474,4 +621,3 @@ NavLinks.propTypes = {
 };
 
 export default Navbar;
-

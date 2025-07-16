@@ -29,22 +29,72 @@ const ProductsPage = () => {
     { id: 'all', name: 'All Products' },
     { id: 'Power Tools & Workshop Gear', name: 'Power Tools' },
     { id: 'Generators & Power Equipment', name: 'Generators' },
-    { id: 'Welding Machines & Accessories', name: 'Welding Equipment' },
-    { id: 'Electronics & Appliances', name: 'Electronics' },
-    { id: 'Home & Office Gadgets', name: 'Home & Office' }
+    { id: 'Electronics & Appliances', name: 'Electronics' }
   ];
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const fetchProducts = async () => {
     try {
+      console.log('Fetching products from API...');
       const result = await getProducts();
+      
       if (result.success) {
         const products = result.products || [];
-        setProducts(products);
-        setFilteredProducts(products);
+        console.log(`Found ${products.length} products`);
+        
+        // Process products to ensure image fields are properly handled
+        const processedProducts = products.map(product => {
+          // Extract image URL from various possible formats
+          let imageUrl = null;
+          let images = [];
+          
+          // Check if images is an array
+          if (Array.isArray(product.images) && product.images.length > 0) {
+            images = product.images;
+            imageUrl = product.images[0];
+          }
+          // Check if images is a string (JSON)
+          else if (typeof product.images === 'string') {
+            try {
+              const parsedImages = JSON.parse(product.images);
+              if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+                images = parsedImages;
+                imageUrl = parsedImages[0];
+              }
+            } catch (e) {
+              console.error('Error parsing images JSON for product:', product.id, e);
+            }
+          }
+          
+          // Check individual image fields if no image found yet
+          if (!imageUrl) {
+            if (product.image1) imageUrl = product.image1;
+            else if (product.image2) imageUrl = product.image2;
+            else if (product.image3) imageUrl = product.image3;
+            else if (product.image4) imageUrl = product.image4;
+            
+            // Collect all available image fields
+            ['image1', 'image2', 'image3', 'image4'].forEach(field => {
+              if (product[field]) {
+                images.push(product[field]);
+              }
+            });
+          }
+          
+          console.log(`Product ${product.id} (${product.name}): Image URL = ${imageUrl}`);
+          
+          return {
+            ...product,
+            processedImageUrl: imageUrl,
+            processedImages: images
+          };
+        });
+        
+        setProducts(processedProducts);
+        setFilteredProducts(processedProducts);
+      } else {
+        console.error('API returned error:', result.error);
+        setProducts([]);
+        setFilteredProducts([]);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -56,6 +106,10 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
     filterProducts();
   }, [searchTerm, selectedCategory, priceRange, sortBy, products]);
 
@@ -65,9 +119,9 @@ const ProductsPage = () => {
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -88,107 +142,111 @@ const ProductsPage = () => {
           return a.price - b.price;
         case 'price-high':
           return b.price - a.price;
-        case 'rating':
-          return b.rating - a.rating;
+        // Rating sort removed
         case 'name':
         default:
-          return a.name.localeCompare(b.name);
+          return a.name?.localeCompare(b.name);
       }
     });
 
     setFilteredProducts(filtered);
   };
 
-  const ProductCard = ({ product }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group"
-    >
-      <div className="relative">
-        <div className="aspect-w-16 aspect-h-12 bg-gray-200">
-          <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-            <ShoppingCart className="w-16 h-16 text-primary-400" />
-          </div>
-        </div>
-        
-        {product.originalPrice > product.price && (
-          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-            Save KSh {(product.originalPrice - product.price).toLocaleString()}
-          </div>
-        )}
-        
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50">
-            <Heart className="w-4 h-4 text-gray-600" />
-          </button>
-        </div>
-      </div>
-
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-500 font-medium">{product.brand}</span>
-          <span className="text-xs text-primary-600 bg-primary-50 px-2 py-1 rounded">
-            {product.productCode}
-          </span>
-        </div>
-
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-          {product.name}
-        </h3>
-
-        <div className="flex items-center mb-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`w-4 h-4 ${
-                  i < Math.floor(product.rating)
-                    ? 'text-yellow-400 fill-current'
-                    : 'text-gray-300'
-                }`}
+  const ProductCard = ({ product }) => {
+    // Handle missing or null values
+    const price = product.price || 0;
+    const originalPrice = product.original_price || price;
+    const productCode = product.model || 'N/A';
+    
+    // Use the pre-processed image URL
+    const imageUrl = product.processedImageUrl;
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group"
+      >
+        <div className="relative">
+          <div className="aspect-w-16 aspect-h-12 bg-gray-200">
+            {imageUrl ? (
+              <img 
+                src={imageUrl} 
+                alt={product.name} 
+                className="w-full h-48 object-cover"
+                onError={(e) => {
+                  console.error('Image failed to load:', imageUrl);
+                  e.target.onerror = null;
+                  e.target.src = '';
+                  e.target.parentElement.innerHTML = '<div class="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center"><svg class="w-16 h-16 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg></div>';
+                }}
               />
-            ))}
-          </div>
-          <span className="text-sm text-gray-500 ml-2">
-            ({product.reviewCount})
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <span className="text-lg font-bold text-gray-900">
-              KSh {product.price.toLocaleString()}
-            </span>
-            {product.originalPrice > product.price && (
-              <span className="text-sm text-gray-500 line-through ml-2">
-                KSh {product.originalPrice.toLocaleString()}
-              </span>
+            ) : (
+              <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                <ShoppingCart className="w-16 h-16 text-primary-400" />
+              </div>
             )}
           </div>
-          <span className={`text-xs px-2 py-1 rounded-full ${
-            product.availability === 'in-stock'
-              ? 'text-green-700 bg-green-100'
-              : 'text-red-700 bg-red-100'
-          }`}>
-            {product.availability === 'in-stock' ? 'In Stock' : 'Out of Stock'}
-          </span>
+          
+          {originalPrice > price && (
+            <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+              Save KSh {(originalPrice - price).toLocaleString()}
+            </div>
+          )}
+          
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50">
+              <Heart className="w-4 h-4 text-gray-600" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex space-x-2">
-          <Link
-            to={`/products/${product.id}`}
-            className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors text-center text-sm font-medium"
-          >
-            View Details
-          </Link>
-          <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Eye className="w-4 h-4 text-gray-600" />
-          </button>
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-500 font-medium">{product.brand || 'Unknown'}</span>
+            <span className="text-xs text-primary-600 bg-primary-50 px-2 py-1 rounded">
+              {productCode}
+            </span>
+          </div>
+
+          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+            {product.name}
+          </h3>
+
+          {/* Rating removed */}
+
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <span className="text-lg font-bold text-gray-900">
+                KSh {price.toLocaleString()}
+              </span>
+              {originalPrice > price && (
+                <span className="text-sm text-gray-500 line-through ml-2">
+                  KSh {originalPrice.toLocaleString()}
+                </span>
+              )}
+            </div>
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              product.availability === 'in-stock'
+                ? 'text-green-700 bg-green-100'
+                : 'text-red-700 bg-red-100'
+            }`}>
+              {product.availability === 'in-stock' ? 'In Stock' : 'Out of Stock'}
+            </span>
+          </div>
+
+          <div className="flex">
+            <Link
+              to={`/products/${product.id}`}
+              className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors text-center text-sm font-medium"
+            >
+              View Details
+            </Link>
+          </div>
         </div>
-      </div>
-    </motion.div>
-  );
+      </motion.div>
+    );
+  };
 
   if (loading) {
     return (
@@ -246,7 +304,6 @@ const ProductsPage = () => {
               <option value="name">Sort by Name</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
             </select>
 
             {/* View Mode */}
@@ -324,5 +381,3 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
-
-

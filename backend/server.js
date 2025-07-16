@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-// MongoDB removed - using Supabase only
+import { connectToDatabase } from './config/mongodb.js';
 import { trackAPIStats } from './middleware/statsMiddleware.js';
 import { configureSecurityMiddleware } from './middleware/security.js';
 import cspMiddleware from './middleware/cspMiddleware.js';
@@ -16,13 +16,17 @@ import productRouter from './routes/ProductRouter.js';
 import productRoutes from './routes/productRoutes.js';
 import userrouter from './routes/UserRoute.js';
 import adminUtilsRouter from './routes/adminRoutes.js';
+import testProductRoute from './routes/testProductRoute.js';
+import frontendProductRoutes from './routes/frontendProductRoutes.js';
+import trackingRoutes from './routes/trackingRoutes.js';
+import imagekitRoutes from './routes/imagekitRoutes.js';
 
 // Load environment variables at the very beginning
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
 dotenv.config({ path: envFile });
 
-// Using Supabase as primary database
-console.log('Database: Supabase configured');
+// Using MongoDB as primary database
+console.log('Database: MongoDB configured');
 
 console.log("Environment variables loaded:", {
   ADMIN_EMAIL_SET: !!process.env.ADMIN_EMAIL,
@@ -59,6 +63,10 @@ app.use(cors({
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5000',
+      'http://localhost:8000',
+      'http://localhost:8080',
       'https://real-estate-website-frontend.vercel.app',
       'https://real-estate-frontend-fuzu.onrender.com'
     ].filter(Boolean);
@@ -76,6 +84,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-CSRF-Token', 'Cache-Control', 'Pragma']
 }));
 
+// Log all incoming requests for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.get('origin') || 'unknown'}`);
+  next();
+});
+
 // Add OPTIONS handling for preflight requests
 app.options('*', cors({
   origin: true,
@@ -89,8 +103,8 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://unpkg.com", "https://www.google-analytics.com", "https://www.googletagmanager.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://images.unsplash.com", "https://www.google-analytics.com"],
-      connectSrc: ["'self'", "https://api.cloudinary.com", "https://www.google-analytics.com"],
+      imgSrc: ["'self'", "data:", "https://ik.imagekit.io", "https://images.unsplash.com", "https://www.google-analytics.com"],
+      connectSrc: ["'self'", "https://api.imagekit.io", "https://www.google-analytics.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -130,16 +144,42 @@ app.use(cspMiddleware());
 app.use(securityLogger);
 app.use(trackAPIStats);
 
-// Supabase connection is handled in config/supabase.js
-console.log('Supabase client initialized');
+// Import MongoDB initialization
+import { initializeMongoDB } from './config/initMongoDB.js';
+
+// Import in-memory store for fallback
+import * as inMemoryStore from './utils/inMemoryStore.js';
+
+// Connect to MongoDB and initialize
+connectToDatabase()
+  .then(() => {
+    console.log('MongoDB connected successfully');
+    return initializeMongoDB();
+  })
+  .then(initialized => {
+    if (initialized) {
+      console.log('MongoDB initialized successfully');
+    } else {
+      console.warn('MongoDB initialization may have issues');
+    }
+  })
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Test routes removed
+
+// Import DB check route
+import dbCheckRoute from './routes/dbCheckRoute.js';
 
 // API Routes
 app.use('/api/products', productRoutes);
 app.use('/api/legacy-products', productRouter);
 app.use('/api/users', userrouter);
 app.use('/api/admin', adminUtilsRouter);
+app.use('/api/test', testProductRoute);
+app.use('/api/frontend/products', frontendProductRoutes);
+app.use('/api/tracking', trackingRoutes);
+app.use('/api/imagekit', imagekitRoutes);
+app.use('/api/db', dbCheckRoute);
 
 // Test routes removed
 

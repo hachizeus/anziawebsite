@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { getProductById } from '../../services/api.js';
+import { trackProductView, trackAddToCart } from '../../services/trackingService.js';
 import { 
   Star, 
   Heart, 
@@ -14,6 +16,34 @@ import {
   ArrowLeft,
   Eye
 } from '../../utils/icons.jsx';
+import axios from 'axios';
+
+// Add CSS for notifications
+const notificationStyles = `
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(20px); }
+    10% { opacity: 1; transform: translateX(0); }
+    90% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(20px); }
+  }
+  
+  .animate-fade-in-out {
+    animation: fadeInOut 3s ease-in-out;
+  }
+  
+  .fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+  }
+`;
+
+// Add styles to document head
+if (!document.getElementById('notification-styles')) {
+  const styleEl = document.createElement('style');
+  styleEl.id = 'notification-styles';
+  styleEl.textContent = notificationStyles;
+  document.head.appendChild(styleEl);
+}
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -22,73 +52,275 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('description');
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
 
-  // Mock product data
-  const mockProduct = {
-    id: 1,
-    productCode: 'AE-001-001',
-    name: 'Bosch Professional Drill GSB 13 RE',
-    brand: 'Bosch',
-    model: 'GSB 13 RE',
-    category: 'Power Tools & Workshop Gear',
-    price: 12500,
-    originalPrice: 15000,
-    image: [
-      '/images/drill1.jpg',
-      '/images/drill2.jpg',
-      '/images/drill3.jpg'
-    ],
-    rating: 4.5,
-    reviewCount: 23,
-    availability: 'in-stock',
-    stockQuantity: 15,
-    warranty: '2 years',
-    weight: '1.8 kg',
-    dimensions: '25 x 8 x 20 cm',
-    powerRating: '600W',
-    voltage: '220-240V',
-    features: [
-      '13mm Chuck capacity',
-      '600W high-performance motor',
-      'Variable speed control',
-      'Forward/reverse rotation',
-      'Ergonomic design',
-      'Professional grade quality'
-    ],
-    specifications: [
-      { label: 'Chuck Capacity', value: '13mm' },
-      { label: 'Power Input', value: '600W' },
-      { label: 'No-load Speed', value: '0-2800 rpm' },
-      { label: 'Impact Rate', value: '0-44800 bpm' },
-      { label: 'Max Torque', value: '34 Nm' },
-      { label: 'Weight', value: '1.8 kg' }
-    ],
-    description: `The Bosch Professional GSB 13 RE is a high-performance impact drill designed for professional use. 
-    With its powerful 600W motor and robust construction, this drill is perfect for drilling in wood, metal, and masonry. 
-    The variable speed control and forward/reverse rotation make it versatile for various applications.
+  // Helper function to format product data
+  const formatProductData = (rawProduct) => {
+    if (!rawProduct) return null;
     
-    Built with Bosch's renowned quality and reliability, this drill features an ergonomic design for comfortable use 
-    during extended work sessions. The 13mm chuck capacity allows for use with a wide range of drill bits and accessories.`,
-    phone: '+254 700 000 000'
+    // Handle all possible image field formats
+    let images = [];
+    
+    // Check if images is an array
+    if (Array.isArray(rawProduct.images) && rawProduct.images.length > 0) {
+      images = rawProduct.images;
+    } 
+    // Check if images is a string (JSON)
+    else if (typeof rawProduct.images === 'string') {
+      try {
+        const parsedImages = JSON.parse(rawProduct.images);
+        if (Array.isArray(parsedImages)) {
+          images = parsedImages;
+        }
+      } catch (e) {
+        console.error('Error parsing images JSON:', e);
+      }
+    }
+    
+    // Check for individual image fields if no images found yet
+    if (images.length === 0) {
+      const imageFields = ['image1', 'image2', 'image3', 'image4'];
+      imageFields.forEach(field => {
+        if (rawProduct[field]) {
+          images.push(rawProduct[field]);
+        }
+      });
+    }
+    
+    console.log('Product images:', images);
+    
+    // Extract and format data from the raw product
+    return {
+      id: rawProduct.id,
+      productCode: rawProduct.model || 'N/A',
+      name: rawProduct.name || 'Unknown Product',
+      brand: rawProduct.brand || 'Unknown Brand',
+      model: rawProduct.model || 'N/A',
+      category: rawProduct.category || 'Uncategorized',
+      price: rawProduct.price || 0,
+      originalPrice: rawProduct.original_price || rawProduct.price || 0,
+      image: images,
+      availability: rawProduct.availability || 'out-of-stock',
+      stockQuantity: rawProduct.stock_quantity || 0,
+      warranty: rawProduct.warranty || 'N/A',
+      weight: '1.8 kg', // Default value
+      dimensions: '25 x 8 x 20 cm', // Default value
+      features: Array.isArray(rawProduct.features) ? rawProduct.features : [],
+      specifications: [
+        { label: 'Brand', value: rawProduct.brand || 'N/A' },
+        { label: 'Model', value: rawProduct.model || 'N/A' },
+        { label: 'Condition', value: rawProduct.condition || 'New' },
+        { label: 'Warranty', value: rawProduct.warranty || 'N/A' },
+      ],
+      description: rawProduct.description || 'No description available.',
+      phone: '+254 700 000 000' // Default contact number
+    };
   };
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setProduct(mockProduct);
-      setLoading(false);
-    }, 1000);
+    async function loadProduct() {
+      try {
+        setLoading(true);
+        console.log('Fetching product with ID:', id);
+        const result = await getProductById(id);
+        console.log('API result:', result);
+        
+        if (result.success && result.product) {
+          // Format the raw product data
+          const formattedProduct = formatProductData(result.product);
+          setProduct(formattedProduct);
+          
+          // Track product view
+          trackProductView(formattedProduct.id).catch(err => 
+            console.log('Error tracking product view:', err)
+          );
+          
+          // Save to recently viewed in localStorage
+          try {
+            const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+            // Remove if already exists
+            const filtered = viewed.filter(item => item.id !== formattedProduct.id);
+            // Add to beginning of array
+            const updated = [{ 
+              id: formattedProduct.id, 
+              name: formattedProduct.name, 
+              price: formattedProduct.price,
+              image: formattedProduct.image[0] || ''
+            }, ...filtered].slice(0, 4); // Keep only 4 items
+            localStorage.setItem('recentlyViewed', JSON.stringify(updated));
+            setRecentlyViewed(updated);
+            console.log('Updated recently viewed:', updated);
+          } catch (e) {
+            console.error('Error handling recently viewed:', e);
+          }
+          
+          // Fetch suggested products based on category
+          if (formattedProduct.category) {
+            fetchSuggestedProducts(formattedProduct);
+          }
+        } else {
+          console.error('Failed to fetch product:', result.error || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Error loading product:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    // Function to fetch suggested products
+    async function fetchSuggestedProducts(currentProduct) {
+      try {
+        // Only fetch if we have a category
+        if (!currentProduct.category) {
+          setSuggestedProducts([]);
+          return;
+        }
+        
+        const response = await axios.get(`/api/products/category/${currentProduct.category}?limit=10`);
+        if (response.data && response.data.products) {
+          // Filter out current product
+          const filtered = response.data.products
+            .filter(p => p.id !== currentProduct.id)
+            .map(p => formatProductData(p))
+            .slice(0, 4);
+          
+          // Only set suggested products if we actually have some
+          if (filtered.length > 0) {
+            setSuggestedProducts(filtered);
+          } else {
+            setSuggestedProducts([]);
+          }
+        } else {
+          setSuggestedProducts([]);
+        }
+      } catch (err) {
+        console.error('Error fetching suggested products:', err);
+        // Don't use mock data, just show nothing
+        setSuggestedProducts([]);
+      }
+    }
+    
+    loadProduct();
+    
+    // Load recently viewed from localStorage
+    try {
+      const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+      setRecentlyViewed(viewed);
+    } catch (e) {
+      console.error('Error loading recently viewed:', e);
+    }
   }, [id]);
 
   const handleAddToCart = () => {
-    // Add to cart logic
-    console.log(`Added ${quantity} of product ${product.id} to cart`);
+    if (!product) return;
+    
+    try {
+      // Get existing cart from localStorage
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      
+      // Check if product already exists in cart
+      const existingItemIndex = cart.findIndex(item => item.id === product.id);
+      
+      if (existingItemIndex >= 0) {
+        // Update quantity if product already in cart
+        cart[existingItemIndex].quantity += quantity;
+        
+        // Create a popup notification instead of alert
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-20 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in-out';
+        notification.innerHTML = `
+          <div class="flex items-center">
+            <div class="mr-3">
+              <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold">Item updated in cart</p>
+              <p class="text-sm">${product.name} quantity updated to ${cart[existingItemIndex].quantity}</p>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+          notification.classList.add('fade-out');
+          setTimeout(() => document.body.removeChild(notification), 500);
+        }, 3000);
+      } else {
+        // Add new item to cart
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image[0] || '',
+          quantity: quantity
+        });
+        
+        // Create a popup notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-20 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in-out';
+        notification.innerHTML = `
+          <div class="flex items-center">
+            <div class="mr-3">
+              <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold">Item added to cart</p>
+              <p class="text-sm">${product.name}</p>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+          notification.classList.add('fade-out');
+          setTimeout(() => document.body.removeChild(notification), 500);
+        }, 3000);
+      }
+      
+      // Save updated cart to localStorage
+      localStorage.setItem('cart', JSON.stringify(cart));
+      
+      // Track action in analytics
+      trackAddToCart(product.id, quantity, product.price)
+        .catch(err => console.log('Analytics tracking error:', err));
+      
+      // Dispatch custom event to update cart count in navbar
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      
+      // Show error notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-20 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+      notification.innerHTML = `
+        <div class="flex items-center">
+          <div class="mr-3">
+            <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold">Error</p>
+            <p class="text-sm">Failed to add item to cart</p>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => document.body.removeChild(notification), 3000);
+    }
   };
 
-  const handleBuyNow = () => {
-    // Buy now logic
-    console.log(`Buy now: ${quantity} of product ${product.id}`);
-  };
+  // Buy Now functionality removed
 
   if (loading) {
     return (
@@ -136,14 +368,22 @@ const ProductDetail = () => {
           {/* Product Images */}
           <div>
             <div className="aspect-w-1 aspect-h-1 mb-4">
-              <div className="w-full h-96 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-24 h-24 text-primary-400" />
-              </div>
+              {product.image && product.image.length > 0 ? (
+                <img 
+                  src={product.image[selectedImage]} 
+                  alt={product.name}
+                  className="w-full h-96 object-contain rounded-lg"
+                />
+              ) : (
+                <div className="w-full h-96 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center">
+                  <ShoppingCart className="w-24 h-24 text-primary-400" />
+                </div>
+              )}
             </div>
             
             {/* Thumbnail Images */}
             <div className="flex space-x-2">
-              {product.image.map((_, index) => (
+              {product.image.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -153,9 +393,11 @@ const ProductDetail = () => {
                       : 'border-gray-200'
                   }`}
                 >
-                  <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                    <Eye className="w-4 h-4 text-gray-400" />
-                  </div>
+                  <img 
+                    src={img} 
+                    alt={`${product.name} - ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </button>
               ))}
             </div>
@@ -181,24 +423,7 @@ const ProductDetail = () => {
               {product.name}
             </h1>
 
-            {/* Rating */}
-            <div className="flex items-center mb-6">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-5 h-5 ${
-                      i < Math.floor(product.rating)
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="ml-2 text-sm text-gray-600">
-                {product.rating} ({product.reviewCount} reviews)
-              </span>
-            </div>
+            {/* Rating removed */}
 
             {/* Price */}
             <div className="mb-6">
@@ -265,18 +490,13 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              <div className="flex space-x-4 mb-6">
+              <div className="flex mb-6">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors font-medium"
+                  className="w-full bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center justify-center"
                 >
+                  <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                >
-                  Buy Now
                 </button>
               </div>
 
@@ -326,7 +546,7 @@ const ProductDetail = () => {
         <div className="mt-16">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
-              {['description', 'specifications', 'reviews'].map((tab) => (
+              {['description', 'specifications'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -388,23 +608,83 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {activeTab === 'reviews' && (
-              <div className="text-center py-12">
-                <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No reviews yet</h3>
-                <p className="text-gray-500">Be the first to review this product</p>
-                <button className="mt-4 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors">
-                  Write a Review
-                </button>
-              </div>
-            )}
+            {/* Reviews section removed */}
           </div>
         </div>
+        
+        {/* Suggested Products - Only show if we have real products */}
+        {suggestedProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">You Might Also Like</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {suggestedProducts.map((product) => (
+                <Link to={`/products/${product.id}`} key={product.id}>
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="aspect-w-1 aspect-h-1 w-full">
+                      {product.image && product.image.length > 0 ? (
+                        <img 
+                          src={product.image[0]} 
+                          alt={product.name}
+                          className="w-full h-48 object-contain"
+                          onError={(e) => {
+                            console.error('Image failed to load:', product.image[0]);
+                            e.target.onerror = null;
+                            e.target.src = '/images/logo.svg';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                          <ShoppingCart className="w-12 h-12 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
+                      <p className="mt-1 text-lg font-bold text-primary-600">KSh {product.price.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Recently Viewed Products */}
+        {recentlyViewed.length > 1 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Recently Viewed</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recentlyViewed
+                .filter(item => item.id !== id) // Filter out current product
+                .map((item) => (
+                <Link to={`/products/${item.id}`} key={item.id}>
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="aspect-w-1 aspect-h-1 w-full">
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="w-full h-48 object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                          <ShoppingCart className="w-12 h-12 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">{item.name}</h3>
+                      <p className="mt-1 text-lg font-bold text-primary-600">KSh {item.price.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default ProductDetail;
-
-
