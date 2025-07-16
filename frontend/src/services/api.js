@@ -1,6 +1,11 @@
 // Backend API URL
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
-console.log('Using API URL:', API_URL);
+
+// Check if we're using Netlify functions
+const isNetlify = API_URL.includes('netlify') || window.location.hostname.includes('netlify.app');
+const NETLIFY_FUNCTION_URL = isNetlify ? '/.netlify/functions' : null;
+
+console.log('Using API URL:', isNetlify ? NETLIFY_FUNCTION_URL : API_URL);
 
 // ImageKit URL
 const IMAGEKIT_URL = import.meta.env.VITE_IMAGEKIT_URL || 'https://ik.imagekit.io/q5jukn457';
@@ -30,7 +35,13 @@ export const getProducts = async (filters = {}) => {
     }
     
     // Fetch products from API
-    const url = `${API_URL}/frontend/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    let url;
+    if (isNetlify) {
+      url = `${NETLIFY_FUNCTION_URL}/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    } else {
+      url = `${API_URL}/frontend/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    }
+    console.log('Fetching products from URL:', url);
     const response = await fetch(url);
     console.log('API response status:', response.status);
     
@@ -65,7 +76,14 @@ export const getProductById = async (id) => {
   try {
     console.log('Fetching product by ID:', id);
     
-    const response = await fetch(`${API_URL}/frontend/products/${id}`);
+    let url;
+    if (isNetlify) {
+      url = `${NETLIFY_FUNCTION_URL}/products/${id}`;
+    } else {
+      url = `${API_URL}/frontend/products/${id}`;
+    }
+    console.log('Fetching product from URL:', url);
+    const response = await fetch(url);
     console.log('API response status:', response.status);
     
     if (!response.ok) {
