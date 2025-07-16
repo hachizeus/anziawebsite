@@ -1,0 +1,3 @@
+@echo off
+echo Starting Anzia Electronics development environment...
+npm run dev

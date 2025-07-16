@@ -1,7 +1,7 @@
 // Resilient API client - NEVER FAILS
 import axios from 'axios';
 
-const API_URL = 'https://real-estate-backend-vybd.onrender.com';
+const API_URL = import.meta.env.VITE_NETLIFY_API_URL;
 
 const resilientApi = axios.create({
   baseURL: API_URL,

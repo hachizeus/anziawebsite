@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import apiConfig from '../utils/apiConfig';
 
 const ApiHealthCheck = () => {
   const [status, setStatus] = useState('checking');
@@ -9,8 +10,8 @@ const ApiHealthCheck = () => {
   useEffect(() => {
     const checkApiHealth = async () => {
       try {
-        // Try multiple endpoints to find one that works
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://real-estate-backend-vybd.onrender.com';
+        // Use only the Netlify backend
+        const baseUrl = import.meta.env.VITE_NETLIFY_BACKEND_URL;
         const endpoints = ['/status', '/', '/api/products/list'];
         
         console.log('Checking API health at:', baseUrl);
@@ -29,12 +30,13 @@ const ApiHealthCheck = () => {
             
             if (response.status === 200) {
               setStatus('connected');
-              setMessage(`API connected via ${endpoint}`);
+              setMessage(`API connected via ${endpoint} (${apiConfig.getCurrentEnvironment()})`);
               connected = true;
               
               // Store the working URL in session storage
               sessionStorage.setItem('workingApiUrl', baseUrl);
               sessionStorage.setItem('workingApiEndpoint', endpoint);
+              sessionStorage.setItem('apiEnvironment', apiConfig.getCurrentEnvironment());
               
               // Hide after 5 seconds if connected
               setTimeout(() => setVisible(false), 5000);

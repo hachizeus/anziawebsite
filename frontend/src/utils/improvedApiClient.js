@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create a more robust API client
 const createApiClient = () => {
   const client = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_URL || 'https://real-estate-backend-vybd.onrender.com',
+    baseURL: import.meta.env.VITE_NETLIFY_BACKEND_URL,
     timeout: 30000,
     headers: {
       'Content-Type': 'application/json'

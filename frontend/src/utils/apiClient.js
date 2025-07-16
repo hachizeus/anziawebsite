@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Get API URL from environment variables or use default
-const API_URL = import.meta.env.VITE_API_URL || 'https://real-estate-backend-vybd.onrender.com';
+// Use only the Netlify API URL
+const API_URL = import.meta.env.VITE_NETLIFY_API_URL;
 
 // Create axios instance
 export const apiClient = axios.create({

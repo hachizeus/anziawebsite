@@ -5,6 +5,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import BackendSwitcher from './components/BackendSwitcher';
+import ApiHealthCheck from './components/ApiHealthCheck';
 import PropTypes from 'prop-types';
 import { initLazyLoading } from './utils/lazyLoadImages';
 
@@ -81,7 +83,7 @@ function App() {
     document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.remove();
     const meta = document.createElement('meta');
     meta.httpEquiv = 'Content-Security-Policy';
-    meta.content = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.google-analytics.com; connect-src 'self' https://api.imagekit.io https://www.google-analytics.com;";
+    meta.content = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.google-analytics.com; connect-src 'self' https://anziabackend.netlify.app https://api.imagekit.io https://www.google-analytics.com;";
     document.head.appendChild(meta);
   }, []);
 
@@ -126,6 +128,8 @@ function App() {
               </Routes>
             </Suspense>
             <Footer />
+            <BackendSwitcher />
+            <ApiHealthCheck />
           </Router>
         </ThemeProvider>
       </AuthProvider>
