@@ -11,11 +11,13 @@ console.log('Using API URL:', isNetlify ? NETLIFY_FUNCTION_URL : API_URL);
 const IMAGEKIT_URL = import.meta.env.VITE_IMAGEKIT_URL || 'https://ik.imagekit.io/q5jukn457';
 console.log('Using ImageKit URL:', IMAGEKIT_URL);
 
+// Check if we're in development mode on localhost
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 // Get all products
 export const getProducts = async (filters = {}) => {
   try {
     console.log('Fetching products from API...');
-    
     // Build query parameters
     const queryParams = new URLSearchParams();
     if (filters.category && filters.category !== 'all') {
@@ -75,7 +77,6 @@ export const getProducts = async (filters = {}) => {
 export const getProductById = async (id) => {
   try {
     console.log('Fetching product by ID:', id);
-    
     let url;
     if (isNetlify) {
       url = `${NETLIFY_FUNCTION_URL}/products/${id}`;

@@ -1,38 +1,64 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
+// Create context
 const ThemeContext = createContext();
 
+// Theme provider component
 export const ThemeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has previously set a preference
+  // Check if user has a theme preference in localStorage or prefers dark mode
+  const getInitialTheme = () => {
     const savedTheme = localStorage.getItem('theme');
-    // Check if user's system prefers dark mode
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme) {
+      return savedTheme;
+    }
     
-    return savedTheme === 'dark' || (!savedTheme && prefersDark);
-  });
+    // Check if user prefers dark mode
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    
+    // Default to light theme
+    return 'light';
+  };
 
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  // Update theme in localStorage and apply to document when it changes
   useEffect(() => {
-    // Update localStorage and document class when theme changes
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('theme', theme);
     
-    if (darkMode) {
+    // Apply theme to document
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [darkMode]);
+  }, [theme]);
 
+  // Toggle theme function
   const toggleTheme = () => {
-    setDarkMode(prev => !prev);
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+ThemeProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
+// Custom hook to use the theme context
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+export default ThemeContext;

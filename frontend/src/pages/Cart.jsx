@@ -77,8 +77,8 @@ const Cart = () => {
   }, [cartItems]);
 
   const updateQuantity = (id, newQuantity) => {
-    if (newQuantity === 0) {
-      removeItem(id);
+    // Prevent reducing quantity below 1
+    if (newQuantity < 1) {
       return;
     }
     

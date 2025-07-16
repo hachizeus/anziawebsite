@@ -88,11 +88,23 @@ const ProductDetail = () => {
       });
     }
     
+    // If we still don't have images, check if there's a single image field
+    if (images.length === 0 && rawProduct.image) {
+      if (typeof rawProduct.image === 'string') {
+        images.push(rawProduct.image);
+      } else if (Array.isArray(rawProduct.image)) {
+        images = rawProduct.image;
+      }
+    }
+    
     console.log('Product images:', images);
+    
+    // Ensure we have a valid ID (handle both MongoDB _id and regular id)
+    const productId = rawProduct._id ? rawProduct._id.toString() : (rawProduct.id ? rawProduct.id.toString() : '');
     
     // Extract and format data from the raw product
     return {
-      id: rawProduct.id,
+      id: productId,
       productCode: rawProduct.model || 'N/A',
       name: rawProduct.name || 'Unknown Product',
       brand: rawProduct.brand || 'Unknown Brand',
@@ -143,14 +155,15 @@ const ProductDetail = () => {
             const filtered = viewed.filter(item => item.id !== formattedProduct.id);
             // Add to beginning of array
             const updated = [{ 
-              id: formattedProduct.id, 
+              id: formattedProduct.id.toString(), // Ensure ID is a string
               name: formattedProduct.name, 
               price: formattedProduct.price,
               image: formattedProduct.image[0] || ''
             }, ...filtered].slice(0, 4); // Keep only 4 items
+            
+            console.log('Saving product to recently viewed with ID:', formattedProduct.id.toString());
             localStorage.setItem('recentlyViewed', JSON.stringify(updated));
             setRecentlyViewed(updated);
-            console.log('Updated recently viewed:', updated);
           } catch (e) {
             console.error('Error handling recently viewed:', e);
           }
@@ -221,7 +234,7 @@ const ProductDetail = () => {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
       
       // Check if product already exists in cart
-      const existingItemIndex = cart.findIndex(item => item.id === product.id);
+      const existingItemIndex = cart.findIndex(item => item.id === product.id.toString());
       
       if (existingItemIndex >= 0) {
         // Update quantity if product already in cart
@@ -253,7 +266,7 @@ const ProductDetail = () => {
       } else {
         // Add new item to cart
         cart.push({
-          id: product.id,
+          id: product.id.toString(), // Ensure ID is a string
           name: product.name,
           price: product.price,
           image: product.image[0] || '',
@@ -655,7 +668,7 @@ const ProductDetail = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Recently Viewed</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {recentlyViewed
-                .filter(item => item.id !== id) // Filter out current product
+                .filter(item => item.id !== id.toString()) // Filter out current product
                 .map((item) => (
                 <Link to={`/products/${item.id}`} key={item.id}>
                   <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
