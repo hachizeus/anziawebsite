@@ -302,6 +302,36 @@ app.post('/api/users/login', async (req, res) => {
   }
 });
 
+// Admin login route
+app.post('/api/admin-auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Mock admin authentication - replace with real logic
+    if (email === 'admin@example.com' && password === 'admin123') {
+      const token = jwt.sign({ id: 'admin', role: 'admin' }, process.env.JWT_SECRET, {
+        expiresIn: '30d'
+      });
+      
+      res.json({
+        success: true,
+        token,
+        user: {
+          id: 'admin',
+          name: 'Admin User',
+          email: 'admin@example.com',
+          role: 'admin'
+        }
+      });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+    }
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ImageKit auth endpoint
 app.get('/api/imagekit/auth', (req, res) => {
   try {
