@@ -1,35 +1,13 @@
-// API handler for Netlify Functions
-const mongoose = require('mongoose');
-const connectDB = require('../config/db');
-const User = require('../models/User');
-const Product = require('../models/Product');
-const { generateToken, verifyToken } = require('../utils/jwt');
-const { getAuthParams } = require('../utils/imagekit');
-
-// Set up CORS headers
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Content-Type': 'application/json'
-};
-
-// Connect to MongoDB
-let cachedDb = null;
-
-const connectToDatabase = async () => {
-  if (cachedDb) {
-    return cachedDb;
-  }
-  
-  cachedDb = await connectDB();
-  return cachedDb;
-};
-
+// Simple API handler for Netlify Functions
 exports.handler = async function(event, context) {
-  // Make the database connection available for reuse
-  context.callbackWaitsForEmptyEventLoop = false;
-  
+  // Set CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
   // Handle OPTIONS request (preflight)
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -45,9 +23,6 @@ exports.handler = async function(event, context) {
   const method = event.httpMethod;
 
   try {
-    // Connect to the database
-    await connectToDatabase();
-    
     // Root endpoint
     if (path === '' || path === '/') {
       return {
@@ -64,7 +39,13 @@ exports.handler = async function(event, context) {
     if (segments[0] === 'products') {
       // List all products
       if (segments.length === 1 && method === 'GET') {
-        const products = await Product.find().select('-__v').sort({ createdAt: -1 });
+        const products = [
+          { id: 1, name: 'Laptop', price: 999, category: 'Electronics', image: ['https://ik.imagekit.io/q5jukn457/laptop.jpg'], description: 'Powerful laptop with high performance', brand: 'Dell', model: 'XPS 15', warranty: '1 Year', stock_quantity: 10, availability: 'in-stock', features: ['Intel Core i7', '16GB RAM', '512GB SSD', 'NVIDIA GeForce RTX'] },
+          { id: 2, name: 'Smartphone', price: 699, category: 'Electronics', image: ['https://ik.imagekit.io/q5jukn457/smartphone.jpg'], description: 'Latest smartphone with advanced features', brand: 'Samsung', model: 'Galaxy S21', warranty: '2 Years', stock_quantity: 15, availability: 'in-stock', features: ['6.2-inch AMOLED', '128GB Storage', '8GB RAM', '5G Capable'] },
+          { id: 3, name: 'Headphones', price: 199, category: 'Audio', image: ['https://ik.imagekit.io/q5jukn457/headphones.jpg'], description: 'Noise cancelling headphones for immersive audio', brand: 'Sony', model: 'WH-1000XM4', warranty: '1 Year', stock_quantity: 8, availability: 'in-stock', features: ['Noise Cancellation', 'Bluetooth 5.0', '30 Hour Battery', 'Touch Controls'] },
+          { id: 4, name: 'Monitor', price: 349, category: 'Electronics', image: ['https://ik.imagekit.io/q5jukn457/monitor.jpg'], description: '4K monitor for crystal clear display', brand: 'LG', model: '27UK850', warranty: '3 Years', stock_quantity: 5, availability: 'in-stock', features: ['27-inch 4K UHD', 'IPS Panel', 'USB-C', 'HDR 10'] },
+          { id: 5, name: 'Keyboard', price: 89, category: 'Accessories', image: ['https://ik.imagekit.io/q5jukn457/keyboard.jpg'], description: 'Mechanical keyboard for better typing experience', brand: 'Logitech', model: 'G Pro X', warranty: '2 Years', stock_quantity: 20, availability: 'in-stock', features: ['Mechanical Switches', 'RGB Lighting', 'Programmable Keys', 'Detachable Cable'] }
+        ];
         
         return {
           statusCode: 200,
@@ -79,15 +60,37 @@ exports.handler = async function(event, context) {
 
       // Get product by ID
       if (segments.length === 2 && method === 'GET') {
-        const product = await Product.findById(segments[1]).select('-__v');
+        const productId = segments[1];
+        // Convert to number if it's numeric
+        const numericId = !isNaN(parseInt(productId)) ? parseInt(productId) : null;
         
-        if (!product) {
-          return {
-            statusCode: 404,
-            headers,
-            body: JSON.stringify({ success: false, message: 'Product not found' })
-          };
-        }
+        // Create a dynamic product based on the ID
+        const product = {
+          id: numericId || productId,
+          name: `Product ${productId}`,
+          price: 999,
+          original_price: 1299,
+          category: 'Electronics',
+          image: ['https://ik.imagekit.io/q5jukn457/laptop.jpg'],
+          description: 'This high-quality product features the latest technology and premium materials. Perfect for both home and professional use, it offers exceptional performance and reliability.',
+          brand: 'Premium Brand',
+          model: `Model-${productId}`,
+          warranty: '2 Years',
+          stock_quantity: 15,
+          availability: 'in-stock',
+          features: [
+            'High-quality construction',
+            'Energy efficient design',
+            'Smart connectivity features',
+            'Premium materials'
+          ],
+          specifications: [
+            { label: 'Brand', value: 'Premium Brand' },
+            { label: 'Model', value: `Model-${productId}` },
+            { label: 'Condition', value: 'New' },
+            { label: 'Warranty', value: '2 Years' }
+          ]
+        };
         
         return {
           statusCode: 200,
@@ -111,42 +114,29 @@ exports.handler = async function(event, context) {
           };
         }
         
-        // Find user by email
-        const user = await User.findOne({ email }).select('+password');
-        
-        if (!user) {
+        // Mock authentication - in a real app, you would validate against a database
+        if (email === 'user@example.com' && password === 'password') {
           return {
-            statusCode: 401,
+            statusCode: 200,
             headers,
-            body: JSON.stringify({ success: false, message: 'Invalid credentials' })
+            body: JSON.stringify({
+              success: true,
+              user: {
+                id: 1,
+                name: 'Test User',
+                email: 'user@example.com',
+                role: 'user'
+              },
+              token: 'mock-jwt-token-for-testing'
+            })
           };
         }
         
-        // Check if password matches
-        const isMatch = await user.matchPassword(password);
-        
-        if (!isMatch) {
-          return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ success: false, message: 'Invalid credentials' })
-          };
-        }
-        
-        // Generate token
-        const token = generateToken(user._id);
-        
-        // Remove password from response
-        user.password = undefined;
-        
+        // If credentials don't match
         return {
-          statusCode: 200,
+          statusCode: 401,
           headers,
-          body: JSON.stringify({
-            success: true,
-            token,
-            user
-          })
+          body: JSON.stringify({ success: false, message: 'Invalid credentials' })
         };
       } catch (error) {
         console.error('Login error:', error);
@@ -172,39 +162,19 @@ exports.handler = async function(event, context) {
           };
         }
         
-        // Check if user already exists
-        const userExists = await User.findOne({ email });
-        
-        if (userExists) {
-          return {
-            statusCode: 400,
-            headers,
-            body: JSON.stringify({ success: false, message: 'User already exists' })
-          };
-        }
-        
-        // Create user
-        const user = await User.create({
-          name,
-          email,
-          password
-        });
-        
-        // Generate token
-        const token = generateToken(user._id);
-        
+        // In a real app, you would save to a database
         return {
-          statusCode: 201,
+          statusCode: 200,
           headers,
           body: JSON.stringify({
             success: true,
-            token,
             user: {
-              _id: user._id,
-              name: user.name,
-              email: user.email,
-              role: user.role
-            }
+              id: Math.floor(Math.random() * 1000),
+              name,
+              email,
+              role: 'user'
+            },
+            token: 'mock-jwt-token-for-testing'
           })
         };
       } catch (error) {
@@ -228,14 +198,38 @@ exports.handler = async function(event, context) {
 
     // ImageKit auth endpoint
     if (segments[0] === 'imagekit' && segments[1] === 'auth' && method === 'GET') {
-      const authParams = getAuthParams();
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          authParams: {
+            token: 'sample-token',
+            expire: Math.floor(Date.now() / 1000) + 3600,
+            signature: 'sample-signature',
+            publicKey: 'public_ahoxvdF2fShMnKvheyP8TQrAKhE='
+          }
+        })
+      };
+    }
+
+    // Frontend products endpoint
+    if (segments[0] === 'frontend' && segments[1] === 'products' && method === 'GET') {
+      const products = [
+        { id: 1, name: 'Laptop', price: 999, category: 'Electronics', image: ['https://ik.imagekit.io/q5jukn457/laptop.jpg'], description: 'Powerful laptop with high performance', brand: 'Dell', model: 'XPS 15', warranty: '1 Year', stock_quantity: 10, availability: 'in-stock', features: ['Intel Core i7', '16GB RAM', '512GB SSD', 'NVIDIA GeForce RTX'] },
+        { id: 2, name: 'Smartphone', price: 699, category: 'Electronics', image: ['https://ik.imagekit.io/q5jukn457/smartphone.jpg'], description: 'Latest smartphone with advanced features', brand: 'Samsung', model: 'Galaxy S21', warranty: '2 Years', stock_quantity: 15, availability: 'in-stock', features: ['6.2-inch AMOLED', '128GB Storage', '8GB RAM', '5G Capable'] },
+        { id: 3, name: 'Headphones', price: 199, category: 'Audio', image: ['https://ik.imagekit.io/q5jukn457/headphones.jpg'], description: 'Noise cancelling headphones for immersive audio', brand: 'Sony', model: 'WH-1000XM4', warranty: '1 Year', stock_quantity: 8, availability: 'in-stock', features: ['Noise Cancellation', 'Bluetooth 5.0', '30 Hour Battery', 'Touch Controls'] },
+        { id: 4, name: 'Monitor', price: 349, category: 'Electronics', image: ['https://ik.imagekit.io/q5jukn457/monitor.jpg'], description: '4K monitor for crystal clear display', brand: 'LG', model: '27UK850', warranty: '3 Years', stock_quantity: 5, availability: 'in-stock', features: ['27-inch 4K UHD', 'IPS Panel', 'USB-C', 'HDR 10'] },
+        { id: 5, name: 'Keyboard', price: 89, category: 'Accessories', image: ['https://ik.imagekit.io/q5jukn457/keyboard.jpg'], description: 'Mechanical keyboard for better typing experience', brand: 'Logitech', model: 'G Pro X', warranty: '2 Years', stock_quantity: 20, availability: 'in-stock', features: ['Mechanical Switches', 'RGB Lighting', 'Programmable Keys', 'Detachable Cable'] }
+      ];
       
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           success: true,
-          authParams
+          message: "Products retrieved successfully",
+          products
         })
       };
     }

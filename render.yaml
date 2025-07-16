@@ -1,4 +1,5 @@
 services:
+  # Backend API Service
   - type: web
     name: anzia-electronics-api
     runtime: node
@@ -19,3 +20,45 @@ services:
         sync: false
       - key: IMAGEKIT_URL_ENDPOINT
         value: https://ik.imagekit.io/q5jukn457
+
+  # Frontend Service
+  - type: web
+    name: anzia-electronics-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://anzia-electronics-api.onrender.com/api
+      - key: VITE_BACKEND_URL
+        value: https://anzia-electronics-api.onrender.com
+      - key: VITE_IMAGEKIT_URL_ENDPOINT
+        value: https://ik.imagekit.io/q5jukn457
+      - key: VITE_IMAGEKIT_PUBLIC_KEY
+        value: public_ahoxvdF2fShMnKvheyP8TQrAKhE=
+      - key: VITE_GA_MEASUREMENT_ID
+        value: G-CTKG6N5Q2J
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Admin Service
+  - type: web
+    name: anzia-electronics-admin
+    runtime: static
+    buildCommand: cd admin && npm install && npm run build
+    staticPublishPath: ./admin/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://anzia-electronics-api.onrender.com/api
+      - key: VITE_BACKEND_URL
+        value: https://anzia-electronics-api.onrender.com
+      - key: VITE_IMAGEKIT_URL_ENDPOINT
+        value: https://ik.imagekit.io/q5jukn457
+      - key: VITE_IMAGEKIT_PUBLIC_KEY
+        value: public_ahoxvdF2fShMnKvheyP8TQrAKhE=
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
