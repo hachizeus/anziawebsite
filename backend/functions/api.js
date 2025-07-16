@@ -100,6 +100,54 @@ exports.handler = async function(event, context) {
       }
     }
 
+    // Admin login endpoint
+    if (segments[0] === 'admin-auth' && segments[1] === 'login' && method === 'POST') {
+      try {
+        const { email, password } = JSON.parse(event.body);
+        
+        // Simple validation
+        if (!email || !password) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ success: false, message: 'Email and password are required' })
+          };
+        }
+        
+        // Mock admin authentication
+        if (email === 'admin@example.com' && password === 'admin123') {
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              success: true,
+              user: {
+                id: 1,
+                name: 'Admin User',
+                email: 'admin@example.com',
+                role: 'admin'
+              },
+              token: 'mock-admin-jwt-token'
+            })
+          };
+        }
+        
+        // If credentials don't match
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({ success: false, message: 'Invalid admin credentials' })
+        };
+      } catch (error) {
+        console.error('Admin login error:', error);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ success: false, message: error.message })
+        };
+      }
+    }
+
     // User login endpoint
     if (segments[0] === 'users' && segments[1] === 'login' && method === 'POST') {
       try {

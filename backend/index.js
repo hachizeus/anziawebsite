@@ -34,7 +34,13 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://anziaelectronics.netlify.app', 'http://localhost:5173'],
+  origin: [
+    'https://anziaelectronics.netlify.app',
+    'https://anzia-electronics-frontend.onrender.com',
+    'https://anzia-electronics-admin.onrender.com',
+    'http://localhost:5173',
+    'http://localhost:5174'
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
