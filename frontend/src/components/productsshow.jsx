@@ -6,6 +6,7 @@ import {
   ArrowRight
 } from '../utils/icons.jsx';
 import { getProducts } from '../services/api.js';
+import MockProducts from './products/MockProducts';
 
 const ProductsShow = () => {
   const [allProducts, setAllProducts] = useState([]);

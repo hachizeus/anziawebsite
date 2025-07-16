@@ -1,122 +1,93 @@
 import { getImageKitAuth } from '../services/api';
 
-/**
- * Initialize ImageKit SDK for frontend uploads
- * @returns {Promise<Object>} ImageKit authentication parameters
- */
-export const initializeImageKit = async () => {
+// ImageKit URL endpoint
+const IMAGEKIT_URL = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/q5jukn457';
+
+// Get optimized image URL with transformations
+export const getOptimizedImageUrl = (url, width = 400, height = 300, quality = 80) => {
+  if (!url) return '';
+  
+  // If it's already an ImageKit URL, add transformations
+  if (url.includes('ik.imagekit.io')) {
+    // Parse the URL to extract the path
+    try {
+      const urlObj = new URL(url);
+      const path = urlObj.pathname;
+      
+      // Add transformations
+      return `${IMAGEKIT_URL}${path}?tr=w-${width},h-${height},q-${quality}`;
+    } catch (error) {
+      console.error('Error parsing ImageKit URL:', error);
+      return url;
+    }
+  }
+  
+  // If it's not an ImageKit URL, return as is
+  return url;
+};
+
+// Get responsive image URLs for different screen sizes
+export const getResponsiveImageUrls = (url) => {
+  if (!url) return {};
+  
+  return {
+    small: getOptimizedImageUrl(url, 400, 300),
+    medium: getOptimizedImageUrl(url, 800, 600),
+    large: getOptimizedImageUrl(url, 1200, 900)
+  };
+};
+
+// Upload an image to ImageKit
+export const uploadImage = async (file, folder = 'products') => {
   try {
-    const { success, authParams } = await getImageKitAuth();
+    // Get authentication parameters
+    const { authParams } = await getImageKitAuth();
     
-    if (!success || !authParams) {
-      throw new Error('Failed to get ImageKit authentication parameters');
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('publicKey', authParams.publicKey);
+    formData.append('signature', authParams.signature);
+    formData.append('token', authParams.token);
+    formData.append('expire', authParams.expire);
+    formData.append('fileName', `${file.name.split('.')[0]}_${Date.now()}`);
+    formData.append('folder', folder);
+    
+    // Upload to ImageKit
+    const response = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to upload image');
     }
     
+    const data = await response.json();
+    
     return {
-      publicKey: authParams.publicKey,
-      urlEndpoint: authParams.urlEndpoint,
-      authenticationEndpoint: authParams.authenticationEndpoint,
-      signature: authParams.signature,
-      token: authParams.token,
-      expire: authParams.expire,
-      timestamp: authParams.timestamp
+      url: data.url,
+      fileId: data.fileId,
+      name: data.name
     };
   } catch (error) {
-    console.error('Error initializing ImageKit:', error);
+    console.error('Error uploading image to ImageKit:', error);
     throw error;
   }
 };
 
-/**
- * Generate optimized ImageKit URL with transformations
- * @param {string} originalUrl - Original ImageKit URL
- * @param {Object} options - Transformation options
- * @returns {string} Transformed URL
- */
-export const getOptimizedImageUrl = (originalUrl, options = {}) => {
-  if (!originalUrl || !originalUrl.includes('ik.imagekit.io')) {
-    return originalUrl;
+// Extract image ID from ImageKit URL
+export const getImageIdFromUrl = (url) => {
+  if (!url || !url.includes('ik.imagekit.io')) return null;
+  
+  try {
+    const urlObj = new URL(url);
+    const path = urlObj.pathname;
+    const parts = path.split('/');
+    return parts[parts.length - 1];
+  } catch (error) {
+    console.error('Error extracting image ID:', error);
+    return null;
   }
-  
-  const {
-    width,
-    height,
-    quality = 80,
-    format = 'auto',
-    blur = 0,
-    crop = null
-  } = options;
-  
-  // Build transformation string
-  const transformations = [];
-  
-  if (width) transformations.push(`w-${width}`);
-  if (height) transformations.push(`h-${height}`);
-  if (quality) transformations.push(`q-${quality}`);
-  if (format) transformations.push(`f-${format}`);
-  if (blur > 0) transformations.push(`bl-${blur}`);
-  if (crop) transformations.push(`c-${crop}`);
-  
-  // Insert transformations into URL
-  if (transformations.length > 0) {
-    const transformString = transformations.join(',');
-    
-    // Check if URL already has transformations
-    if (originalUrl.includes('/tr:')) {
-      return originalUrl.replace(/\/tr:[^/]+/, `/tr:${transformString}`);
-    } else {
-      // Find the position after the domain and insert transformations
-      const domainEnd = originalUrl.indexOf('/', 8); // Skip https://
-      if (domainEnd !== -1) {
-        return `${originalUrl.substring(0, domainEnd)}/tr:${transformString}${originalUrl.substring(domainEnd)}`;
-      }
-    }
-  }
-  
-  return originalUrl;
-};
-
-/**
- * Get responsive image URLs for different screen sizes
- * @param {string} originalUrl - Original ImageKit URL
- * @returns {Object} Object with different sized image URLs
- */
-export const getResponsiveImageUrls = (originalUrl) => {
-  if (!originalUrl || !originalUrl.includes('ik.imagekit.io')) {
-    return {
-      small: originalUrl,
-      medium: originalUrl,
-      large: originalUrl
-    };
-  }
-  
-  return {
-    small: getOptimizedImageUrl(originalUrl, { width: 400, quality: 70 }),
-    medium: getOptimizedImageUrl(originalUrl, { width: 800, quality: 80 }),
-    large: getOptimizedImageUrl(originalUrl, { width: 1200, quality: 85 })
-  };
-};
-
-/**
- * Generate a placeholder blur URL for lazy loading
- * @param {string} originalUrl - Original ImageKit URL
- * @returns {string} Low quality placeholder URL
- */
-export const getPlaceholderUrl = (originalUrl) => {
-  if (!originalUrl || !originalUrl.includes('ik.imagekit.io')) {
-    return originalUrl;
-  }
-  
-  return getOptimizedImageUrl(originalUrl, {
-    width: 20,
-    quality: 20,
-    blur: 5
-  });
-};
-
-export default {
-  initializeImageKit,
-  getOptimizedImageUrl,
-  getResponsiveImageUrls,
-  getPlaceholderUrl
 };

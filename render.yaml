@@ -1,12 +1,21 @@
 services:
   - type: web
-    name: anzia-api
-    env: node
-    plan: free
-    buildCommand: npm install
-    startCommand: npm start
+    name: anzia-electronics-api
+    runtime: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
     envVars:
-      - key: PORT
-        value: 10000
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: IMAGEKIT_PUBLIC_KEY
+        value: public_ahoxvdF2fShMnKvheyP8TQrAKhE=
+      - key: IMAGEKIT_PRIVATE_KEY
+        sync: false
+      - key: IMAGEKIT_URL_ENDPOINT
+        value: https://ik.imagekit.io/q5jukn457

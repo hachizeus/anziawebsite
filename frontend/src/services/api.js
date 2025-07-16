@@ -1,20 +1,12 @@
-// Backend API URL
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+// Backend API URL (using Render)
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'https://anzia-electronics-api.onrender.com/api';
 
-// Check if we're using Netlify functions
+// We're using the same Render backend URL for both local and Netlify
 const isNetlify = window.location.hostname.includes('netlify.app');
-const NETLIFY_FUNCTION_URL = '/.netlify/functions';
-
-// Netlify API URL from environment variables
-const NETLIFY_API_URL = import.meta.env.VITE_NETLIFY_API_URL || '/.netlify/functions/api';
-
-// Use this as fallback when localhost backend is unavailable
-const FALLBACK_URL = 'https://real-estate-backend-vybd.onrender.com';
-
-console.log('Using API URL:', isNetlify ? NETLIFY_FUNCTION_URL : API_URL);
+const NETLIFY_API_URL = import.meta.env.VITE_NETLIFY_API_URL || 'https://anzia-electronics-api.onrender.com/api';
 
 // ImageKit URL
-const IMAGEKIT_URL = import.meta.env.VITE_IMAGEKIT_URL || 'https://ik.imagekit.io/q5jukn457';
+const IMAGEKIT_URL = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/q5jukn457';
 console.log('Using ImageKit URL:', IMAGEKIT_URL);
 
 // Check if we're in development mode on localhost
@@ -42,24 +34,8 @@ export const getProducts = async (filters = {}) => {
     console.log('Fetching products from API...');
     
     // Determine which API endpoint to use
-    let url;
-    if (isNetlify) {
-      // On Netlify, use the Netlify Functions
-      url = `${NETLIFY_API_URL}/products`;
-      console.log('Using Netlify Functions for products');
-    } else if (isLocalhost) {
-      // On localhost, try local API first, then fallback
-      const isLocalApiAvailable = await checkApiAvailability(API_URL);
-      if (!isLocalApiAvailable) {
-        console.log('Local API not available, using fallback API');
-        url = `${FALLBACK_URL}/frontend/products`;
-      } else {
-        url = `${API_URL}/frontend/products`;
-      }
-    } else {
-      // Default case
-      url = `${API_URL}/frontend/products`;
-    }
+    let url = isNetlify ? NETLIFY_API_URL : API_URL;
+    
     // Build query parameters
     const queryParams = new URLSearchParams();
     if (filters.category && filters.category !== 'all') {
@@ -77,34 +53,39 @@ export const getProducts = async (filters = {}) => {
     if (filters.sortBy) {
       queryParams.append('sortBy', filters.sortBy);
     }
+    if (filters.page) {
+      queryParams.append('page', filters.page);
+    }
+    if (filters.limit) {
+      queryParams.append('limit', filters.limit);
+    }
     
     // Add query parameters to URL
-    url = `${url}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const fullUrl = `${url}/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     
-    console.log('Fetching products from URL:', url);
-    const response = await fetch(url);
-    console.log('API response status:', response.status);
+    console.log('Fetching products from URL:', fullUrl);
+    
+    const response = await fetch(fullUrl);
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
     const result = await response.json();
-    console.log('API result:', result);
     
     if (!result.success) {
       throw new Error(result.message || 'Failed to fetch products');
     }
     
-    let products = result.products || [];
-    console.log('Products count:', products.length);
-    
-    // Log the first product to see its structure
-    if (products.length > 0) {
-      console.log('First product structure:', products[0]);
-    }
-    
-    return { success: true, products };
+    return { 
+      success: true, 
+      products: result.products,
+      pagination: {
+        page: result.page,
+        pages: result.pages,
+        total: result.total
+      }
+    };
   } catch (error) {
     console.error('Error fetching products:', error);
     return { success: false, products: [], error: error.message };
@@ -115,31 +96,17 @@ export const getProducts = async (filters = {}) => {
 export const getProductById = async (id) => {
   try {
     console.log('Fetching product by ID:', id);
-    let url;
-    if (isNetlify) {
-      url = `${NETLIFY_API_URL}/products/${id}`;
-      console.log('Using Netlify Functions for product details');
-    } else if (isLocalhost) {
-      const isLocalApiAvailable = await checkApiAvailability(API_URL);
-      if (!isLocalApiAvailable) {
-        console.log('Local API not available, using fallback API');
-        url = `${FALLBACK_URL}/frontend/products/${id}`;
-      } else {
-        url = `${API_URL}/frontend/products/${id}`;
-      }
-    } else {
-      url = `${API_URL}/frontend/products/${id}`;
-    }
-    console.log('Fetching product from URL:', url);
-    const response = await fetch(url);
-    console.log('API response status:', response.status);
+    
+    // Determine which API endpoint to use
+    let url = isNetlify ? NETLIFY_API_URL : API_URL;
+    
+    const response = await fetch(`${url}/products/${id}`);
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
     const result = await response.json();
-    console.log('API result:', result);
     
     if (!result.success) {
       throw new Error(result.message || 'Failed to fetch product');
@@ -155,26 +122,10 @@ export const getProductById = async (id) => {
 // User authentication functions
 export const registerUser = async (userData) => {
   try {
-    let registerUrl;
+    // Determine which API endpoint to use
+    let url = isNetlify ? NETLIFY_API_URL : API_URL;
     
-    if (isNetlify) {
-      registerUrl = `${NETLIFY_API_URL}/users/register`;
-      console.log('Using Netlify Functions for registration');
-    } else if (isLocalhost) {
-      const isLocalApiAvailable = await checkApiAvailability(API_URL);
-      if (!isLocalApiAvailable) {
-        console.log('Local API not available, using fallback API for registration');
-        registerUrl = `${FALLBACK_URL}/users/register`;
-      } else {
-        registerUrl = `${API_URL}/users/register`;
-      }
-    } else {
-      registerUrl = `${API_URL}/users/register`;
-    }
-    
-    console.log('Register URL:', registerUrl);
-    
-    const response = await fetch(registerUrl, {
+    const response = await fetch(`${url}/users/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -188,7 +139,14 @@ export const registerUser = async (userData) => {
     }
     
     const data = await response.json();
-    return { success: true, user: data.user };
+    
+    // Store token in localStorage
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    
+    return { success: true, user: data.user, token: data.token };
   } catch (error) {
     console.error('Registration error:', error);
     throw error;
@@ -197,26 +155,10 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (email, password) => {
   try {
-    let loginUrl;
+    // Determine which API endpoint to use
+    let url = isNetlify ? NETLIFY_API_URL : API_URL;
     
-    if (isNetlify) {
-      loginUrl = `${NETLIFY_API_URL}/users/login`;
-      console.log('Using Netlify Functions for login');
-    } else if (isLocalhost) {
-      const isLocalApiAvailable = await checkApiAvailability(API_URL);
-      if (!isLocalApiAvailable) {
-        console.log('Local API not available, using fallback API for login');
-        loginUrl = `${FALLBACK_URL}/users/login`;
-      } else {
-        loginUrl = `${API_URL}/users/login`;
-      }
-    } else {
-      loginUrl = `${API_URL}/users/login`;
-    }
-    
-    console.log('Login URL:', loginUrl);
-    
-    const response = await fetch(loginUrl, {
+    const response = await fetch(`${url}/users/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -231,11 +173,17 @@ export const loginUser = async (email, password) => {
     }
     
     const data = await response.json();
+    
+    // Store token in localStorage
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    
     return { 
       success: true, 
       user: data.user, 
-      token: data.token,
-      session: { access_token: data.token } // Add this for compatibility
+      token: data.token
     };
   } catch (error) {
     console.error('Login error:', error);
@@ -245,29 +193,17 @@ export const loginUser = async (email, password) => {
 
 export const logoutUser = async () => {
   try {
-    let logoutUrl;
+    // Determine which API endpoint to use
+    let url = isNetlify ? NETLIFY_API_URL : API_URL;
     
-    if (isNetlify) {
-      logoutUrl = `${NETLIFY_API_URL}/auth/logout`;
-      console.log('Using Netlify Functions for logout');
-    } else if (isLocalhost) {
-      const isLocalApiAvailable = await checkApiAvailability(API_URL);
-      if (!isLocalApiAvailable) {
-        console.log('Local API not available, using fallback API for logout');
-        logoutUrl = `${FALLBACK_URL}/auth/logout`;
-      } else {
-        logoutUrl = `${API_URL}/auth/logout`;
-      }
-    } else {
-      logoutUrl = `${API_URL}/auth/logout`;
-    }
-    
-    console.log('Logout URL:', logoutUrl);
-    
-    const response = await fetch(logoutUrl, {
+    const response = await fetch(`${url}/auth/logout`, {
       method: 'POST',
       credentials: 'include' // Important for cookies
     });
+    
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -277,6 +213,11 @@ export const logoutUser = async () => {
     return { success: true };
   } catch (error) {
     console.error('Logout error:', error);
+    
+    // Even if the API call fails, we still want to remove the token
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
     throw error;
   }
 };
@@ -284,32 +225,16 @@ export const logoutUser = async () => {
 // Get ImageKit authentication parameters for frontend uploads
 export const getImageKitAuth = async () => {
   try {
+    // Determine which API endpoint to use
+    let url = isNetlify ? NETLIFY_API_URL : API_URL;
+    
     const token = localStorage.getItem('token');
-    let imageKitUrl;
     
-    if (isNetlify) {
-      imageKitUrl = `${NETLIFY_API_URL}/imagekit/auth`;
-      console.log('Using Netlify Functions for ImageKit auth');
-    } else if (isLocalhost) {
-      const isLocalApiAvailable = await checkApiAvailability(API_URL);
-      if (!isLocalApiAvailable) {
-        console.log('Local API not available, using fallback API for ImageKit auth');
-        imageKitUrl = `${FALLBACK_URL}/imagekit/auth`;
-      } else {
-        imageKitUrl = `${API_URL}/imagekit/auth`;
-      }
-    } else {
-      imageKitUrl = `${API_URL}/imagekit/auth`;
-    }
-    
-    console.log('ImageKit Auth URL:', imageKitUrl);
-    
-    const response = await fetch(imageKitUrl, {
+    const response = await fetch(`${url}/imagekit/auth`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
-      },
-      credentials: 'include'
+      }
     });
     
     if (!response.ok) {
@@ -321,6 +246,152 @@ export const getImageKitAuth = async () => {
     return { success: true, authParams: data.authParams };
   } catch (error) {
     console.error('ImageKit auth error:', error);
+    throw error;
+  }
+};
+
+// Product management functions (admin only)
+export const createProduct = async (productData) => {
+  try {
+    // Determine which API endpoint to use
+    let url = isNetlify ? '/.netlify/functions/product-management' : '/api/product-management';
+    
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(productData)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create product');
+    }
+    
+    const data = await response.json();
+    return { success: true, product: data.product };
+  } catch (error) {
+    console.error('Create product error:', error);
+    throw error;
+  }
+};
+
+export const updateProduct = async (id, productData) => {
+  try {
+    // Determine which API endpoint to use
+    let url = isNetlify ? '/.netlify/functions/product-management' : '/api/product-management';
+    
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch(`${url}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(productData)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update product');
+    }
+    
+    const data = await response.json();
+    return { success: true, product: data.product };
+  } catch (error) {
+    console.error('Update product error:', error);
+    throw error;
+  }
+};
+
+export const deleteProduct = async (id) => {
+  try {
+    // Determine which API endpoint to use
+    let url = isNetlify ? '/.netlify/functions/product-management' : '/api/product-management';
+    
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch(`${url}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to delete product');
+    }
+    
+    const data = await response.json();
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error('Delete product error:', error);
+    throw error;
+  }
+};
+
+export const uploadProductImage = async (id, imageFile) => {
+  try {
+    // Get ImageKit auth params
+    const { authParams } = await getImageKitAuth();
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    formData.append('publicKey', authParams.publicKey);
+    formData.append('signature', authParams.signature);
+    formData.append('token', authParams.token);
+    formData.append('expire', authParams.expire);
+    formData.append('fileName', `product_${id}_${Date.now()}`);
+    formData.append('folder', 'products');
+    
+    // Upload to ImageKit directly
+    const response = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to upload image');
+    }
+    
+    const data = await response.json();
+    
+    // Now update the product with the new image
+    // Determine which API endpoint to use
+    let url = isNetlify ? '/.netlify/functions/product-management' : '/api/product-management';
+    
+    const token = localStorage.getItem('token');
+    
+    const updateResponse = await fetch(`${url}/upload/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        image: data.url,
+        fileName: data.name,
+        fileId: data.fileId
+      })
+    });
+    
+    if (!updateResponse.ok) {
+      const errorData = await updateResponse.json();
+      throw new Error(errorData.message || 'Failed to update product with image');
+    }
+    
+    const updateData = await updateResponse.json();
+    return { success: true, image: updateData.image };
+  } catch (error) {
+    console.error('Upload product image error:', error);
     throw error;
   }
 };
