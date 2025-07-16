@@ -185,7 +185,9 @@ const User = mongoose.model('User', userSchema);
 // Products routes
 app.get('/api/products', async (req, res) => {
   try {
+    console.log('Fetching products from MongoDB...');
     const products = await Product.find().sort({ createdAt: -1 });
+    console.log('Found products:', products.length);
     res.json({
       success: true,
       count: products.length,
@@ -215,7 +217,9 @@ app.get('/api/products/:id', async (req, res) => {
 // Frontend products route
 app.get('/api/frontend/products', async (req, res) => {
   try {
+    console.log('Fetching frontend products from MongoDB...');
     const products = await Product.find().sort({ createdAt: -1 });
+    console.log('Found frontend products:', products.length);
     res.json({
       success: true,
       message: "Products retrieved successfully",
@@ -227,10 +231,28 @@ app.get('/api/frontend/products', async (req, res) => {
   }
 });
 
+// Create product route (for testing)
+app.post('/api/products', async (req, res) => {
+  try {
+    console.log('Creating product:', req.body);
+    const product = await Product.create(req.body);
+    console.log('Product created:', product._id);
+    res.status(201).json({
+      success: true,
+      product
+    });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // User routes
 app.post('/api/users/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    
+    console.log('Registration attempt:', { name, email });
     
     // Check if user already exists
     const userExists = await User.findOne({ email });
@@ -239,12 +261,14 @@ app.post('/api/users/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
     
-    // Create user
+    // Create user - save password as plain text for now (in production, hash it)
     const user = await User.create({
       name,
       email,
-      password // In a real app, you would hash this password
+      password
     });
+    
+    console.log('User created successfully:', user._id);
     
     // Generate token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -271,17 +295,25 @@ app.post('/api/users/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
+    console.log('Login attempt:', { email });
+    
     // Find user by email
     const user = await User.findOne({ email }).select('+password');
     
     if (!user) {
+      console.log('User not found:', email);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
     
-    // In a real app, you would compare hashed passwords
+    console.log('User found:', user.email);
+    
+    // Compare passwords (plain text for now)
     if (password !== user.password) {
+      console.log('Password mismatch');
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
+    
+    console.log('Login successful');
     
     // Generate token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -307,25 +339,36 @@ app.post('/api/admin-auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Mock admin authentication - replace with real logic
-    if (email === 'admin@example.com' && password === 'admin123') {
-      const token = jwt.sign({ id: 'admin', role: 'admin' }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
-      });
-      
-      res.json({
-        success: true,
-        token,
-        user: {
-          id: 'admin',
-          name: 'Admin User',
-          email: 'admin@example.com',
-          role: 'admin'
-        }
-      });
-    } else {
-      res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+    console.log('Admin login attempt:', { email });
+    
+    // Find admin user in database
+    const user = await User.findOne({ email, role: 'admin' }).select('+password');
+    
+    if (!user) {
+      console.log('Admin user not found:', email);
+      return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
     }
+    
+    // Compare passwords
+    if (password !== user.password) {
+      console.log('Admin password mismatch');
+      return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+    }
+    
+    console.log('Admin login successful');
+    
+    const token = jwt.sign({ id: user._id, role: 'admin' }, process.env.JWT_SECRET, {
+      expiresIn: '30d'
+    });
+    
+    // Remove password from response
+    user.password = undefined;
+    
+    res.json({
+      success: true,
+      token,
+      user
+    });
   } catch (error) {
     console.error('Admin login error:', error);
     res.status(500).json({ success: false, message: error.message });
