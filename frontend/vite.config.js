@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => ({
     },
     proxy: {
       '/api': {
-        target: process.env.VITE_API_BASE_URL || 'http://localhost:4000',
+        target: process.env.VITE_API_BASE_URL || 'https://anzia-electronics-api.onrender.com',
         changeOrigin: true,
         secure: true
       }

@@ -1,9 +1,9 @@
 // Backend API URL (using Render)
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'https://anzia-electronics-api.onrender.com/api';
+const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
 // We're using the same Render backend URL for both local and Netlify
 const isNetlify = window.location.hostname.includes('netlify.app');
-const NETLIFY_API_URL = import.meta.env.VITE_NETLIFY_API_URL || 'https://anzia-electronics-api.onrender.com/api';
+const NETLIFY_API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
 // ImageKit URL
 const IMAGEKIT_URL = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/q5jukn457';

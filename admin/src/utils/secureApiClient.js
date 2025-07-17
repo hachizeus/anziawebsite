@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:4000";
+const API_URL = "https://anzia-electronics-api.onrender.com";
 
 // Create a secure API client with interceptors for token handling
 const secureApiClient = () => {

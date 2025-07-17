@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash, FaShieldAlt, FaClock } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || "https://real-estate-backend-vybd.onrender.com";
+const API_URL = import.meta.env.VITE_BACKEND_URL || "https://anzia-electronics-api.onrender.com";
 
 const Login = () => {
   const [email, setEmail] = useState("");

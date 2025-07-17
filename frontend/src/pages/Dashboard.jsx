@@ -32,7 +32,7 @@ const Dashboard = () => {
         const token = localStorage.getItem('token');
         console.log('Dashboard fetching properties with token:', token ? token.substring(0, 20) + '...' : 'no token');
         
-        const response = await axios.get(`https://real-estate-backend-vybd.onrender.com/api/tenants/user`, {
+        const response = await axios.get(`https://anzia-electronics-api.onrender.com/api/tenants/user`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }

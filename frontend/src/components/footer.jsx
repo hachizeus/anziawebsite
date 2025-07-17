@@ -158,7 +158,7 @@ const Newsletter = () => {
 
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://real-estate-backend-vybd.onrender.com';
+      const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://anzia-electronics-api.onrender.com';
       const response = await axios.post(`${API_URL}/api/news/newsdata`, { email, optIn });
       if (response.status === 200 || response.status === 201) {
         toast.success('Successfully subscribed to our newsletter!');
@@ -293,7 +293,7 @@ const Footer = () => {
             <div className="flex items-center justify-center lg:justify-start">
               <img 
                 src={logoImg} 
-                alt="Makini Realtors" 
+                alt="Anzia Electronics" 
                 className="h-12 w-auto" 
               />
               <span className="ml-3 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-primary-700">

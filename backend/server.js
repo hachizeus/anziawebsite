@@ -72,8 +72,8 @@ app.use(cors({
       'http://localhost:5000',
       'http://localhost:8000',
       'http://localhost:8080',
-      'https://real-estate-website-frontend.vercel.app',
-      'https://real-estate-frontend-fuzu.onrender.com'
+      'https://anzia-electronics-frontend.vercel.app',
+      'https://anzia-electronics-frontend.netlify.app'
     ].filter(Boolean);
     
     // Allow requests with no origin (like mobile apps or curl requests)

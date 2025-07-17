@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     // Create a pre-signed URL for direct upload
     // This is a simplified example - in a real implementation, 
     // you would integrate with your storage provider (S3, etc.)
-    const uploadUrl = `https://real-estate-backend-vybd.onrender.com/api/documents/upload-url?filename=${filename}&tenantId=${tenantId}`;
+    const uploadUrl = `https://anzia-electronics-api.onrender.com/api/documents/upload-url?filename=${filename}&tenantId=${tenantId}`;
     
     // Return the upload URL to the client
     res.status(200).json({ 

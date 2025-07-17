@@ -23,37 +23,8 @@ import Dashboard from "./pages/Dashboard";
 import List from "./pages/List";
 import Add from "./pages/Add";
 import Update from "./pages/Update";
-import Appointments from "./pages/Appointments";
-import PropertyDetail from "./pages/PropertyDetail";
-import BlogRoutes from "./pages/Blog";
-
-// Document Management
-import DocumentList from "./pages/Documents/DocumentList";
-import DocumentUpload from "./pages/Documents/DocumentUpload";
-import DocumentView from "./pages/Documents/DocumentView";
-
-// Tenant Management
-import TenantList from "./pages/Tenants/TenantList";
-import TenantForm from "./pages/Tenants/TenantForm";
-import TenantDetail from "./pages/Tenants/TenantDetail";
-import TenantPayment from "./pages/Tenants/TenantPayment";
-import TenantDocuments from "./pages/Tenants/TenantDocuments";
-
-// Advanced Business Tools
-import DashboardOverview from "./pages/Analytics/DashboardOverview";
-import FinancialAnalytics from "./pages/Financial/FinancialAnalytics";
-import PropertyAnalytics from "./pages/Analytics/PropertyAnalytics";
-
-import MaintenanceManagement from "./pages/Maintenance/MaintenanceManagement";
-import PropertyApproval from "./pages/PropertyApproval";
-
-
-// User Management
+import ProductApproval from "./pages/ProductApproval";
 import UserManagement from "./pages/UserManagement";
-import AgentManagement from "./pages/AgentManagement";
-import AgentDetail from "./pages/AgentDetail";
-
-// Newsletter Management
 import Newsletter from "./pages/Newsletter";
 
 // Config
@@ -122,38 +93,10 @@ function App() {
                   <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/list" element={<List />} />
-                    <Route path="/property/:id" element={<PropertyDetail />} />
                     <Route path="/add" element={<Add />} />
                     <Route path="/update/:id" element={<Update />} />
-                    <Route path="/appointments" element={<Appointments />} />
-                    
-                    {/* Document Management Routes */}
-                    <Route path="/documents" element={<DocumentList />} />
-                    <Route path="/documents/upload" element={<DocumentUpload />} />
-                    <Route path="/documents/:id" element={<DocumentView />} />
-                    
-                    {/* Tenant Management Routes */}
-                    <Route path="/tenants" element={<TenantList />} />
-                    <Route path="/tenants/add" element={<TenantForm />} />
-                    <Route path="/tenants/edit/:id" element={<TenantForm />} />
-                    <Route path="/tenants/:id" element={<TenantDetail />} />
-                    <Route path="/tenants/:id/payment" element={<TenantPayment />} />
-                    <Route path="/tenants/:id/documents" element={<TenantDocuments />} />
-
-                    {/* User Management Routes */}
                     <Route path="/users" element={<UserManagement/>} />
-                    <Route path="/agents" element={<AgentManagement/>} />
-                    <Route path="/agents/:id" element={<AgentDetail/>} />
-                    
-                    {/* Blog Management Routes */}
-                    <Route path="/blogs/*" element={<BlogRoutes />} />
-                    
-                    {/* Advanced Business Tools Routes */}
-                    <Route path="/analytics/dashboard" element={<DashboardOverview />} />
-                    <Route path="/analytics/financial" element={<FinancialAnalytics />} />
-                    <Route path="/analytics/properties" element={<PropertyAnalytics />} />
-                    <Route path="/maintenance" element={<MaintenanceManagement />} />
-                    <Route path="/property-approval" element={<PropertyApproval />} />
+                    <Route path="/product-approval" element={<ProductApproval />} />
                     <Route path="/newsletter" element={<Newsletter />} />
                   </Route>
 

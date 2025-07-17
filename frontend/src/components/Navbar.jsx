@@ -99,8 +99,6 @@ const Navbar = () => {
   };
   
   const userRole = getUserRole();
-  const isTenant = userRole === 'tenant';
-  const isAgent = userRole === 'agent';
   
   // Get cart count from localStorage
   const [cartCount, setCartCount] = useState(0);

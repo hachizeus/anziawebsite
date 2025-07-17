@@ -4,14 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "main": "App.jsx",
-  "description": "Anzia Electronics  - Premium Real Estate Platform User Interface",
+  "description": "Anzia Electronics - Premium Electronics E-commerce Platform User Interface",
   "author": "Victor Gathecha",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/victorgathecha/Real-Estate-Website"
+    "url": "https://github.com/victorgathecha/Electronics-Website"
   },
-  "homepage": "https://Anzia Electronics .co.ke",
+  "homepage": "https://anziaelectronics.co.ke",
   "scripts": {
     "dev": "node copy-assets.js && vite",
     "build": "node copy-assets.js && vite build && node scripts/copy-htaccess.js",
