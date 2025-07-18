@@ -47,7 +47,10 @@ const Newsletter = () => {
     setSending(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_URL}/api/newsletter/send`, newsletter, {
+      const response = await axios.post(`${API_URL}/api/newsletter/send`, {
+        subject: newsletter.subject,
+        message: newsletter.content
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
