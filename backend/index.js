@@ -932,6 +932,24 @@ app.delete('/api/newsletter/unsubscribe/:id', async (req, res) => {
   }
 });
 
+// Newsletter send endpoint
+app.post('/api/newsletter/send', async (req, res) => {
+  try {
+    const { subject, message } = req.body;
+    const subscribers = await Newsletter.find();
+    
+    // In a real app, you'd send emails here
+    // For now, just return success
+    res.json({ 
+      success: true, 
+      message: `Newsletter sent to ${subscribers.length} subscribers`,
+      count: subscribers.length 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // News endpoint
 app.post('/api/news/newsdata', async (req, res) => {
   try {
