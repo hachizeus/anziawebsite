@@ -78,8 +78,8 @@ const imagekit = new ImageKit({
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER || 'victor@forceRoleField.js',
-    pass: process.env.EMAIL_PASS || 'your_app_password'
+    user: process.env.EMAIL_USER || 'victormbogo958@gmail.com',
+    pass: process.env.EMAIL_PASS || 'your_gmail_app_password'
   }
 });
 
@@ -87,7 +87,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: `"Anzia Electronics" <${process.env.EMAIL_USER || 'victor@forceRoleField.js'}>`,
+      from: `"Anzia Electronics" <${process.env.EMAIL_USER || 'victormbogo958@gmail.com'}>`,
       to,
       subject,
       html
@@ -95,6 +95,7 @@ const sendEmail = async (to, subject, html) => {
     console.log('Email sent successfully to:', to);
   } catch (error) {
     console.error('Error sending email:', error);
+    throw error;
   }
 };
 
