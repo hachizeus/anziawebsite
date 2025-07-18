@@ -17,7 +17,8 @@ const Checkout = () => {
       zipCode: '',
       country: 'Kenya'
     },
-    paymentMethod: 'cash'
+    paymentMethod: 'mpesa',
+    phoneNumber: ''
   });
   const navigate = useNavigate();
 
@@ -75,7 +76,8 @@ const Checkout = () => {
         })),
         totalAmount: getTotalPrice(),
         shippingAddress: orderData.shippingAddress,
-        paymentMethod: orderData.paymentMethod
+        paymentMethod: 'mpesa',
+        phoneNumber: orderData.phoneNumber
       };
 
       const response = await axios.post(`${API_URL}/orders/create`, orderPayload);
@@ -85,7 +87,7 @@ const Checkout = () => {
         localStorage.removeItem('cart');
         window.dispatchEvent(new CustomEvent('cartUpdated'));
         
-        toast.success('Order placed successfully!');
+        toast.success(response.data.message || 'Please check your phone for M-Pesa payment prompt');
         navigate('/dashboard');
       }
     } catch (error) {
@@ -157,17 +159,28 @@ const Checkout = () => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Method
+                  Phone Number (for M-Pesa)
                 </label>
-                <select
-                  value={orderData.paymentMethod}
-                  onChange={(e) => setOrderData({ ...orderData, paymentMethod: e.target.value })}
+                <input
+                  type="tel"
+                  required
+                  placeholder="254XXXXXXXXX"
+                  value={orderData.phoneNumber || ''}
+                  onChange={(e) => setOrderData({ ...orderData, phoneNumber: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="cash">Cash on Delivery</option>
-                  <option value="mpesa">M-Pesa</option>
-                  <option value="card">Credit/Debit Card</option>
-                </select>
+                />
+              </div>
+              
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">M</span>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-green-800">M-Pesa Payment</h3>
+                    <p className="text-sm text-green-600">Pay securely with M-Pesa mobile money</p>
+                  </div>
+                </div>
               </div>
               
               <button
