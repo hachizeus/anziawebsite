@@ -86,9 +86,9 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <ThemeProvider>
-          <Router>
+      <Router>
+        <AuthProvider>
+          <ThemeProvider>
             <Navbar />
             <Suspense fallback={<LoadingFallback />}>
               <Routes>
@@ -134,9 +134,9 @@ function App() {
             </Suspense>
             <Footer />
             <Toaster position="top-right" />
-          </Router>
-        </ThemeProvider>
-      </AuthProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </Router>
     </ErrorBoundary>
   );
 }

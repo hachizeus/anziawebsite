@@ -19,7 +19,7 @@ console.log('Environment variables loaded: ', {
 const LoadingFallback = () => (
   <div className="app-loading">
     <div className="loading-spinner"></div>
-    <p>Loading Makini Realtors...</p>
+    <p>Loading Anzia Electronics ...</p>
   </div>
 )
 

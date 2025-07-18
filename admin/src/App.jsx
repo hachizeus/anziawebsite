@@ -26,6 +26,7 @@ import Update from "./pages/Update";
 import ProductApproval from "./pages/ProductApproval";
 import UserManagement from "./pages/UserManagement";
 import Newsletter from "./pages/Newsletter";
+import Orders from "./pages/Orders";
 
 // Config
 export const backendurl = import.meta.env.VITE_BACKEND_URL;
@@ -87,7 +88,7 @@ function App() {
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/login" element={<Login />} />
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/" element={<Dashboard />} />
 
                   {/* Protected Routes */}
                   <Route element={<ProtectedRoute />}>
@@ -95,6 +96,7 @@ function App() {
                     <Route path="/list" element={<List />} />
                     <Route path="/add" element={<Add />} />
                     <Route path="/update/:id" element={<Update />} />
+                    <Route path="/orders" element={<Orders />} />
                     <Route path="/users" element={<UserManagement/>} />
                     <Route path="/product-approval" element={<ProductApproval />} />
                     <Route path="/newsletter" element={<Newsletter />} />

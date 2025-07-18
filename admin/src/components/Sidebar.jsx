@@ -112,9 +112,9 @@ const Sidebar = () => {
           
           {/* Dashboard */}
           <Link
-            to="/dashboard"
+            to="/"
             className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/dashboard') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
+              isActive('/') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
             <Home className="w-5 h-5 min-w-[20px]" />

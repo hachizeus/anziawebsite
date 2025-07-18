@@ -74,86 +74,87 @@ const Cart = () => {
       <Toaster position="top-right" />
       <div className="min-h-screen bg-gray-50 pt-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
-        
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="space-y-6">
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex items-center space-x-4 border-b pb-6">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                  {item.image ? (
-                    <img 
-                      src={item.image.url || item.image} 
-                      alt={item.name}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : (
-                    <ShoppingCart className="w-8 h-8 text-gray-400" />
-                  )}
-                </div>
-                
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{item.name}</h3>
-                  <p className="text-lg font-semibold text-primary-600">
-                    KSh {item.price.toLocaleString()}
-                  </p>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="p-1 border border-gray-300 rounded hover:bg-gray-50"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="px-3 py-1 border border-gray-300 rounded">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="p-1 border border-gray-300 rounded hover:bg-gray-50"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-                
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">
-                    KSh {(item.price * item.quantity).toLocaleString()}
-                  </p>
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="text-red-600 hover:text-red-700 mt-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
           
-          <div className="mt-8 border-t pt-6">
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-xl font-semibold text-gray-900">Total:</span>
-              <span className="text-2xl font-bold text-primary-600">
-                KSh {getTotalPrice().toLocaleString()}
-              </span>
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="space-y-6">
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex items-center space-x-4 border-b pb-6">
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                    {item.image ? (
+                      <img 
+                        src={item.image.url || item.image} 
+                        alt={item.name}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <ShoppingCart className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900">{item.name}</h3>
+                    <p className="text-lg font-semibold text-primary-600">
+                      KSh {item.price.toLocaleString()}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="p-1 border border-gray-300 rounded hover:bg-gray-50"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="px-3 py-1 border border-gray-300 rounded">
+                      {item.quantity}
+                    </span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="p-1 border border-gray-300 rounded hover:bg-gray-50"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="text-right">
+                    <p className="font-semibold text-gray-900">
+                      KSh {(item.price * item.quantity).toLocaleString()}
+                    </p>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-red-600 hover:text-red-700 mt-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
             
-            <div className="flex space-x-4">
-              <Link
-                to="/products"
-                className="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg text-center hover:bg-gray-50 transition-colors"
-              >
-                Continue Shopping
-              </Link>
-              <button
-                onClick={proceedToCheckout}
-                disabled={loading}
-                className="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Processing...' : 'Proceed to Checkout'}
-              </button>
+            <div className="mt-8 border-t pt-6">
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-xl font-semibold text-gray-900">Total:</span>
+                <span className="text-2xl font-bold text-primary-600">
+                  KSh {getTotalPrice().toLocaleString()}
+                </span>
+              </div>
+              
+              <div className="flex space-x-4">
+                <Link
+                  to="/products"
+                  className="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg text-center hover:bg-gray-50 transition-colors"
+                >
+                  Continue Shopping
+                </Link>
+                <button
+                  onClick={proceedToCheckout}
+                  disabled={loading}
+                  className="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Processing...' : 'Proceed to Checkout'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

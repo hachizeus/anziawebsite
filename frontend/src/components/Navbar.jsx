@@ -125,13 +125,11 @@ const Navbar = () => {
     // Custom event for cart updates
     window.addEventListener('cartUpdated', updateCartCount);
     
-    // Set up interval to periodically check cart (backup for missed events)
-    const intervalId = setInterval(updateCartCount, 2000);
+    // Remove interval to prevent spam
     
     return () => {
       window.removeEventListener('storage', updateCartCount);
       window.removeEventListener('cartUpdated', updateCartCount);
-      clearInterval(intervalId);
     };
   }, []);
 

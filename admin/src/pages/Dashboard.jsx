@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -27,7 +27,8 @@ import {
   Loader,
   Briefcase,
   Map,
-  UserPlus
+  UserPlus,
+  Plus
 } from 'lucide-react';
 import { backendurl } from '../App';
 
@@ -152,11 +153,17 @@ const Dashboard = () => {
       console.log('[DEBUG] Response data:', response.data);
       
       // Fetch products to calculate category breakdown
-      const productsResponse = await axios.get(`${backendurl}/api/products/list`, {
+      const productsResponse = await axios.get(`${backendurl}/api/legacy-products/list`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Fetch orders
+      const ordersResponse = await axios.get(`${backendurl}/api/orders/admin`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       const products = productsResponse.data.products || [];
+      const orders = ordersResponse.data.orders || [];
       
       // Calculate products by category
       const productsByCategory = {};
@@ -187,6 +194,8 @@ const Dashboard = () => {
           ...prev,
           ...response.data.stats,
           productsByCategory: categoryChartData,
+          recentOrders: orders.slice(0, 5),
+          pendingOrders: orders.filter(order => order.status === 'pending').length,
           loading: false,
           error: null,
         }));
@@ -490,6 +499,48 @@ const Dashboard = () => {
 
 
         
+        {/* Recent Orders */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-md mb-6 sm:mb-8"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Recent Orders</h2>
+            <Link to="/orders" className="text-sm text-primary-600 hover:text-primary-700">
+              View All Orders
+            </Link>
+          </div>
+          <div className="space-y-4">
+            {stats.recentOrders?.length > 0 ? (
+              stats.recentOrders.map((order) => (
+                <div key={order._id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  <div>
+                    <p className="font-medium text-gray-900">Order #{order._id.slice(-8)}</p>
+                    <p className="text-sm text-gray-600">{order.userId?.name} • {order.items?.length || 0} items</p>
+                    <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-gray-900">KSh {order.totalAmount?.toLocaleString()}</p>
+                    <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
+                      order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                No recent orders
+              </div>
+            )}
+          </div>
+        </motion.div>
+
         {/* Recent Activity */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

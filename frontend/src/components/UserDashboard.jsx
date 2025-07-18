@@ -17,7 +17,7 @@ import {
 const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
 const UserDashboard = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [orders, setOrders] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -49,7 +49,18 @@ const UserDashboard = () => {
       // Fetch user profile
       const profileRes = await axios.get(`${API_URL}/users/profile/${user._id}`);
       if (profileRes.data.success) {
-        setProfile(profileRes.data.user);
+        setProfile({
+          name: profileRes.data.user.name || '',
+          email: profileRes.data.user.email || '',
+          phone: profileRes.data.user.phone || '',
+          address: {
+            street: profileRes.data.user.address?.street || '',
+            city: profileRes.data.user.address?.city || '',
+            state: profileRes.data.user.address?.state || '',
+            zipCode: profileRes.data.user.address?.zipCode || '',
+            country: profileRes.data.user.address?.country || 'Kenya'
+          }
+        });
       }
       
       // Fetch user orders
@@ -75,10 +86,22 @@ const UserDashboard = () => {
       setLoading(true);
       const response = await axios.put(`${API_URL}/users/profile/${user._id}`, profile);
       if (response.data.success) {
+        // Update auth context with new user data
+        updateUser(response.data.user);
+        
+        // Update local storage
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = { ...currentUser, ...response.data.user };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
         toast.success('Profile updated successfully');
       }
     } catch (error) {
-      toast.error('Failed to update profile');
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Failed to update profile');
+      }
     } finally {
       setLoading(false);
     }
@@ -211,11 +234,11 @@ const UserDashboard = () => {
                     {orders.slice(0, 3).map((order) => (
                       <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Order #{order.id}</p>
-                          <p className="text-sm text-gray-500">{order.date}</p>
+                          <p className="font-medium text-gray-900">Order #{order._id?.slice(-8) || 'N/A'}</p>
+                          <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium text-gray-900">KSh {order.total.toLocaleString()}</p>
+                          <p className="font-medium text-gray-900">KSh {order.totalAmount?.toLocaleString() || '0'}</p>
                           <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
                             {order.status}
                           </span>
@@ -235,16 +258,16 @@ const UserDashboard = () => {
                     <div key={order.id} className="border rounded-lg p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <h4 className="font-medium text-gray-900">Order #{order.id}</h4>
-                          <p className="text-sm text-gray-500">Placed on {order.date}</p>
+                          <h4 className="font-medium text-gray-900">Order #{order._id?.slice(-8) || 'N/A'}</h4>
+                          <p className="text-sm text-gray-500">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
                         </div>
                         <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-600">{order.items} item(s)</p>
-                        <p className="font-semibold text-gray-900">KSh {order.total.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600">{order.items?.length || 0} item(s)</p>
+                        <p className="font-semibold text-gray-900">KSh {order.totalAmount?.toLocaleString() || '0'}</p>
                       </div>
                     </div>
                   ))}

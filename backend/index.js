@@ -62,6 +62,8 @@ app.use(express.urlencoded({ extended: true }));
 // Add multer for multipart/form-data
 import multer from 'multer';
 import ImageKit from 'imagekit';
+import nodemailer from 'nodemailer';
+import { orderConfirmationTemplate, orderStatusUpdateTemplate } from './utils/emailTemplates.js';
 
 const upload = multer();
 
@@ -71,6 +73,30 @@ const imagekit = new ImageKit({
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
 });
+
+// Initialize email transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// Email sending function
+const sendEmail = async (to, subject, html) => {
+  try {
+    await transporter.sendMail({
+      from: `"Anzia Electronics" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html
+    });
+    console.log('Email sent successfully to:', to);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+};
 
 // Serve static files
 app.use('/public', express.static(join(__dirname, 'public')));
@@ -301,11 +327,26 @@ const orderSchema = new mongoose.Schema({
   }
 });
 
+// Newsletter schema
+const newsletterSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 // Create models
 const Product = mongoose.model('Product', productSchema);
 const User = mongoose.model('User', userSchema);
 const Wishlist = mongoose.model('Wishlist', wishlistSchema);
 const Order = mongoose.model('Order', orderSchema);
+const Newsletter = mongoose.model('Newsletter', newsletterSchema);
 
 // Products routes
 app.get('/api/products', async (req, res) => {
@@ -552,12 +593,33 @@ app.get('/api/users/profile/:id', async (req, res) => {
 
 app.put('/api/users/profile/:id', async (req, res) => {
   try {
+    const { email, ...otherData } = req.body;
+    
+    // Check if email is being changed and if it already exists
+    if (email) {
+      const existingUser = await User.findOne({ email, _id: { $ne: req.params.id } });
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: 'Email already exists' });
+      }
+    }
+    
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { ...req.body, updatedAt: new Date() },
+      { ...otherData, email, updatedAt: new Date() },
       { new: true }
     ).select('-password');
-    res.json({ success: true, user });
+    
+    // Update localStorage data for the user
+    const updatedUserData = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      address: user.address
+    };
+    
+    res.json({ success: true, user: updatedUserData });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -606,6 +668,17 @@ app.post('/api/orders/create', async (req, res) => {
     const populatedOrder = await Order.findById(order._id)
       .populate('userId', 'name email')
       .populate('items.productId', 'name price images');
+    
+    // Send order confirmation email
+    if (populatedOrder.userId?.email) {
+      const emailHtml = orderConfirmationTemplate(populatedOrder, populatedOrder.userId);
+      await sendEmail(
+        populatedOrder.userId.email,
+        `Order Confirmation #${populatedOrder._id.toString().slice(-8)} - Anzia Electronics`,
+        emailHtml
+      );
+    }
+    
     res.json({ success: true, order: populatedOrder });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -643,6 +716,17 @@ app.put('/api/orders/:id/status', async (req, res) => {
       { status, updatedAt: new Date() },
       { new: true }
     ).populate('userId', 'name email').populate('items.productId', 'name price images');
+    
+    // Send status update email
+    if (order.userId?.email) {
+      const emailHtml = orderStatusUpdateTemplate(order, order.userId, status);
+      await sendEmail(
+        order.userId.email,
+        `Order Update #${order._id.toString().slice(-8)} - ${status.toUpperCase()} - Anzia Electronics`,
+        emailHtml
+      );
+    }
+    
     res.json({ success: true, order });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -706,8 +790,8 @@ app.post('/api/users/login', async (req, res) => {
     
     console.log('Login attempt:', { email });
     
-    // Find user by email
-    const user = await User.findOne({ email }).select('+password');
+    // Find user by email (case insensitive)
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     
     if (!user) {
       console.log('User not found:', email);
@@ -811,6 +895,48 @@ app.post('/api/admin-auth/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Admin login error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Newsletter endpoints
+app.get('/api/newsletter/subscribers', async (req, res) => {
+  try {
+    const subscribers = await Newsletter.find().sort({ createdAt: -1 });
+    res.json({ success: true, subscribers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/newsletter/subscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const subscriber = await Newsletter.create({ email });
+    res.json({ success: true, subscriber });
+  } catch (error) {
+    if (error.code === 11000) {
+      res.status(400).json({ success: false, message: 'Email already subscribed' });
+    } else {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+});
+
+app.delete('/api/newsletter/unsubscribe/:id', async (req, res) => {
+  try {
+    await Newsletter.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Unsubscribed successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// News endpoint
+app.post('/api/news/newsdata', async (req, res) => {
+  try {
+    res.json({ success: true, message: 'News endpoint working' });
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });

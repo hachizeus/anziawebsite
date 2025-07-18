@@ -1,7 +1,7 @@
-// Backend API URL (using Render)
+// Backend API URL (using original electronics backend)
 const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
-// We're using the same Render backend URL for both local and Netlify
+// We're using the same backend URL for both local and Netlify
 const isNetlify = window.location.hostname.includes('netlify.app');
 const NETLIFY_API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
