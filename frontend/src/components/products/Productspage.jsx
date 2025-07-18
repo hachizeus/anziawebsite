@@ -50,7 +50,8 @@ const ProductsPage = () => {
           // Check if images is an array
           if (Array.isArray(product.images) && product.images.length > 0) {
             images = product.images;
-            imageUrl = product.images[0];
+            // Handle ImageKit object format
+            imageUrl = product.images[0].url || product.images[0];
           }
           // Check if images is a string (JSON)
           else if (typeof product.images === 'string') {
@@ -80,7 +81,7 @@ const ProductsPage = () => {
             });
           }
           
-          console.log(`Product ${product.id} (${product.name}): Image URL = ${imageUrl}`);
+          console.log(`Product ${product._id} (${product.name}): Image URL = ${imageUrl}`);
           
           return {
             ...product,
@@ -174,11 +175,11 @@ const ProductsPage = () => {
                 src={imageUrl} 
                 alt={product.name} 
                 className="w-full h-48 object-cover"
-                onError={(e) => {
+onError={(e) => {
                   console.error('Image failed to load:', imageUrl);
-                  e.target.onerror = null;
-                  e.target.src = '';
-                  e.target.parentElement.innerHTML = '<div class="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center"><svg class="w-16 h-16 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg></div>';
+                  e.target.style.display = 'none';
+                  const placeholder = e.target.parentElement.querySelector('.placeholder');
+                  if (placeholder) placeholder.style.display = 'flex';
                 }}
               />
             ) : (
@@ -237,7 +238,7 @@ const ProductsPage = () => {
 
           <div className="flex">
             <Link
-              to={`/products/${product.id}`}
+              to={`/products/${product._id}`}
               className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors text-center text-sm font-medium"
             >
               View Details
@@ -362,7 +363,7 @@ const ProductsPage = () => {
             : 'grid-cols-1'
         }`}>
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
 
