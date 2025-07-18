@@ -78,8 +78,8 @@ const imagekit = new ImageKit({
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER || 'victor@forceRoleField.js',
+    pass: process.env.EMAIL_PASS || 'your_app_password'
   }
 });
 
@@ -87,7 +87,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: `"Anzia Electronics" <${process.env.EMAIL_USER}>`,
+      from: `"Anzia Electronics" <${process.env.EMAIL_USER || 'victor@forceRoleField.js'}>`,
       to,
       subject,
       html
@@ -979,16 +979,53 @@ app.post('/api/newsletter/send', async (req, res) => {
     const { subject, message } = req.body;
     const subscribers = await Newsletter.find();
     
-    // In a real app, you'd send emails here
-    // For now, just return success with proper structure
+    let successful = 0;
+    let failed = 0;
+    
+    // Send emails to all subscribers
+    for (const subscriber of subscribers) {
+      try {
+        const emailHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>${subject}</title>
+          </head>
+          <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #667eea;">Anzia Electronics</h1>
+            </div>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+              <h2 style="color: #333;">${subject}</h2>
+              <div style="color: #666; line-height: 1.6;">
+                ${message.replace(/\n/g, '<br>')}
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+              <p>© ${new Date().getFullYear()} Anzia Electronics. All rights reserved.</p>
+              <p><a href="#" style="color: #667eea;">Unsubscribe</a></p>
+            </div>
+          </body>
+          </html>
+        `;
+        
+        await sendEmail(subscriber.email, subject, emailHtml);
+        successful++;
+      } catch (emailError) {
+        console.error(`Failed to send email to ${subscriber.email}:`, emailError);
+        failed++;
+      }
+    }
+    
     res.json({ 
       success: true,
       stats: {
-        successful: subscribers.length,
-        failed: 0,
+        successful,
+        failed,
         total: subscribers.length
       },
-      message: `Newsletter sent to ${subscribers.length} subscribers`
+      message: `Newsletter sent to ${successful} subscribers (${failed} failed)`
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
