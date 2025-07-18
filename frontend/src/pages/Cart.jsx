@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingCart } from '../utils/icons.jsx';
 import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
@@ -12,11 +12,13 @@ const Cart = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('Cart component mounted');
     loadCart();
   }, []);
 
   const loadCart = () => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    console.log('Loading cart items:', cart);
     setCartItems(cart);
   };
 
@@ -68,8 +70,10 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      <Toaster position="top-right" />
+      <div className="min-h-screen bg-gray-50 pt-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
         
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -154,7 +158,7 @@ const Cart = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -16,22 +16,85 @@ import PropTypes from "prop-types";
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  
+  const API_URL = 'https://anzia-electronics-api.onrender.com/api';
+  
+  useEffect(() => {
+    checkWishlistStatus();
+  }, []);
+  
+  const checkWishlistStatus = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user._id) return;
+      
+      const response = await axios.get(`${API_URL}/wishlist/${user._id}`);
+      if (response.data.success) {
+        const inWishlist = response.data.wishlist.some(item => 
+          item.productId._id === product._id
+        );
+        setIsInWishlist(inWishlist);
+      }
+    } catch (error) {
+      console.error('Error checking wishlist status:', error);
+    }
+  };
 
   const handleNavigate = () => {
     navigate(`/products/${product._id}`);
   };
 
-  const toggleFavorite = (e) => {
+  const toggleWishlist = async (e) => {
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    // Here you would typically call an API to save to user's favorites
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user._id) {
+        alert('Please login to add to wishlist');
+        return;
+      }
+      
+      if (isInWishlist) {
+        await axios.delete(`${API_URL}/wishlist/remove`, {
+          data: { userId: user._id, productId: product._id }
+        });
+        setIsInWishlist(false);
+      } else {
+        await axios.post(`${API_URL}/wishlist/add`, {
+          userId: user._id,
+          productId: product._id
+        });
+        setIsInWishlist(true);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+    }
   };
 
   const addToCart = (e) => {
     e.stopPropagation();
-    // Add to cart logic here
-    console.log('Added to cart:', product.name);
+    try {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existingItemIndex = cart.findIndex(item => item.id === product._id);
+      
+      if (existingItemIndex >= 0) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push({
+          id: product._id,
+          name: product.name,
+          price: product.price,
+          image: product.images?.[0]?.url || product.images?.[0],
+          quantity: 1
+        });
+      }
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      alert('Added to cart!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   };
 
   return (
@@ -70,17 +133,13 @@ src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-pro
         
         {/* Bookmark button */}
         <button 
-          onClick={toggleFavorite}
+          onClick={toggleWishlist}
           className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 
-            ${isFavorite 
+            ${isInWishlist 
               ? 'bg-red-500 text-white' 
               : 'bg-white/80 backdrop-blur-sm text-gray-700 hover:text-red-500'}`}
         >
-          <img
-            src="/images/32px-Bookmark-solid.png"
-            alt="Bookmark"
-            className={`w-5 h-5 ${isFavorite ? 'opacity-100' : 'opacity-70'}`}
-          />
+          <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
         </button>
         
         {/* View overlay on hover */}

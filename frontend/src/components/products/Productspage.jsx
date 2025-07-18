@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import { 
   Search, 
   Filter, 
@@ -154,6 +155,8 @@ const ProductsPage = () => {
   };
 
   const ProductCard = ({ product }) => {
+    const [isInWishlist, setIsInWishlist] = useState(false);
+    
     // Handle missing or null values
     const price = product.price || 0;
     const originalPrice = product.original_price || price;
@@ -161,6 +164,81 @@ const ProductsPage = () => {
     
     // Use the pre-processed image URL
     const imageUrl = product.processedImageUrl;
+    
+    const API_URL = 'https://anzia-electronics-api.onrender.com/api';
+    
+    useEffect(() => {
+      checkWishlistStatus();
+    }, []);
+    
+    const checkWishlistStatus = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user._id) return;
+        
+        const response = await axios.get(`${API_URL}/wishlist/${user._id}`);
+        if (response.data.success) {
+          const inWishlist = response.data.wishlist.some(item => 
+            item.productId._id === product._id
+          );
+          setIsInWishlist(inWishlist);
+        }
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
+      }
+    };
+    
+    const toggleWishlist = async (e) => {
+      e.stopPropagation();
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user._id) {
+          alert('Please login to add to wishlist');
+          return;
+        }
+        
+        if (isInWishlist) {
+          await axios.delete(`${API_URL}/wishlist/remove`, {
+            data: { userId: user._id, productId: product._id }
+          });
+          setIsInWishlist(false);
+        } else {
+          await axios.post(`${API_URL}/wishlist/add`, {
+            userId: user._id,
+            productId: product._id
+          });
+          setIsInWishlist(true);
+        }
+      } catch (error) {
+        console.error('Error toggling wishlist:', error);
+      }
+    };
+    
+    const addToCart = (e) => {
+      e.stopPropagation();
+      try {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existingItemIndex = cart.findIndex(item => item.id === product._id);
+        
+        if (existingItemIndex >= 0) {
+          cart[existingItemIndex].quantity += 1;
+        } else {
+          cart.push({
+            id: product._id,
+            name: product.name,
+            price: product.price,
+            image: product.processedImageUrl,
+            quantity: 1
+          });
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        alert('Added to cart!');
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+      }
+    };
     
     return (
       <motion.div
@@ -236,7 +314,23 @@ onError={(e) => {
             </span>
           </div>
 
-          <div className="flex">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={toggleWishlist}
+              className={`p-2 border rounded-lg transition-colors ${
+                isInWishlist 
+                  ? 'border-red-300 bg-red-50 text-red-600' 
+                  : 'border-gray-300 hover:bg-gray-50 text-gray-600'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} />
+            </button>
+            <button
+              onClick={addToCart}
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-600"
+            >
+              <ShoppingCart className="w-4 h-4" />
+            </button>
             <Link
               to={`/products/${product._id}`}
               className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors text-center text-sm font-medium"

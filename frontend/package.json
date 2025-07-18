@@ -50,6 +50,7 @@
     "react-router": "^7.1.1",
     "react-router-dom": "^7.1.5",
     "react-text-gradients": "^1.0.2",
+    "react-hot-toast": "^2.4.1",
     "react-toastify": "^11.0.3",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^2.6.0",

@@ -257,7 +257,7 @@ const UserDashboard = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">My Wishlist</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {wishlist.map((item) => (
-                    <div key={item._id} className="border rounded-lg p-4">
+                    <div key={item._id} className="border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/products/${item.productId._id}`}>
                       <div className="aspect-w-16 aspect-h-9 mb-4">
                         {item.productId?.images?.[0] ? (
                           <img 
@@ -274,11 +274,30 @@ const UserDashboard = () => {
                       <h4 className="font-medium text-gray-900 mb-2">{item.productId?.name}</h4>
                       <p className="text-lg font-semibold text-primary-600">KSh {item.productId?.price?.toLocaleString()}</p>
                       <div className="flex gap-2 mt-3">
-                        <button className="flex-1 bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition-colors">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                            cart.push({
+                              id: item.productId._id,
+                              name: item.productId.name,
+                              price: item.productId.price,
+                              image: item.productId.images?.[0]?.url || item.productId.images?.[0],
+                              quantity: 1
+                            });
+                            localStorage.setItem('cart', JSON.stringify(cart));
+                            window.dispatchEvent(new CustomEvent('cartUpdated'));
+                            toast.success('Added to cart!');
+                          }}
+                          className="flex-1 bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition-colors"
+                        >
                           Add to Cart
                         </button>
                         <button 
-                          onClick={() => removeFromWishlist(item.productId._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFromWishlist(item.productId._id);
+                          }}
                           className="px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                         >
                           <Heart className="w-4 h-4" />

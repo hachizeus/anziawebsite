@@ -2,11 +2,11 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import BackendSwitcher from './components/BackendSwitcher';
-import ApiHealthCheck from './components/ApiHealthCheck';
+// Removed BackendSwitcher and ApiHealthCheck for production
 import PropTypes from 'prop-types';
 import { initLazyLoading } from './utils/lazyLoadImages';
 
@@ -133,8 +133,7 @@ function App() {
               </Routes>
             </Suspense>
             <Footer />
-            <BackendSwitcher />
-            <ApiHealthCheck />
+            <Toaster position="top-right" />
           </Router>
         </ThemeProvider>
       </AuthProvider>
