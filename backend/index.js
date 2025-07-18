@@ -692,56 +692,66 @@ app.get('/api/wishlist/:userId', async (req, res) => {
 });
 
 // Order endpoints
-// M-Pesa STK Push function
-const initiateMpesaPayment = async (phoneNumber, amount, orderId) => {
+// Transaction status storage
+const transactionStatus = {};
+
+// OAuth Token Generation
+const getOAuthToken = async () => {
+  const auth = Buffer.from(`${process.env.CONSUMER_KEY || 'hUWFbJJ1qaLUzZ8kyQyUMuU0RtA0Bfg5Et9AGGgrOqDgpDvV'}:${process.env.CONSUMER_SECRET || 'taKOGR1BmkroE6y2OAGCBnqj9gZpAIXnrWK6jm4kvfXH2tVi7FixcADnDF7c9egY'}`).toString('base64');
   try {
-    // Safaricom Daraja API credentials (sandbox)
-    const consumerKey = process.env.MPESA_CONSUMER_KEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
-    const consumerSecret = process.env.MPESA_CONSUMER_SECRET || 'b8b3c7c4a5e6f7d8';
-    const shortcode = process.env.MPESA_SHORTCODE || '174379';
-    const passkey = process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
-    
-    // Generate access token
-    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
-    const tokenResponse = await fetch('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
-      headers: {
-        'Authorization': `Basic ${auth}`
-      }
-    });
-    const tokenData = await tokenResponse.json();
-    
-    // Generate timestamp and password
-    const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
-    const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
-    
-    // STK Push request
-    const stkResponse = await fetch('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        BusinessShortCode: shortcode,
-        Password: password,
-        Timestamp: timestamp,
-        TransactionType: 'CustomerPayBillOnline',
-        Amount: Math.round(amount),
-        PartyA: phoneNumber,
-        PartyB: shortcode,
-        PhoneNumber: phoneNumber,
-        CallBackURL: `${process.env.BACKEND_URL || 'https://anzia-electronics-api.onrender.com'}/api/mpesa/callback`,
-        AccountReference: `ORDER${orderId}`,
-        TransactionDesc: `Payment for Order ${orderId}`
-      })
-    });
-    
-    return await stkResponse.json();
+    const response = await axios.get(
+      'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+      { headers: { Authorization: `Basic ${auth}` } }
+    );
+    return response.data.access_token;
   } catch (error) {
-    console.error('M-Pesa error:', error);
-    throw error;
+    console.error('OAuth Error:', error.response?.data || error.message);
+    return null;
   }
 };
+
+// STK Push endpoint
+app.post('/api/stk-push', async (req, res) => {
+  const token = await getOAuthToken();
+  if (!token) return res.status(500).json({ message: 'Failed to obtain OAuth token' });
+
+  const timestamp = new Date().toISOString().replace(/[-:.T]/g, '').slice(0, 14);
+  const password = Buffer.from(`${process.env.MPESA_SHORTCODE || '174379'}${process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'}${timestamp}`).toString('base64');
+
+  const { phone, amount, orderId } = req.body;
+  const data = {
+    BusinessShortCode: process.env.MPESA_SHORTCODE || '174379',
+    Password: password,
+    Timestamp: timestamp,
+    TransactionType: 'CustomerPayBillOnline',
+    Amount: amount,
+    PartyA: phone,
+    PartyB: process.env.MPESA_SHORTCODE || '174379',
+    PhoneNumber: phone,
+    CallBackURL: `${process.env.CALLBACK_URL || 'https://anzia-electronics-api.onrender.com'}/api/mpesa/callback`,
+    AccountReference: orderId || 'Test',
+    TransactionDesc: 'Payment for Order',
+  };
+
+  try {
+    const response = await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response.data.MerchantRequestID) {
+      transactionStatus[response.data.MerchantRequestID] = {
+        status: 'Pending',
+        CheckoutRequestID: response.data.CheckoutRequestID,
+        orderId: orderId
+      };
+    }
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('STK Push Error:', error.response?.data || error.message);
+    res.status(500).json(error.response?.data || { message: 'Unknown STK push error' });
+  }
+});
 
 app.post('/api/orders/create', async (req, res) => {
   try {
@@ -756,37 +766,6 @@ app.post('/api/orders/create', async (req, res) => {
     const populatedOrder = await Order.findById(order._id)
       .populate('userId', 'name email')
       .populate('items.productId', 'name price images');
-    
-    // Initiate M-Pesa payment
-    if (req.body.paymentMethod === 'mpesa' && req.body.phoneNumber) {
-      try {
-        const mpesaResponse = await initiateMpesaPayment(
-          req.body.phoneNumber,
-          req.body.totalAmount,
-          order._id.toString().slice(-8)
-        );
-        
-        if (mpesaResponse.ResponseCode === '0') {
-          // Payment initiated successfully
-          order.mpesaCheckoutRequestID = mpesaResponse.CheckoutRequestID;
-          order.paymentStatus = 'pending';
-          await order.save();
-        } else {
-          // Payment initiation failed
-          await Order.findByIdAndDelete(order._id);
-          return res.status(400).json({ 
-            success: false, 
-            message: 'Failed to initiate M-Pesa payment. Please try again.' 
-          });
-        }
-      } catch (mpesaError) {
-        await Order.findByIdAndDelete(order._id);
-        return res.status(500).json({ 
-          success: false, 
-          message: 'M-Pesa service unavailable. Please try again later.' 
-        });
-      }
-    }
     
     // Create admin notification
     await Notification.create({
@@ -813,7 +792,7 @@ app.post('/api/orders/create', async (req, res) => {
     res.json({ 
       success: true, 
       order: populatedOrder,
-      message: req.body.paymentMethod === 'mpesa' ? 'Please check your phone for M-Pesa payment prompt' : 'Order placed successfully'
+      orderId: order._id.toString().slice(-8)
     });
   } catch (error) {
     console.error('Order creation error:', error);
@@ -1191,52 +1170,34 @@ app.put('/api/admin-notifications/mark-all-read', async (req, res) => {
 });
 
 // M-Pesa callback endpoint
-app.post('/api/mpesa/callback', async (req, res) => {
-  try {
-    const { Body } = req.body;
-    const { stkCallback } = Body;
-    
-    if (stkCallback.ResultCode === 0) {
-      // Payment successful
-      const checkoutRequestID = stkCallback.CheckoutRequestID;
-      const order = await Order.findOne({ mpesaCheckoutRequestID: checkoutRequestID });
-      
-      if (order) {
-        order.paymentStatus = 'completed';
-        order.status = 'confirmed';
-        await order.save();
-        
-        // Send payment confirmation email
-        const populatedOrder = await Order.findById(order._id)
-          .populate('userId', 'name email')
-          .populate('items.productId', 'name price images');
-          
-        if (populatedOrder.userId?.email) {
-          const emailHtml = orderStatusUpdateTemplate(populatedOrder, populatedOrder.userId, 'confirmed');
-          await sendEmail(
-            populatedOrder.userId.email,
-            `Payment Confirmed - Order #${order._id.toString().slice(-8)} - Anzia Electronics`,
-            emailHtml
-          );
-        }
-      }
-    } else {
-      // Payment failed
-      const checkoutRequestID = stkCallback.CheckoutRequestID;
-      const order = await Order.findOne({ mpesaCheckoutRequestID: checkoutRequestID });
-      
-      if (order) {
-        order.paymentStatus = 'failed';
-        order.status = 'cancelled';
-        await order.save();
-      }
-    }
-    
-    res.json({ ResultCode: 0, ResultDesc: 'Success' });
-  } catch (error) {
-    console.error('M-Pesa callback error:', error);
-    res.json({ ResultCode: 1, ResultDesc: 'Error' });
+app.post('/api/mpesa/callback', (req, res) => {
+  console.log('Callback Received:', JSON.stringify(req.body, null, 2));
+
+  if (!req.body.Body || !req.body.Body.stkCallback) {
+    console.error('Invalid callback format:', req.body);
+    return res.status(400).json({ message: 'Invalid callback data' });
   }
+
+  const { MerchantRequestID, ResultCode } = req.body.Body.stkCallback;
+  
+  if (!MerchantRequestID) {
+    console.error('Missing MerchantRequestID in callback:', req.body);
+    return res.status(400).json({ message: 'Invalid callback data' });
+  }
+
+  if (transactionStatus[MerchantRequestID]) {
+    transactionStatus[MerchantRequestID].status = ResultCode === 0 ? 'Success' : 'Failed';
+    console.log(`Updated transaction ${MerchantRequestID} to ${transactionStatus[MerchantRequestID].status}`);
+  }
+
+  res.status(200).json({ message: 'Callback processed successfully' });
+});
+
+// Transaction status endpoint
+app.get('/api/transaction-status/:merchantRequestID', (req, res) => {
+  const transaction = transactionStatus[req.params.merchantRequestID];
+  const status = transaction ? transaction.status : 'Pending';
+  res.json({ status, orderId: transaction?.orderId });
 });
 
 // News endpoint

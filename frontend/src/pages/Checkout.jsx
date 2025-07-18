@@ -9,6 +9,9 @@ const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [merchantRequestID, setMerchantRequestID] = useState('');
+  const [status, setStatus] = useState('');
   const [orderData, setOrderData] = useState({
     shippingAddress: {
       street: '',
@@ -89,12 +92,24 @@ const Checkout = () => {
       const response = await axios.post(`${API_URL}/orders/create`, orderPayload);
       
       if (response.data.success) {
-        // Clear cart
-        localStorage.removeItem('cart');
-        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        // Initiate M-Pesa payment
+        const paymentResponse = await axios.post(`${API_URL}/stk-push`, {
+          phone: orderData.phoneNumber,
+          amount: getTotalPrice(),
+          orderId: response.data.orderId
+        });
         
-        toast.success(response.data.message || 'Please check your phone for M-Pesa payment prompt');
-        navigate('/dashboard');
+        if (paymentResponse.data.MerchantRequestID) {
+          setMerchantRequestID(paymentResponse.data.MerchantRequestID);
+          toast.info('Request sent. Please enter M-Pesa PIN.');
+          checkTransactionStatus(paymentResponse.data.MerchantRequestID);
+          
+          // Clear cart
+          localStorage.removeItem('cart');
+          window.dispatchEvent(new CustomEvent('cartUpdated'));
+        } else {
+          toast.error('Failed to initiate M-Pesa payment');
+        }
       }
     } catch (error) {
       console.error('Error placing order:', error);
@@ -102,6 +117,40 @@ const Checkout = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkTransactionStatus = async (merchantRequestID) => {
+    let attempts = 0;
+    const maxAttempts = 10;
+    let delay = 4000;
+
+    const poll = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/transaction-status/${merchantRequestID}`);
+        setStatus(res.data.status);
+
+        if (res.data.status === "Success") {
+          toast.success("Payment Successful!");
+          navigate('/dashboard');
+          return;
+        } else if (res.data.status === "Failed") {
+          toast.error("Payment Failed!");
+          return;
+        }
+
+        if (++attempts < maxAttempts) {
+          setTimeout(poll, delay);
+          delay *= 1.5; // Exponential backoff
+        } else {
+          toast.error("Transaction timed out. Please try again.");
+        }
+      } catch (error) {
+        console.error("Status Check Error:", error);
+        toast.error("Error checking transaction status.");
+      }
+    };
+
+    poll();
   };
 
   return (
