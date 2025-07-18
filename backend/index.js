@@ -371,8 +371,9 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     enum: ['cash', 'mpesa', 'card'],
-    default: 'cash'
+    default: 'mpesa'
   },
+  phoneNumber: String,
   createdAt: {
     type: Date,
     default: Date.now
@@ -850,7 +851,18 @@ app.post('/api/orders/create', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Phone number is required for M-Pesa payment' });
     }
     
-    const order = await Order.create(req.body);
+    // Create order with simplified data
+    const orderData = {
+      userId: req.body.userId,
+      items: req.body.items || [],
+      totalAmount: req.body.totalAmount || 0,
+      shippingAddress: req.body.shippingAddress || {},
+      paymentMethod: 'mpesa',
+      phoneNumber: req.body.phoneNumber,
+      status: 'pending'
+    };
+    
+    const order = await Order.create(orderData);
     const populatedOrder = await Order.findById(order._id)
       .populate('userId', 'name email')
       .populate('items.productId', 'name price images');

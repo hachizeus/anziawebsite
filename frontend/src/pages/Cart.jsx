@@ -114,6 +114,9 @@ const Cart = () => {
                         src={typeof item.image === 'string' ? item.image : (item.image.url || item.image)}
                         alt={item.name}
                         className="w-full h-full object-cover rounded-lg"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/80x80?text=No+Image';
+                        }}
                       />
                     ) : (
                       <ShoppingCart className="w-8 h-8 text-gray-400" />

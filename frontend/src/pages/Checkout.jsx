@@ -268,9 +268,12 @@ const Checkout = () => {
                   <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
                     {item.image ? (
                       <img 
-                        src={item.image.url || item.image} 
+                        src={typeof item.image === 'string' ? item.image : (item.image.url || item.image)} 
                         alt={item.name}
                         className="w-full h-full object-cover rounded-lg"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/64x64?text=No+Image';
+                        }}
                       />
                     ) : (
                       <ShoppingCart className="w-6 h-6 text-gray-400" />
