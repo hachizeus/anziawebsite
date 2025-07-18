@@ -56,6 +56,9 @@ const ProductCard = ({ product }) => {
           }
           alt={product.images?.[0]?.alt || product.name || product.title}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = '/images/placeholder-product.jpg';
+          }}
         />
         
         {/* Product badges */}
