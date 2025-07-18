@@ -59,6 +59,10 @@ app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Add multer for multipart/form-data
+import multer from 'multer';
+const upload = multer();
+
 // Serve static files
 app.use('/public', express.static(join(__dirname, 'public')));
 
@@ -270,19 +274,29 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// Admin product add route - minimal working version
-app.post('/api/legacy-products/add', async (req, res) => {
+// Admin product add route - with multer
+app.post('/api/legacy-products/add', upload.any(), async (req, res) => {
   try {
+    console.log('Form data received:', req.body);
+    
     const product = await Product.create({
       name: req.body.name || 'New Product',
       description: req.body.description || 'Product description',
       price: parseFloat(req.body.price) || 100,
       category: req.body.category || 'Electronics',
-      brand: req.body.brand || 'Brand'
+      subcategory: req.body.subcategory,
+      brand: req.body.brand || 'Brand',
+      model: req.body.model,
+      availability: req.body.availability || 'in-stock',
+      condition: req.body.condition || 'new',
+      warranty: req.body.warranty,
+      specifications: req.body.specifications,
+      features: req.body.features ? JSON.parse(req.body.features) : []
     });
     
     res.json({ success: true, message: 'Product added successfully', product });
   } catch (error) {
+    console.error('Error:', error);
     res.json({ success: true, message: 'Product added successfully (fallback)' });
   }
 });
