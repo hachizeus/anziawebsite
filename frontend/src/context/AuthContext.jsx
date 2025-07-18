@@ -48,18 +48,21 @@ export const AuthProvider = ({ children }) => {
   
   const handleLogout = async () => {
     try {
-      await logoutUser();
-    } catch (error) {
-      console.error('Logout API error:', error);
-    } finally {
-      // Clear all localStorage data
+      // Clear all localStorage data first
       localStorage.clear();
       
       // Reset all state
       setIsLoggedIn(false);
       setUser(null);
       
+      // Dispatch cart update to clear cart count
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      
       // Force page reload to clear all cached data
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force reload anyway
       window.location.href = '/login';
     }
   };

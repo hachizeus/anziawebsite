@@ -72,6 +72,21 @@ const authorizeUser = (req, res, next) => {
   next();
 };
 
+// Optional auth middleware (doesn't fail if no token)
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (!err) {
+        req.user = user;
+      }
+    });
+  }
+  next();
+};
+
 // Middleware
 app.use(cors({
   origin: function(origin, callback) {
@@ -1274,7 +1289,7 @@ app.get('/api/transaction-status/:merchantRequestID', (req, res) => {
 });
 
 // Cart endpoints
-app.get('/api/cart/:userId', authenticateToken, authorizeUser, async (req, res) => {
+app.get('/api/cart/:userId', optionalAuth, async (req, res) => {
   try {
     const cart = await Cart.findOne({ userId: req.params.userId }).populate('items.productId');
     res.json({ success: true, cart: cart || { items: [] } });
@@ -1283,7 +1298,7 @@ app.get('/api/cart/:userId', authenticateToken, authorizeUser, async (req, res) 
   }
 });
 
-app.post('/api/cart/add', authenticateToken, async (req, res) => {
+app.post('/api/cart/add', optionalAuth, async (req, res) => {
   try {
     const { userId, productId, quantity, price, name, image } = req.body;
     

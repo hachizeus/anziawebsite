@@ -106,7 +106,7 @@ const Navbar = () => {
   useEffect(() => {
     const updateCartCount = async () => {
       try {
-        if (user?._id) {
+        if (user?._id && isLoggedIn) {
           const token = localStorage.getItem('token');
           const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${user._id}`, {
             headers: {
@@ -141,7 +141,7 @@ const Navbar = () => {
     return () => {
       window.removeEventListener('cartUpdated', updateCartCount);
     };
-  }, [user, logout]);
+  }, [user, isLoggedIn, logout]);
 
   // Navigation links
   const navLinks = [
