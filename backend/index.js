@@ -121,6 +121,9 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  subcategory: {
+    type: String
+  },
   brand: {
     type: String,
     required: true
@@ -128,14 +131,21 @@ const productSchema = new mongoose.Schema({
   model: String,
   stock_quantity: {
     type: Number,
-    required: true,
+    default: 1,
     min: 0
   },
   availability: {
     type: String,
-    enum: ['in-stock', 'out-of-stock', 'pre-order'],
+    enum: ['in-stock', 'out-of-stock', 'pre-order', 'discontinued'],
     default: 'in-stock'
   },
+  condition: {
+    type: String,
+    enum: ['new', 'refurbished', 'used'],
+    default: 'new'
+  },
+  warranty: String,
+  specifications: String,
   features: [String],
   images: [{
     url: String,
@@ -272,19 +282,36 @@ app.post('/api/legacy-products/add', async (req, res) => {
     
     console.log('Admin adding product:', req.body);
     
+    // Parse features if it's a string
+    let features = [];
+    if (req.body.features) {
+      try {
+        features = typeof req.body.features === 'string' ? JSON.parse(req.body.features) : req.body.features;
+      } catch (e) {
+        console.log('Error parsing features, using empty array');
+        features = [];
+      }
+    }
+    
     // Create product with the data from form
     const productData = {
       name: req.body.name,
       description: req.body.description,
       price: parseFloat(req.body.price),
       category: req.body.category,
+      subcategory: req.body.subcategory,
       brand: req.body.brand,
       model: req.body.model || '',
       stock_quantity: 1, // Default stock
       availability: req.body.availability || 'in-stock',
-      features: req.body.features ? JSON.parse(req.body.features) : [],
+      condition: req.body.condition || 'new',
+      warranty: req.body.warranty || '',
+      specifications: req.body.specifications || '',
+      features: features,
       images: [] // Handle images later if needed
     };
+    
+    console.log('Product data to create:', productData);
     
     const product = await Product.create(productData);
     console.log('Admin product created:', product._id);
@@ -296,12 +323,43 @@ app.post('/api/legacy-products/add', async (req, res) => {
     });
   } catch (error) {
     console.error('Error adding product:', error);
+    console.error('Error details:', error.message);
+    
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
         message: 'Invalid token.'
       });
     }
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error: ' + error.message
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error: ' + error.message 
+    });
+  }
+});
+
+// Admin product list route
+app.get('/api/legacy-products/list', async (req, res) => {
+  try {
+    console.log('Fetching admin product list...');
+    const products = await Product.find().sort({ createdAt: -1 });
+    console.log('Found admin products:', products.length);
+    
+    res.json({
+      success: true,
+      message: 'Products retrieved successfully',
+      products
+    });
+  } catch (error) {
+    console.error('Error fetching admin products:', error);
     res.status(500).json({ 
       success: false, 
       message: error.message 
