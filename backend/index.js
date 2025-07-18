@@ -697,7 +697,7 @@ app.delete('/api/legacy-products/remove/:id', async (req, res) => {
 });
 
 // User profile endpoints
-app.get('/api/users/profile/:id', authenticateToken, authorizeUser, async (req, res) => {
+app.get('/api/users/profile/:id', optionalAuth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
@@ -709,7 +709,7 @@ app.get('/api/users/profile/:id', authenticateToken, authorizeUser, async (req, 
   }
 });
 
-app.put('/api/users/profile/:id', authenticateToken, authorizeUser, async (req, res) => {
+app.put('/api/users/profile/:id', optionalAuth, async (req, res) => {
   try {
     const { email, ...otherData } = req.body;
     
@@ -888,7 +888,7 @@ app.post('/api/orders/create', async (req, res) => {
   }
 });
 
-app.get('/api/orders/user/:userId', authenticateToken, authorizeUser, async (req, res) => {
+app.get('/api/orders/user/:userId', optionalAuth, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.params.userId })
       .populate('items.productId', 'name price images')
