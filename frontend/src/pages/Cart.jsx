@@ -31,28 +31,40 @@ const Cart = () => {
   const updateQuantity = async (productId, newQuantity) => {
     if (newQuantity < 1 || !user?._id) return;
     
-    // Remove and re-add with new quantity
-    await cartService.removeFromCart(user._id, productId);
-    const item = cartItems.find(item => item.productId._id === productId);
-    if (item) {
-      await cartService.addToCart(user._id, {
-        id: productId,
-        quantity: newQuantity,
-        price: item.price,
-        name: item.name,
-        image: item.image
-      });
+    try {
+      // Remove and re-add with new quantity
+      await cartService.removeFromCart(user._id, productId);
+      const item = cartItems.find(item => (item.productId._id || item.productId) === productId);
+      if (item) {
+        await cartService.addToCart(user._id, {
+          id: productId,
+          quantity: newQuantity,
+          price: item.price,
+          name: item.name,
+          image: item.image
+        });
+      }
+      await loadCart();
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      toast.error('Failed to update quantity');
     }
-    loadCart();
   };
 
   const removeItem = async (productId) => {
     if (!user?._id) return;
     
-    const success = await cartService.removeFromCart(user._id, productId);
-    if (success) {
-      toast.success('Item removed from cart');
-      loadCart();
+    try {
+      const success = await cartService.removeFromCart(user._id, productId);
+      if (success) {
+        toast.success('Item removed from cart');
+        await loadCart();
+      } else {
+        toast.error('Failed to remove item');
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      toast.error('Failed to remove item');
     }
   };
 
@@ -97,7 +109,7 @@ const Cart = () => {
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
                     {item.image ? (
                       <img 
-                        src={item.image} 
+                        src={typeof item.image === 'string' ? item.image : (item.image.url || item.image)}
                         alt={item.name}
                         className="w-full h-full object-cover rounded-lg"
                       />
@@ -143,7 +155,7 @@ const Cart = () => {
                     </button>
                   </div>
                 </div>
-              ))
+              ))}
             </div>
             
             <div className="mt-8 border-t pt-6">

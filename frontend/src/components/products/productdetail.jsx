@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProductById } from '../../services/api.js';
 import { trackProductView, trackAddToCart } from '../../services/trackingService.js';
+import { cartService } from '../../services/cartService.js';
 import { 
   Star, 
   Heart, 
@@ -233,7 +234,7 @@ const ProductDetail = () => {
     // Recently viewed removed
   }, [id]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
     
     try {
@@ -244,8 +245,7 @@ const ProductDetail = () => {
         return;
       }
       
-      // Import cart service dynamically
-      const { cartService } = await import('../../services/cartService');
+      // Use imported cart service
       
       const success = await cartService.addToCart(user._id, {
         id: product.id,
