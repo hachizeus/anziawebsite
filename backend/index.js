@@ -61,7 +61,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Add multer for multipart/form-data
 import multer from 'multer';
+import ImageKit from 'imagekit';
+
 const upload = multer();
+
+// Initialize ImageKit
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
+});
 
 // Serve static files
 app.use('/public', express.static(join(__dirname, 'public')));
@@ -274,10 +283,32 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// Admin product add route - with multer
+// Admin product add route - with ImageKit
 app.post('/api/legacy-products/add', upload.any(), async (req, res) => {
   try {
     console.log('Form data received:', req.body);
+    console.log('Files received:', req.files?.length || 0);
+    
+    // Upload images to ImageKit
+    const images = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        try {
+          const result = await imagekit.upload({
+            file: file.buffer,
+            fileName: `${Date.now()}_${file.originalname}`,
+            folder: '/products'
+          });
+          images.push({
+            url: result.url,
+            fileId: result.fileId,
+            alt: req.body.name || 'Product image'
+          });
+        } catch (uploadError) {
+          console.error('Image upload error:', uploadError);
+        }
+      }
+    }
     
     const product = await Product.create({
       name: req.body.name || 'New Product',
@@ -291,7 +322,8 @@ app.post('/api/legacy-products/add', upload.any(), async (req, res) => {
       condition: req.body.condition || 'new',
       warranty: req.body.warranty,
       specifications: req.body.specifications,
-      features: req.body.features ? JSON.parse(req.body.features) : []
+      features: req.body.features ? JSON.parse(req.body.features) : [],
+      images: images
     });
     
     res.json({ success: true, message: 'Product added successfully', product });
@@ -341,6 +373,19 @@ app.get('/api/admin/stats', async (req, res) => {
         pendingOrders: 0
       }
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get single product for editing
+app.get('/api/legacy-products/single/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    res.json({ success: true, product });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
