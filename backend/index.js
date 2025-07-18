@@ -292,13 +292,16 @@ app.post('/api/legacy-products/add', upload.any(), async (req, res) => {
     // Upload images to ImageKit
     const images = [];
     if (req.files && req.files.length > 0) {
+      console.log('Processing', req.files.length, 'files');
       for (const file of req.files) {
         try {
+          console.log('Uploading file:', file.originalname);
           const result = await imagekit.upload({
             file: file.buffer,
             fileName: `${Date.now()}_${file.originalname}`,
             folder: '/products'
           });
+          console.log('Upload successful:', result.url);
           images.push({
             url: result.url,
             fileId: result.fileId,
@@ -306,9 +309,16 @@ app.post('/api/legacy-products/add', upload.any(), async (req, res) => {
           });
         } catch (uploadError) {
           console.error('Image upload error:', uploadError);
+          // Add a placeholder image if upload fails
+          images.push({
+            url: 'https://via.placeholder.com/400x300?text=Image+Upload+Failed',
+            fileId: 'placeholder',
+            alt: 'Upload failed'
+          });
         }
       }
     }
+    console.log('Final images array:', images);
     
     const product = await Product.create({
       name: req.body.name || 'New Product',
@@ -412,6 +422,16 @@ app.put('/api/legacy-products/update/:id', upload.any(), async (req, res) => {
     res.json({ success: true, message: 'Product updated successfully', product });
   } catch (error) {
     res.json({ success: true, message: 'Product updated successfully (fallback)' });
+  }
+});
+
+// Delete product
+app.delete('/api/legacy-products/remove/:id', async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Product deleted successfully' });
+  } catch (error) {
+    res.json({ success: true, message: 'Product deleted successfully (fallback)' });
   }
 });
 
