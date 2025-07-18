@@ -122,8 +122,7 @@ const productSchema = new mongoose.Schema({
     required: true
   },
   subcategory: {
-    type: String,
-    required: true
+    type: String
   },
   brand: {
     type: String,
@@ -380,6 +379,13 @@ app.get('/api/legacy-products/list', async (req, res) => {
 // Admin notifications endpoint (simple)
 app.get('/api/admin-notifications', (req, res) => {
   res.json({ success: true, notifications: [] });
+});
+
+// Debug endpoint to see what data is being sent
+app.post('/api/debug-product', (req, res) => {
+  console.log('DEBUG - Received data:', req.body);
+  console.log('DEBUG - Headers:', req.headers);
+  res.json({ success: true, received: req.body });
 });
 
 // User routes
