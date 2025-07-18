@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 import { 
   ShoppingBag, 
   Heart, 
@@ -12,12 +14,26 @@ import {
   TrendingUp
 } from '../utils/icons.jsx';
 
+const API_URL = 'https://anzia-electronics-api.onrender.com/api';
+
 const UserDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [orders, setOrders] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: 'Kenya'
+    }
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Fetch user data
@@ -25,41 +41,59 @@ const UserDashboard = () => {
   }, []);
 
   const fetchUserData = async () => {
-    // Mock data for now
-    setOrders([
-      {
-        id: 'AE-001',
-        date: '2024-01-15',
-        status: 'delivered',
-        total: 15000,
-        items: 2
-      },
-      {
-        id: 'AE-002',
-        date: '2024-01-10',
-        status: 'processing',
-        total: 8500,
-        items: 1
+    if (!user?._id) return;
+    
+    try {
+      setLoading(true);
+      
+      // Fetch user profile
+      const profileRes = await axios.get(`${API_URL}/users/profile/${user._id}`);
+      if (profileRes.data.success) {
+        setProfile(profileRes.data.user);
       }
-    ]);
-
-    setWishlist([
-      {
-        id: 1,
-        name: 'Bosch Professional Drill',
-        price: 12000,
-        image: '/images/drill.jpg'
+      
+      // Fetch user orders
+      const ordersRes = await axios.get(`${API_URL}/orders/user/${user._id}`);
+      if (ordersRes.data.success) {
+        setOrders(ordersRes.data.orders);
       }
-    ]);
-
-    setRecentlyViewed([
-      {
-        id: 1,
-        name: 'Welding Machine 200A',
-        price: 25000,
-        image: '/images/welder.jpg'
+      
+      // Fetch user wishlist
+      const wishlistRes = await axios.get(`${API_URL}/wishlist/${user._id}`);
+      if (wishlistRes.data.success) {
+        setWishlist(wishlistRes.data.wishlist);
       }
-    ]);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const updateProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.put(`${API_URL}/users/profile/${user._id}`, profile);
+      if (response.data.success) {
+        toast.success('Profile updated successfully');
+      }
+    } catch (error) {
+      toast.error('Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const removeFromWishlist = async (productId) => {
+    try {
+      await axios.delete(`${API_URL}/wishlist/remove`, {
+        data: { userId: user._id, productId }
+      });
+      setWishlist(prev => prev.filter(item => item.productId._id !== productId));
+      toast.success('Removed from wishlist');
+    } catch (error) {
+      toast.error('Failed to remove from wishlist');
+    }
   };
 
   const tabs = [
@@ -223,17 +257,33 @@ const UserDashboard = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">My Wishlist</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {wishlist.map((item) => (
-                    <div key={item.id} className="border rounded-lg p-4">
+                    <div key={item._id} className="border rounded-lg p-4">
                       <div className="aspect-w-16 aspect-h-9 mb-4">
-                        <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <Package className="w-8 h-8 text-gray-400" />
-                        </div>
+                        {item.productId?.images?.[0] ? (
+                          <img 
+                            src={item.productId.images[0].url || item.productId.images[0]} 
+                            alt={item.productId.name}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <Package className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
                       </div>
-                      <h4 className="font-medium text-gray-900 mb-2">{item.name}</h4>
-                      <p className="text-lg font-semibold text-primary-600">KSh {item.price.toLocaleString()}</p>
-                      <button className="w-full mt-3 bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition-colors">
-                        Add to Cart
-                      </button>
+                      <h4 className="font-medium text-gray-900 mb-2">{item.productId?.name}</h4>
+                      <p className="text-lg font-semibold text-primary-600">KSh {item.productId?.price?.toLocaleString()}</p>
+                      <div className="flex gap-2 mt-3">
+                        <button className="flex-1 bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition-colors">
+                          Add to Cart
+                        </button>
+                        <button 
+                          onClick={() => removeFromWishlist(item.productId._id)}
+                          className="px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                        >
+                          <Heart className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -244,35 +294,62 @@ const UserDashboard = () => {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Profile Settings</h3>
                 <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                      <input
+                        type="text"
+                        value={profile.name}
+                        onChange={(e) => setProfile({...profile, name: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={profile.email}
+                        onChange={(e) => setProfile({...profile, email: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                      <input
+                        type="tel"
+                        value={profile.phone || ''}
+                        onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                      <input
+                        type="text"
+                        value={profile.address?.city || ''}
+                        onChange={(e) => setProfile({...profile, address: {...profile.address, city: e.target.value}})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Enter your city"
+                      />
+                    </div>
+                  </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
                     <input
                       type="text"
-                      value={user?.name || ''}
+                      value={profile.address?.street || ''}
+                      onChange={(e) => setProfile({...profile, address: {...profile.address, street: e.target.value}})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                      readOnly
+                      placeholder="Enter your street address"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={user?.email || ''}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={user?.phone || ''}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                  <button className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors">
-                    Update Profile
+                  <button 
+                    onClick={updateProfile}
+                    disabled={loading}
+                    className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                  >
+                    {loading ? 'Updating...' : 'Update Profile'}
                   </button>
                 </div>
               </div>

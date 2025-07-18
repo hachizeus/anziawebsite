@@ -54,6 +54,9 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState('description');
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  
+  const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
   // Helper function to format product data
   const formatProductData = (rawProduct) => {
@@ -177,6 +180,9 @@ const ProductDetail = () => {
           if (formattedProduct.category) {
             fetchSuggestedProducts(formattedProduct);
           }
+          
+          // Check if product is in wishlist
+          checkWishlistStatus(formattedProduct.id);
         } else {
           console.error('Failed to fetch product:', result.error || 'Unknown error');
         }
@@ -217,6 +223,26 @@ const ProductDetail = () => {
         console.error('Error fetching suggested products:', err);
         // Don't use mock data, just show nothing
         setSuggestedProducts([]);
+      }
+    }
+    
+    loadProduct();
+    
+    // Function to check wishlist status
+    async function checkWishlistStatus(productId) {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user._id) return;
+        
+        const response = await axios.get(`${API_URL}/wishlist/${user._id}`);
+        if (response.data.success) {
+          const inWishlist = response.data.wishlist.some(item => 
+            item.productId._id === productId
+          );
+          setIsInWishlist(inWishlist);
+        }
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
       }
     }
     
@@ -338,7 +364,30 @@ const ProductDetail = () => {
     }
   };
 
-  // Buy Now functionality removed
+  const toggleWishlist = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user._id) {
+        alert('Please login to add to wishlist');
+        return;
+      }
+      
+      if (isInWishlist) {
+        await axios.delete(`${API_URL}/wishlist/remove`, {
+          data: { userId: user._id, productId: product.id }
+        });
+        setIsInWishlist(false);
+      } else {
+        await axios.post(`${API_URL}/wishlist/add`, {
+          userId: user._id,
+          productId: product.id
+        });
+        setIsInWishlist(true);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -388,7 +437,7 @@ const ProductDetail = () => {
             <div className="aspect-w-1 aspect-h-1 mb-4">
               {product.image && product.image.length > 0 ? (
                 <img 
-                  src={product.image[selectedImage]} 
+                  src={product.image[selectedImage].url || product.image[selectedImage]} 
                   alt={product.name}
                   className="w-full h-96 object-contain rounded-lg"
                 />
@@ -412,7 +461,7 @@ const ProductDetail = () => {
                   }`}
                 >
                   <img 
-                    src={img} 
+                    src={img.url || img} 
                     alt={`${product.name} - ${index + 1}`}
                     className="w-full h-full object-cover rounded-lg"
                   />
@@ -428,8 +477,15 @@ const ProductDetail = () => {
                 {product.brand} • {product.productCode}
               </span>
               <div className="flex items-center space-x-2">
-                <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                  <Heart className="w-5 h-5 text-gray-600" />
+                <button 
+                  onClick={toggleWishlist}
+                  className={`p-2 border rounded-lg transition-colors ${
+                    isInWishlist 
+                      ? 'border-red-300 bg-red-50 text-red-600' 
+                      : 'border-gray-300 hover:bg-gray-50 text-gray-600'
+                  }`}
+                >
+                  <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
                 </button>
                 <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                   <Share2 className="w-5 h-5 text-gray-600" />
@@ -641,7 +697,7 @@ const ProductDetail = () => {
                     <div className="aspect-w-1 aspect-h-1 w-full">
                       {product.image && product.image.length > 0 ? (
                         <img 
-                          src={product.image[0]} 
+                          src={product.image[0].url || product.image[0]} 
                           alt={product.name}
                           className="w-full h-48 object-contain"
                           onError={(e) => {
@@ -680,7 +736,7 @@ const ProductDetail = () => {
                     <div className="aspect-w-1 aspect-h-1 w-full">
                       {item.image ? (
                         <img 
-                          src={item.image} 
+                          src={item.image.url || item.image} 
                           alt={item.name}
                           className="w-full h-48 object-contain"
                         />

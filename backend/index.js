@@ -184,7 +184,7 @@ const productSchema = new mongoose.Schema({
   }
 });
 
-// Simple user schema
+// Enhanced user schema
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -203,6 +203,17 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false
   },
+  phone: {
+    type: String,
+    trim: true
+  },
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: { type: String, default: 'Kenya' }
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
@@ -211,12 +222,90 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+// Wishlist schema
+const wishlistSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+// Order schema
+const orderSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  items: [{
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1
+    },
+    price: {
+      type: Number,
+      required: true
+    }
+  }],
+  totalAmount: {
+    type: Number,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  shippingAddress: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: String
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['cash', 'mpesa', 'card'],
+    default: 'cash'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
 // Create models
 const Product = mongoose.model('Product', productSchema);
 const User = mongoose.model('User', userSchema);
+const Wishlist = mongoose.model('Wishlist', wishlistSchema);
+const Order = mongoose.model('Order', orderSchema);
 
 // Products routes
 app.get('/api/products', async (req, res) => {
@@ -448,6 +537,118 @@ app.delete('/api/legacy-products/remove/:id', async (req, res) => {
   }
 });
 
+// User profile endpoints
+app.get('/api/users/profile/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.put('/api/users/profile/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true }
+    ).select('-password');
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Wishlist endpoints
+app.post('/api/wishlist/add', async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+    const existing = await Wishlist.findOne({ userId, productId });
+    if (existing) {
+      return res.json({ success: true, message: 'Already in wishlist' });
+    }
+    const wishlistItem = await Wishlist.create({ userId, productId });
+    res.json({ success: true, wishlistItem });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/wishlist/remove', async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+    await Wishlist.findOneAndDelete({ userId, productId });
+    res.json({ success: true, message: 'Removed from wishlist' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get('/api/wishlist/:userId', async (req, res) => {
+  try {
+    const wishlist = await Wishlist.find({ userId: req.params.userId })
+      .populate('productId')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, wishlist });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Order endpoints
+app.post('/api/orders/create', async (req, res) => {
+  try {
+    const order = await Order.create(req.body);
+    const populatedOrder = await Order.findById(order._id)
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name price images');
+    res.json({ success: true, order: populatedOrder });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get('/api/orders/user/:userId', async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId })
+      .populate('items.productId', 'name price images')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get('/api/orders/admin', async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name price images')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.put('/api/orders/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status, updatedAt: new Date() },
+      { new: true }
+    ).populate('userId', 'name email').populate('items.productId', 'name price images');
+    res.json({ success: true, order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Debug endpoint to see what data is being sent
 app.post('/api/debug-product', (req, res) => {
   console.log('DEBUG - Received data:', req.body);
@@ -455,7 +656,7 @@ app.post('/api/debug-product', (req, res) => {
   res.json({ success: true, received: req.body });
 });
 
-// User routes
+// User registration endpoint
 app.post('/api/users/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;

@@ -50,7 +50,7 @@ const ProductsPage = () => {
           // Check if images is an array
           if (Array.isArray(product.images) && product.images.length > 0) {
             images = product.images;
-            // Handle ImageKit object format
+            // Handle ImageKit object format - exact same as admin
             imageUrl = product.images[0].url || product.images[0];
           }
           // Check if images is a string (JSON)
