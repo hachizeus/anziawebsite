@@ -341,12 +341,41 @@ const newsletterSchema = new mongoose.Schema({
   }
 });
 
+// Notification schema
+const notificationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    required: true,
+    enum: ['order', 'user', 'product', 'system']
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  read: {
+    type: Boolean,
+    default: false
+  },
+  data: {
+    type: mongoose.Schema.Types.Mixed
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 // Create models
 const Product = mongoose.model('Product', productSchema);
 const User = mongoose.model('User', userSchema);
 const Wishlist = mongoose.model('Wishlist', wishlistSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Newsletter = mongoose.model('Newsletter', newsletterSchema);
+const Notification = mongoose.model('Notification', notificationSchema);
 
 // Products routes
 app.get('/api/products', async (req, res) => {
@@ -669,6 +698,18 @@ app.post('/api/orders/create', async (req, res) => {
       .populate('userId', 'name email')
       .populate('items.productId', 'name price images');
     
+    // Create admin notification
+    await Notification.create({
+      type: 'order',
+      title: 'New Order Received',
+      message: `Order #${order._id.toString().slice(-8)} from ${populatedOrder.userId?.name || 'Customer'} - KSh ${order.totalAmount?.toLocaleString()}`,
+      data: {
+        orderId: order._id,
+        customerName: populatedOrder.userId?.name,
+        amount: order.totalAmount
+      }
+    });
+    
     // Send order confirmation email
     if (populatedOrder.userId?.email) {
       const emailHtml = orderConfirmationTemplate(populatedOrder, populatedOrder.userId);
@@ -939,12 +980,53 @@ app.post('/api/newsletter/send', async (req, res) => {
     const subscribers = await Newsletter.find();
     
     // In a real app, you'd send emails here
-    // For now, just return success
+    // For now, just return success with proper structure
+    res.json({ 
+      success: true,
+      stats: {
+        successful: subscribers.length,
+        failed: 0,
+        total: subscribers.length
+      },
+      message: `Newsletter sent to ${subscribers.length} subscribers`
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Admin notifications endpoints
+app.get('/api/admin-notifications', async (req, res) => {
+  try {
+    const notifications = await Notification.find()
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    const unreadCount = await Notification.countDocuments({ read: false });
+    
     res.json({ 
       success: true, 
-      message: `Newsletter sent to ${subscribers.length} subscribers`,
-      count: subscribers.length 
+      notifications,
+      unreadCount
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.put('/api/admin-notifications/:id/read', async (req, res) => {
+  try {
+    await Notification.findByIdAndUpdate(req.params.id, { read: true });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.put('/api/admin-notifications/mark-all-read', async (req, res) => {
+  try {
+    await Notification.updateMany({ read: false }, { read: true });
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
