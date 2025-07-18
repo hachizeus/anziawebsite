@@ -236,13 +236,13 @@ const ProductListings = () => {
                   </div>
                   <div className="absolute top-4 right-4 flex space-x-2">
                     <Link 
-                      to={`/update/${product._id || product.id}`}
+                      to={`/update/${product._id}`}
                       className="p-2 bg-white/90 backdrop-blur-sm text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-all"
                     >
                       <Edit3 className="w-4 h-4" />
                     </Link>
                     <button
-                      onClick={() => handleToggleAvailability(product._id || product.id)}
+                      onClick={() => handleToggleAvailability(product._id)}
                       className={`p-2 bg-white/90 backdrop-blur-sm ${
                         product.availability === 'in-stock' 
                           ? 'text-green-600 hover:bg-green-600' 
@@ -253,7 +253,7 @@ const ProductListings = () => {
                       <Eye className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleRemoveProduct(product._id || product.id, product.name)}
+                      onClick={() => handleRemoveProduct(product._id, product.name)}
                       className="p-2 bg-white/90 backdrop-blur-sm text-red-600 rounded-full hover:bg-red-600 hover:text-white transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
