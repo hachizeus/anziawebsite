@@ -974,6 +974,32 @@ app.delete('/api/newsletter/unsubscribe/:id', async (req, res) => {
   }
 });
 
+app.delete('/api/newsletter/subscribers/:id', async (req, res) => {
+  try {
+    await Newsletter.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Subscriber removed successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/legacy-products/toggle-availability', async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    
+    product.available = !product.available;
+    await product.save();
+    
+    res.json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Newsletter send endpoint
 app.post('/api/newsletter/send', async (req, res) => {
   try {
