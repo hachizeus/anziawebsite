@@ -323,6 +323,25 @@ app.get('/api/admin-notifications', (req, res) => {
   res.json({ success: true, notifications: [] });
 });
 
+// Admin stats endpoint
+app.get('/api/admin/stats', async (req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments();
+    res.json({
+      success: true,
+      stats: {
+        totalProducts: totalProducts || 0,
+        inStockProducts: totalProducts || 0,
+        totalCustomers: 0,
+        totalViews: 0,
+        pendingOrders: 0
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Debug endpoint to see what data is being sent
 app.post('/api/debug-product', (req, res) => {
   console.log('DEBUG - Received data:', req.body);
