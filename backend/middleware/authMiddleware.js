@@ -1,14 +1,16 @@
 import jwt from "jsonwebtoken";
 
-// Protection middleware - NEVER FAIL
+// Protection middleware - Require valid token
 export const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
     if (!token) {
-      req.user = { id: 'default', role: 'user' };
-      return next();
+      return res.status(401).json({
+        success: false,
+        message: 'Access denied. No token provided.'
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -33,18 +35,34 @@ export const protect = async (req, res, next) => {
       return next();
     }
 
-    req.user = { id: 'default', role: 'user' };
-    next();
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token.'
+    });
   } catch (error) {
-    req.user = { id: 'default', role: 'user' };
-    next();
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token.'
+    });
   }
 };
 
-// Admin middleware - NEVER FAIL
+// Admin middleware - Require admin role
 export const admin = (req, res, next) => {
-  // Always allow access
-  next();
+  try {
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin privileges required.'
+      });
+    }
+    next();
+  } catch (error) {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Admin privileges required.'
+    });
+  }
 };
 
 export default protect;

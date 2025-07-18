@@ -12,7 +12,7 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 
 const productRouter = express.Router();
 
-productRouter.post('/add', upload.fields([
+productRouter.post('/add', protect, admin, upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
     { name: "image3", maxCount: 1 },
@@ -21,14 +21,14 @@ productRouter.post('/add', upload.fields([
 
 
 productRouter.get('/list', getAllProducts);
-productRouter.delete('/remove/:id', deleteProduct);
-productRouter.put('/update/:id', upload.fields([
+productRouter.delete('/remove/:id', protect, admin, deleteProduct);
+productRouter.put('/update/:id', protect, admin, upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
     { name: "image3", maxCount: 1 },
     { name: "image4", maxCount: 1 }
 ]), updateProduct);
 productRouter.get('/single/:id', getProductById);
-productRouter.post('/toggle-availability', toggleProductAvailability);
+productRouter.post('/toggle-availability', protect, admin, toggleProductAvailability);
 
 export default productRouter;

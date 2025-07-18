@@ -247,6 +247,68 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
+// Admin product add route
+app.post('/api/legacy-products/add', async (req, res) => {
+  try {
+    // Check authentication
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access denied. No token provided.'
+      });
+    }
+    
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.isAdmin && decoded.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin privileges required.'
+      });
+    }
+    
+    console.log('Admin adding product:', req.body);
+    
+    // Create product with the data from form
+    const productData = {
+      name: req.body.name,
+      description: req.body.description,
+      price: parseFloat(req.body.price),
+      category: req.body.category,
+      brand: req.body.brand,
+      model: req.body.model || '',
+      stock_quantity: 1, // Default stock
+      availability: req.body.availability || 'in-stock',
+      features: req.body.features ? JSON.parse(req.body.features) : [],
+      images: [] // Handle images later if needed
+    };
+    
+    const product = await Product.create(productData);
+    console.log('Admin product created:', product._id);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Product added successfully',
+      product
+    });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token.'
+      });
+    }
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+});
+
 // User routes
 app.post('/api/users/register', async (req, res) => {
   try {
@@ -341,7 +403,30 @@ app.post('/api/admin-auth/login', async (req, res) => {
     
     console.log('Admin login attempt:', { email });
     
-    // Find admin user in database
+    // Check against environment variables first
+    if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+      console.log('Admin login successful (env credentials)');
+      
+      const token = jwt.sign({ 
+        email: email,
+        isAdmin: true,
+        role: 'admin' 
+      }, process.env.JWT_SECRET, {
+        expiresIn: '7d'
+      });
+      
+      return res.json({
+        success: true,
+        token,
+        user: {
+          email: email,
+          role: 'admin',
+          isAdmin: true
+        }
+      });
+    }
+    
+    // Fallback to database lookup
     const user = await User.findOne({ email, role: 'admin' }).select('+password');
     
     if (!user) {
@@ -355,10 +440,15 @@ app.post('/api/admin-auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
     }
     
-    console.log('Admin login successful');
+    console.log('Admin login successful (database)');
     
-    const token = jwt.sign({ id: user._id, role: 'admin' }, process.env.JWT_SECRET, {
-      expiresIn: '30d'
+    const token = jwt.sign({ 
+      id: user._id, 
+      email: user.email,
+      isAdmin: true,
+      role: 'admin' 
+    }, process.env.JWT_SECRET, {
+      expiresIn: '7d'
     });
     
     // Remove password from response
@@ -367,7 +457,10 @@ app.post('/api/admin-auth/login', async (req, res) => {
     res.json({
       success: true,
       token,
-      user
+      user: {
+        ...user.toObject(),
+        isAdmin: true
+      }
     });
   } catch (error) {
     console.error('Admin login error:', error);
