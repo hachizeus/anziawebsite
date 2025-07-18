@@ -159,7 +159,7 @@ const Newsletter = () => {
     setLoading(true);
     try {
       const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://anzia-electronics-api.onrender.com';
-      const response = await axios.post(`${API_URL}/api/news/newsdata`, { email, optIn });
+      const response = await axios.post(`${API_URL}/api/newsletter/subscribe`, { email });
       if (response.status === 200 || response.status === 201) {
         toast.success('Successfully subscribed to our newsletter!');
         setEmail('');
