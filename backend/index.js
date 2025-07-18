@@ -34,15 +34,28 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: [
-    'https://anziaelectronics.netlify.app',
-    'https://anzia-electronics-frontend.onrender.com',
-    'https://anzia-electronics-admin.onrender.com',
-    'http://localhost:5173',
-    'http://localhost:5174'
-  ],
-  credentials: true
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'https://anziaelectronics.netlify.app',
+      'https://anzia-electronics-frontend.onrender.com',
+      'https://anzia-electronics-admin.onrender.com',
+      'http://localhost:5173',
+      'http://localhost:5174'
+    ];
+    
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
 }));
+
+// Handle preflight requests
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
