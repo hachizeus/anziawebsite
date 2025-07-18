@@ -51,7 +51,7 @@ app.use('/public', express.static(join(__dirname, 'public')));
 
 // Health check route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'API is working' });
+  res.json({ status: 'ok', message: 'API is working - INDEX.JS VERSION' });
 });
 
 // Root route
