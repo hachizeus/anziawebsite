@@ -52,11 +52,15 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout API error:', error);
     } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userData");
-      localStorage.removeItem("loginTime");
+      // Clear all localStorage data
+      localStorage.clear();
+      
+      // Reset all state
       setIsLoggedIn(false);
       setUser(null);
+      
+      // Force page reload to clear all cached data
+      window.location.href = '/login';
     }
   };
 

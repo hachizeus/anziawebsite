@@ -100,14 +100,26 @@ const Navbar = () => {
   
   const userRole = getUserRole();
   
-  // Get cart count from localStorage
+  // Get cart count from backend
   const [cartCount, setCartCount] = useState(0);
   
   useEffect(() => {
     const updateCartCount = async () => {
       try {
         if (user?._id) {
-          const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${user._id}`);
+          const token = localStorage.getItem('token');
+          const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${user._id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (response.status === 401 || response.status === 403) {
+            // Token expired or invalid, logout user
+            logout();
+            return;
+          }
+          
           const data = await response.json();
           if (data.success) {
             const count = data.cart.items?.length || 0;
@@ -129,7 +141,7 @@ const Navbar = () => {
     return () => {
       window.removeEventListener('cartUpdated', updateCartCount);
     };
-  }, [user]);
+  }, [user, logout]);
 
   // Navigation links
   const navLinks = [

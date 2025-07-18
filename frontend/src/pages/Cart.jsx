@@ -23,7 +23,9 @@ const Cart = () => {
 
   const loadCart = async () => {
     if (user?._id) {
+      console.log('Loading cart for user:', user._id);
       const items = await cartService.getCart(user._id);
+      console.log('Cart items loaded:', items);
       setCartItems(items);
     }
   };

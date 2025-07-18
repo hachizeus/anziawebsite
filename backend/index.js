@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import jwt from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +33,44 @@ const connectDB = async () => {
 
 // Initialize Express app
 const app = express();
+
+// Security middleware
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP'
+});
+app.use('/api/', limiter);
+
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Access token required' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: 'Invalid or expired token' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// User ownership validation
+const authorizeUser = (req, res, next) => {
+  const userId = req.params.userId || req.body.userId;
+  if (req.user.id !== userId && req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Access denied' });
+  }
+  next();
+};
 
 // Middleware
 app.use(cors({
@@ -642,7 +682,7 @@ app.delete('/api/legacy-products/remove/:id', async (req, res) => {
 });
 
 // User profile endpoints
-app.get('/api/users/profile/:id', async (req, res) => {
+app.get('/api/users/profile/:id', authenticateToken, authorizeUser, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
@@ -654,7 +694,7 @@ app.get('/api/users/profile/:id', async (req, res) => {
   }
 });
 
-app.put('/api/users/profile/:id', async (req, res) => {
+app.put('/api/users/profile/:id', authenticateToken, authorizeUser, async (req, res) => {
   try {
     const { email, ...otherData } = req.body;
     
@@ -833,7 +873,7 @@ app.post('/api/orders/create', async (req, res) => {
   }
 });
 
-app.get('/api/orders/user/:userId', async (req, res) => {
+app.get('/api/orders/user/:userId', authenticateToken, authorizeUser, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.params.userId })
       .populate('items.productId', 'name price images')
@@ -1234,7 +1274,7 @@ app.get('/api/transaction-status/:merchantRequestID', (req, res) => {
 });
 
 // Cart endpoints
-app.get('/api/cart/:userId', async (req, res) => {
+app.get('/api/cart/:userId', authenticateToken, authorizeUser, async (req, res) => {
   try {
     const cart = await Cart.findOne({ userId: req.params.userId }).populate('items.productId');
     res.json({ success: true, cart: cart || { items: [] } });
@@ -1243,7 +1283,7 @@ app.get('/api/cart/:userId', async (req, res) => {
   }
 });
 
-app.post('/api/cart/add', async (req, res) => {
+app.post('/api/cart/add', authenticateToken, async (req, res) => {
   try {
     const { userId, productId, quantity, price, name, image } = req.body;
     

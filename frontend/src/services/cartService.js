@@ -4,8 +4,21 @@ export const cartService = {
   // Get cart for user
   getCart: async (userId) => {
     try {
-      const response = await fetch(`${API_URL}/cart/${userId}`);
+      console.log('Fetching cart for user:', userId);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/cart/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = '/login';
+        return [];
+      }
+      
       const data = await response.json();
+      console.log('Cart API response:', data);
       return data.success ? data.cart.items || [] : [];
     } catch (error) {
       console.error('Error getting cart:', error);
@@ -16,9 +29,13 @@ export const cartService = {
   // Add item to cart
   addToCart: async (userId, item) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/cart/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           userId,
           productId: item.id,
@@ -28,6 +45,12 @@ export const cartService = {
           image: item.image
         })
       });
+      
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = '/login';
+        return false;
+      }
+      
       const data = await response.json();
       if (data.success) {
         window.dispatchEvent(new CustomEvent('cartUpdated'));
