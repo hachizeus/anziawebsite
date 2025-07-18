@@ -48,8 +48,13 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative h-64">
         <img
-          src={product.image?.[0] || product.images?.[0] || '/images/placeholder-product.jpg'}
-          alt={product.name || product.title}
+          src={
+            product.images?.[0]?.url || 
+            product.images?.[0] || 
+            product.image?.[0] || 
+            '/images/placeholder-product.jpg'
+          }
+          alt={product.images?.[0]?.alt || product.name || product.title}
           className="w-full h-full object-cover"
         />
         

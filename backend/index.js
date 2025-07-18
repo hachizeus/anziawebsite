@@ -267,6 +267,19 @@ app.get('/api/frontend/products', async (req, res) => {
   }
 });
 
+// Products list endpoint for frontend compatibility
+app.get('/api/products/list', async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Create product route (for testing)
 app.post('/api/products', async (req, res) => {
   try {
