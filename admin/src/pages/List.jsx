@@ -219,8 +219,8 @@ const ProductListings = () => {
                 <div className="relative h-48">
                   {product.images && product.images.length > 0 ? (
                     <img
-                      src={product.images[0]}
-                      alt={product.name}
+                      src={product.images[0].url || product.images[0]}
+                      alt={product.images[0].alt || product.name}
                       className="w-full h-full object-cover"
                     />
                   ) : (
