@@ -122,7 +122,8 @@ const productSchema = new mongoose.Schema({
     required: true
   },
   subcategory: {
-    type: String
+    type: String,
+    required: true
   },
   brand: {
     type: String,
@@ -281,6 +282,15 @@ app.post('/api/legacy-products/add', async (req, res) => {
     }
     
     console.log('Admin adding product:', req.body);
+    console.log('Required fields check:', {
+      name: !!req.body.name,
+      description: !!req.body.description,
+      price: !!req.body.price,
+      category: !!req.body.category,
+      subcategory: !!req.body.subcategory,
+      brand: !!req.body.brand,
+      availability: !!req.body.availability
+    });
     
     // Parse features if it's a string
     let features = [];
@@ -365,6 +375,11 @@ app.get('/api/legacy-products/list', async (req, res) => {
       message: error.message 
     });
   }
+});
+
+// Admin notifications endpoint (simple)
+app.get('/api/admin-notifications', (req, res) => {
+  res.json({ success: true, notifications: [] });
 });
 
 // User routes
