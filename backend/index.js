@@ -264,13 +264,20 @@ app.post('/api/legacy-products/add', async (req, res) => {
     console.log('Headers:', req.headers.authorization ? 'Token present' : 'No token');
     console.log('Body:', req.body);
     
-    // Skip auth for now to test
+    // Use actual form data
     const productData = {
-      name: req.body.name || 'Test Product',
-      description: req.body.description || 'Test Description',
-      price: parseFloat(req.body.price) || 100,
-      category: req.body.category || 'Electronics',
-      brand: req.body.brand || 'Test Brand'
+      name: req.body.name,
+      description: req.body.description,
+      price: parseFloat(req.body.price),
+      category: req.body.category,
+      subcategory: req.body.subcategory,
+      brand: req.body.brand,
+      model: req.body.model,
+      availability: req.body.availability,
+      condition: req.body.condition,
+      warranty: req.body.warranty,
+      specifications: req.body.specifications,
+      features: req.body.features ? JSON.parse(req.body.features) : []
     };
     
     console.log('Creating product with:', productData);
