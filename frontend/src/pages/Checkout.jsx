@@ -66,6 +66,12 @@ const Checkout = () => {
         navigate('/login');
         return;
       }
+      
+      if (!orderData.phoneNumber || orderData.phoneNumber.length < 10) {
+        toast.error('Please enter a valid phone number');
+        setLoading(false);
+        return;
+      }
 
       const orderPayload = {
         userId: user._id,

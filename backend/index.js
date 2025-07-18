@@ -745,6 +745,13 @@ const initiateMpesaPayment = async (phoneNumber, amount, orderId) => {
 
 app.post('/api/orders/create', async (req, res) => {
   try {
+    console.log('Creating order with data:', req.body);
+    
+    // Validate required fields
+    if (!req.body.phoneNumber) {
+      return res.status(400).json({ success: false, message: 'Phone number is required for M-Pesa payment' });
+    }
+    
     const order = await Order.create(req.body);
     const populatedOrder = await Order.findById(order._id)
       .populate('userId', 'name email')
