@@ -156,25 +156,7 @@ const ProductDetail = () => {
             console.log('Error tracking product view:', err)
           );
           
-          // Save to recently viewed in localStorage
-          try {
-            const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-            // Remove if already exists
-            const filtered = viewed.filter(item => item.id !== formattedProduct.id);
-            // Add to beginning of array
-            const updated = [{ 
-              id: formattedProduct.id.toString(), // Ensure ID is a string
-              name: formattedProduct.name, 
-              price: formattedProduct.price,
-              image: formattedProduct.image[0] || ''
-            }, ...filtered].slice(0, 4); // Keep only 4 items
-            
-            console.log('Saving product to recently viewed with ID:', formattedProduct.id.toString());
-            localStorage.setItem('recentlyViewed', JSON.stringify(updated));
-            setRecentlyViewed(updated);
-          } catch (e) {
-            console.error('Error handling recently viewed:', e);
-          }
+          // Recently viewed handled by backend tracking
           
           // Fetch suggested products based on category
           if (formattedProduct.category) {
@@ -248,63 +230,33 @@ const ProductDetail = () => {
     
     loadProduct();
     
-    // Load recently viewed from localStorage
-    try {
-      const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-      setRecentlyViewed(viewed);
-    } catch (e) {
-      console.error('Error loading recently viewed:', e);
-    }
+    // Recently viewed removed
   }, [id]);
 
   const handleAddToCart = () => {
     if (!product) return;
     
     try {
-      // Get existing cart from localStorage
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      // Add to backend cart
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user._id) {
+        alert('Please login to add items to cart');
+        return;
+      }
       
-      // Check if product already exists in cart
-      const existingItemIndex = cart.findIndex(item => item.id === product.id.toString());
+      // Import cart service dynamically
+      const { cartService } = await import('../../services/cartService');
       
-      if (existingItemIndex >= 0) {
-        // Update quantity if product already in cart
-        cart[existingItemIndex].quantity += quantity;
-        
-        // Create a popup notification instead of alert
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-20 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in-out';
-        notification.innerHTML = `
-          <div class="flex items-center">
-            <div class="mr-3">
-              <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div>
-              <p class="font-bold">Item updated in cart</p>
-              <p class="text-sm">${product.name} quantity updated to ${cart[existingItemIndex].quantity}</p>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(notification);
-        
-        // Remove notification after 3 seconds
-        setTimeout(() => {
-          notification.classList.add('fade-out');
-          setTimeout(() => document.body.removeChild(notification), 500);
-        }, 3000);
-      } else {
-        // Add new item to cart
-        cart.push({
-          id: product.id.toString(), // Ensure ID is a string
-          name: product.name,
-          price: product.price,
-          image: product.image[0] || '',
-          quantity: quantity
-        });
-        
-        // Create a popup notification
+      const success = await cartService.addToCart(user._id, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image[0] || '',
+        quantity: quantity
+      });
+      
+      if (success) {
+        // Create success notification
         const notification = document.createElement('div');
         notification.className = 'fixed top-20 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in-out';
         notification.innerHTML = `
@@ -322,15 +274,14 @@ const ProductDetail = () => {
         `;
         document.body.appendChild(notification);
         
-        // Remove notification after 3 seconds
         setTimeout(() => {
           notification.classList.add('fade-out');
           setTimeout(() => document.body.removeChild(notification), 500);
         }, 3000);
+      } else {
+        alert('Failed to add item to cart');
+        return;
       }
-      
-      // Save updated cart to localStorage
-      localStorage.setItem('cart', JSON.stringify(cart));
       
       // Track action in analytics
       trackAddToCart(product.id, quantity, product.price)

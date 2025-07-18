@@ -378,6 +378,39 @@ const Order = mongoose.model('Order', orderSchema);
 const Newsletter = mongoose.model('Newsletter', newsletterSchema);
 const Notification = mongoose.model('Notification', notificationSchema);
 
+// Cart schema
+const cartSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  items: [{
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      default: 1
+    },
+    price: {
+      type: Number,
+      required: true
+    },
+    name: String,
+    image: String
+  }],
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Cart = mongoose.model('Cart', cartSchema);
+
 // Products routes
 app.get('/api/products', async (req, res) => {
   try {
@@ -1198,6 +1231,61 @@ app.get('/api/transaction-status/:merchantRequestID', (req, res) => {
   const transaction = transactionStatus[req.params.merchantRequestID];
   const status = transaction ? transaction.status : 'Pending';
   res.json({ status, orderId: transaction?.orderId });
+});
+
+// Cart endpoints
+app.get('/api/cart/:userId', async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userId: req.params.userId }).populate('items.productId');
+    res.json({ success: true, cart: cart || { items: [] } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post('/api/cart/add', async (req, res) => {
+  try {
+    const { userId, productId, quantity, price, name, image } = req.body;
+    
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, items: [] });
+    }
+    
+    const existingItem = cart.items.find(item => item.productId.toString() === productId);
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      cart.items.push({ productId, quantity, price, name, image });
+    }
+    
+    await cart.save();
+    res.json({ success: true, cart });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/cart/remove/:userId/:productId', async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userId: req.params.userId });
+    if (cart) {
+      cart.items = cart.items.filter(item => item.productId.toString() !== req.params.productId);
+      await cart.save();
+    }
+    res.json({ success: true, cart });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/cart/clear/:userId', async (req, res) => {
+  try {
+    await Cart.findOneAndDelete({ userId: req.params.userId });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 // News endpoint

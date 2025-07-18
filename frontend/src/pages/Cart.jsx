@@ -1,44 +1,59 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingCart } from '../utils/icons.jsx';
-import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
+import { cartService } from '../services/cartService';
 
 const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Cart component mounted');
+    if (!user?._id) {
+      navigate('/login');
+      return;
+    }
     loadCart();
-  }, []);
+  }, [user, navigate]);
 
-  const loadCart = () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    console.log('Loading cart items:', cart);
-    setCartItems(cart);
+  const loadCart = async () => {
+    if (user?._id) {
+      const items = await cartService.getCart(user._id);
+      setCartItems(items);
+    }
   };
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
+  const updateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1 || !user?._id) return;
     
-    const updatedCart = cartItems.map(item =>
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    );
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new CustomEvent('cartUpdated'));
+    // Remove and re-add with new quantity
+    await cartService.removeFromCart(user._id, productId);
+    const item = cartItems.find(item => item.productId._id === productId);
+    if (item) {
+      await cartService.addToCart(user._id, {
+        id: productId,
+        quantity: newQuantity,
+        price: item.price,
+        name: item.name,
+        image: item.image
+      });
+    }
+    loadCart();
   };
 
-  const removeItem = (id) => {
-    const updatedCart = cartItems.filter(item => item.id !== id);
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new CustomEvent('cartUpdated'));
-    toast.success('Item removed from cart');
+  const removeItem = async (productId) => {
+    if (!user?._id) return;
+    
+    const success = await cartService.removeFromCart(user._id, productId);
+    if (success) {
+      toast.success('Item removed from cart');
+      loadCart();
+    }
   };
 
   const getTotalPrice = () => {
@@ -46,8 +61,7 @@ const Cart = () => {
   };
 
   const proceedToCheckout = () => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user._id) {
+    if (!user?._id) {
       toast.error('Please login to proceed');
       navigate('/login');
       return;
@@ -79,11 +93,11 @@ const Cart = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="space-y-6">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4 border-b pb-6">
+                <div key={item.productId._id || item.productId} className="flex items-center space-x-4 border-b pb-6">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
                     {item.image ? (
                       <img 
-                        src={item.image.url || item.image} 
+                        src={item.image} 
                         alt={item.name}
                         className="w-full h-full object-cover rounded-lg"
                       />
@@ -101,7 +115,7 @@ const Cart = () => {
                   
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity - 1)}
                       className="p-1 border border-gray-300 rounded hover:bg-gray-50"
                     >
                       <Minus className="w-4 h-4" />
@@ -110,7 +124,7 @@ const Cart = () => {
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity + 1)}
                       className="p-1 border border-gray-300 rounded hover:bg-gray-50"
                     >
                       <Plus className="w-4 h-4" />
@@ -122,14 +136,14 @@ const Cart = () => {
                       KSh {(item.price * item.quantity).toLocaleString()}
                     </p>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.productId._id || item.productId)}
                       className="text-red-600 hover:text-red-700 mt-2"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              ))}
+              ))
             </div>
             
             <div className="mt-8 border-t pt-6">

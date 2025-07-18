@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, CreditCard, MapPin } from '../utils/icons.jsx';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
+import { cartService } from '../services/cartService';
 
 const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
@@ -23,19 +25,28 @@ const Checkout = () => {
     paymentMethod: 'mpesa',
     phoneNumber: ''
   });
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    if (cart.length === 0) {
-      navigate('/cart');
+    if (!user?._id) {
+      navigate('/login');
       return;
     }
-    setCartItems(cart);
-    
-    // Load user profile for shipping address
+    loadCart();
     loadUserProfile();
-  }, [navigate]);
+  }, [user, navigate]);
+  
+  const loadCart = async () => {
+    if (user?._id) {
+      const items = await cartService.getCart(user._id);
+      if (items.length === 0) {
+        navigate('/cart');
+        return;
+      }
+      setCartItems(items);
+    }
+  };
 
   const loadUserProfile = async () => {
     try {
@@ -104,9 +115,8 @@ const Checkout = () => {
           toast.info('Request sent. Please enter M-Pesa PIN.');
           checkTransactionStatus(paymentResponse.data.MerchantRequestID);
           
-          // Clear cart
-          localStorage.removeItem('cart');
-          window.dispatchEvent(new CustomEvent('cartUpdated'));
+          // Clear cart from backend
+          await cartService.clearCart(user._id);
         } else {
           toast.error('Failed to initiate M-Pesa payment');
         }

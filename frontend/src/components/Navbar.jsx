@@ -104,34 +104,32 @@ const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
   
   useEffect(() => {
-    const updateCartCount = () => {
+    const updateCartCount = async () => {
       try {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const count = cart.length; // Count number of unique items, not quantities
-        console.log('Cart count updated:', count, 'items in cart:', cart);
-        setCartCount(count);
+        if (user?._id) {
+          const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${user._id}`);
+          const data = await response.json();
+          if (data.success) {
+            const count = data.cart.items?.length || 0;
+            console.log('Cart count updated:', count, 'items in cart:', data.cart.items);
+            setCartCount(count);
+          }
+        } else {
+          setCartCount(0);
+        }
       } catch (e) {
         console.error('Error getting cart count:', e);
         setCartCount(0);
       }
     };
     
-    // Initial count
     updateCartCount();
-    
-    // Listen for storage changes
-    window.addEventListener('storage', updateCartCount);
-    
-    // Custom event for cart updates
     window.addEventListener('cartUpdated', updateCartCount);
     
-    // Remove interval to prevent spam
-    
     return () => {
-      window.removeEventListener('storage', updateCartCount);
       window.removeEventListener('cartUpdated', updateCartCount);
     };
-  }, []);
+  }, [user]);
 
   // Navigation links
   const navLinks = [
