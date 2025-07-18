@@ -110,6 +110,7 @@ const Checkout = () => {
           orderId: response.data.orderId
         });
         
+        console.log('M-Pesa Response:', paymentResponse.data);
         if (paymentResponse.data.MerchantRequestID) {
           setMerchantRequestID(paymentResponse.data.MerchantRequestID);
           toast.info('Request sent. Please enter M-Pesa PIN.');
@@ -118,12 +119,17 @@ const Checkout = () => {
           // Clear cart from backend
           await cartService.clearCart(user._id);
         } else {
-          toast.error('Failed to initiate M-Pesa payment');
+          console.error('M-Pesa Error:', paymentResponse.data);
+          toast.error(`M-Pesa Error: ${paymentResponse.data.errorMessage || 'Failed to initiate payment'}`);
         }
       }
     } catch (error) {
       console.error('Error placing order:', error);
-      toast.error('Failed to place order');
+      if (error.response?.data?.message) {
+        toast.error(`Order Error: ${error.response.data.message}`);
+      } else {
+        toast.error('Failed to place order');
+      }
     } finally {
       setLoading(false);
     }
@@ -272,7 +278,8 @@ const Checkout = () => {
                         alt={item.name}
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/64x64?text=No+Image';
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No Image</div>';
                         }}
                       />
                     ) : (

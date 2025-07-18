@@ -115,7 +115,8 @@ const Cart = () => {
                         alt={item.name}
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/80x80?text=No+Image';
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No Image</div>';
                         }}
                       />
                     ) : (
