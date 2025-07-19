@@ -851,18 +851,14 @@ app.post('/api/orders/create', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Phone number is required for M-Pesa payment' });
     }
     
-    // Create order with simplified data
-    const orderData = {
+    const order = await Order.create({
       userId: req.body.userId,
       items: req.body.items || [],
       totalAmount: req.body.totalAmount || 0,
       shippingAddress: req.body.shippingAddress || {},
       paymentMethod: 'mpesa',
-      phoneNumber: req.body.phoneNumber,
-      status: 'pending'
-    };
-    
-    const order = await Order.create(orderData);
+      phoneNumber: req.body.phoneNumber
+    });
     const populatedOrder = await Order.findById(order._id)
       .populate('userId', 'name email')
       .populate('items.productId', 'name price images');
@@ -930,20 +926,15 @@ app.put('/api/orders/:id/status', async (req, res) => {
       req.params.id,
       { status, updatedAt: new Date() },
       { new: true }
-    ).populate('userId', 'name email').populate('items.productId', 'name price images');
+    ).populate('userId', 'name email');
     
-    // Send status update email
-    if (order.userId?.email) {
-      const emailHtml = orderStatusUpdateTemplate(order, order.userId, status);
-      await sendEmail(
-        order.userId.email,
-        `Order Update #${order._id.toString().slice(-8)} - ${status.toUpperCase()} - Anzia Electronics`,
-        emailHtml
-      );
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
     
     res.json({ success: true, order });
   } catch (error) {
+    console.error('Order status update error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

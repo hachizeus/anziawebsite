@@ -90,7 +90,7 @@ const Checkout = () => {
       const orderPayload = {
         userId: user._id,
         items: cartItems.map(item => ({
-          productId: item.id,
+          productId: item.productId?._id || item.productId,
           quantity: item.quantity,
           price: item.price
         })),
@@ -269,21 +269,25 @@ const Checkout = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
             
             <div className="space-y-4 mb-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4">
+              {cartItems.map((item, index) => (
+                <div key={item.productId?._id || item.productId || index} className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
                     {item.image ? (
                       <img 
-                        src={typeof item.image === 'string' ? item.image : (item.image.url || item.image)} 
-                        alt={item.name}
+                        src={item.image} 
+                        alt={item.name} 
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
+                          console.error('Image failed to load:', item.image);
                           e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No Image</div>';
+                          const placeholder = e.target.parentElement.querySelector('.placeholder');
+                          if (placeholder) placeholder.style.display = 'flex';
                         }}
                       />
                     ) : (
-                      <ShoppingCart className="w-6 h-6 text-gray-400" />
+                      <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center placeholder">
+                        <ShoppingCart className="w-6 h-6 text-primary-400" />
+                      </div>
                     )}
                   </div>
                   <div className="flex-1">

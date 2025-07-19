@@ -111,16 +111,20 @@ const Cart = () => {
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
                     {item.image ? (
                       <img 
-                        src={typeof item.image === 'string' ? item.image : (item.image.url || item.image)}
-                        alt={item.name}
+                        src={item.image} 
+                        alt={item.name} 
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
+                          console.error('Image failed to load:', item.image);
                           e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No Image</div>';
+                          const placeholder = e.target.parentElement.querySelector('.placeholder');
+                          if (placeholder) placeholder.style.display = 'flex';
                         }}
                       />
                     ) : (
-                      <ShoppingCart className="w-8 h-8 text-gray-400" />
+                      <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center placeholder">
+                        <ShoppingCart className="w-8 h-8 text-primary-400" />
+                      </div>
                     )}
                   </div>
                   
