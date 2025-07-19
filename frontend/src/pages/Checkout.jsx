@@ -147,6 +147,8 @@ const Checkout = () => {
 
         if (res.data.status === "Success") {
           toast.success("Payment Successful!");
+          // Ensure cart is cleared and count updated
+          window.dispatchEvent(new CustomEvent('cartUpdated'));
           navigate('/dashboard');
           return;
         } else if (res.data.status === "Failed") {
