@@ -120,6 +120,7 @@ export const ExternalLink = createIcon('fas fa-external-link-alt');
 export const Link2 = createIcon('fas fa-link');
 export const Copy = createIcon('fas fa-copy');
 export const Share = createIcon('fas fa-share');
+export const Share2 = createIcon('fas fa-share-alt');
 export const Download2 = createIcon('fas fa-download');
 export const Upload2 = createIcon('fas fa-upload');
 export const Image = createIcon('fas fa-image');
