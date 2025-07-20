@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { cartService } from '../services/cartService';
+import { showNotification } from '../utils/notifications';
 
 const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
@@ -49,7 +50,7 @@ const Cart = () => {
       await loadCart();
     } catch (error) {
       console.error('Error updating quantity:', error);
-      toast.error('Failed to update quantity');
+      showNotification('Failed to update quantity', 'error');
     }
   };
 
@@ -59,14 +60,14 @@ const Cart = () => {
     try {
       const success = await cartService.removeFromCart(user._id, productId);
       if (success) {
-        toast.success('Item removed from cart');
+        showNotification('Item removed from cart', 'success');
         await loadCart();
       } else {
-        toast.error('Failed to remove item');
+        showNotification('Failed to remove item', 'error');
       }
     } catch (error) {
       console.error('Error removing item:', error);
-      toast.error('Failed to remove item');
+      showNotification('Failed to remove item', 'error');
     }
   };
 
@@ -76,7 +77,7 @@ const Cart = () => {
 
   const orderViaWhatsApp = () => {
     if (cartItems.length === 0) {
-      toast.error('Your cart is empty');
+      showNotification('Your cart is empty', 'warning');
       return;
     }
     
@@ -126,8 +127,8 @@ const Cart = () => {
           
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="space-y-6">
-              {cartItems.map((item) => (
-                <div key={item.productId._id || item.productId} className="flex items-center space-x-4 border-b pb-6">
+              {cartItems.map((item, index) => (
+                <div key={`${item.productId._id || item.productId}-${index}`} className="flex items-center space-x-4 border-b pb-6">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
                     {(item.image || item.productId?.images?.[0]?.url || item.productId?.images?.[0]) ? (
                       <img 

@@ -14,6 +14,7 @@ import {
   X
 } from '../../utils/icons.jsx';
 import { getProducts } from '../../services/api.js';
+import { showNotification } from '../../utils/notifications';
 
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -174,7 +175,7 @@ const ProductsPage = () => {
       try {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (!user._id) {
-          alert('Please login to add items to cart');
+          showNotification('Please login to add items to cart', 'warning');
           return;
         }
         
@@ -191,10 +192,10 @@ const ProductsPage = () => {
         });
         
         window.dispatchEvent(new CustomEvent('cartUpdated'));
-        alert('Added to cart!');
+        showNotification('Added to cart!', 'success');
       } catch (error) {
         console.error('Error adding to cart:', error);
-        alert('Failed to add to cart. Please try again.');
+        showNotification('Failed to add to cart. Please try again.', 'error');
       }
     };
     
