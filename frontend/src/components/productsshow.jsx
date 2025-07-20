@@ -64,9 +64,30 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  const addToCart = (e) => {
+  const addToCart = async (e) => {
     e.stopPropagation();
     try {
+      // Try API first, fallback to localStorage
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user._id) {
+        try {
+          const token = localStorage.getItem('token');
+          await axios.post(`${API_URL}/cart/add`, {
+            userId: user._id,
+            productId: product._id,
+            quantity: 1
+          }, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          window.dispatchEvent(new CustomEvent('cartUpdated'));
+          alert('Added to cart!');
+          return;
+        } catch (apiError) {
+          console.log('API unavailable, using localStorage');
+        }
+      }
+      
+      // Fallback to localStorage
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
       const existingItemIndex = cart.findIndex(item => item.id === product._id);
       
