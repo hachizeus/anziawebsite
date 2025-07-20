@@ -24,9 +24,21 @@ const Cart = () => {
   const loadCart = async () => {
     if (user?._id) {
       console.log('Loading cart for user:', user._id);
-      const items = await cartService.getCart(user._id);
-      console.log('Cart items loaded:', items);
-      setCartItems(items);
+      try {
+        const items = await cartService.getCart(user._id);
+        console.log('Cart items loaded from API:', items);
+        setCartItems(items);
+      } catch (error) {
+        console.log('API failed, loading from localStorage');
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        console.log('Cart items loaded from localStorage:', cart);
+        setCartItems(cart);
+      }
+    } else {
+      // No user, load from localStorage
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      console.log('No user, cart items loaded from localStorage:', cart);
+      setCartItems(cart);
     }
   };
 
