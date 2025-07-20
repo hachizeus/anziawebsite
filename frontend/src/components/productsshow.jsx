@@ -95,17 +95,17 @@ const ProductCard = ({ product }) => {
 
   return (
     <motion.div
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -4, scale: 1.02 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all duration-300 cursor-pointer"
       onClick={handleNavigate}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Product Image */}
-      <div className="relative h-64">
+      <div className="relative h-48">
         <img
 src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-product.jpg'}
           alt={product.images?.[0]?.alt || product.name || product.title}
@@ -163,8 +163,8 @@ src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-pro
       </div>
       
       {/* Product Content */}
-      <div className="p-6">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary-600 transition-colors">
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary-600 transition-colors">
           {product.name || product.title}
         </h3>
         
@@ -174,7 +174,7 @@ src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-pro
         </div>
         
         {/* Product Features */}
-        <div className="flex justify-between items-center py-3 border-y border-gray-100 dark:border-gray-700 mb-4">
+        <div className="flex justify-between items-center py-2 border-y border-gray-100 dark:border-gray-700 mb-3">
           <div className="flex items-center gap-1">
             <i className="fas fa-star text-yellow-500"></i>
             <span className="text-sm text-gray-600 dark:text-gray-300">{product.rating || '4.5'} Rating</span>
@@ -186,7 +186,7 @@ src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-pro
         
         <div className="flex items-center justify-between">
           <div className="flex items-center text-primary-600 font-bold">
-            <span className="text-xl">KSh {Number(product.price || 0).toLocaleString()}</span>
+            <span className="text-lg font-bold">KSh {Number(product.price || 0).toLocaleString()}</span>
           </div>
           
           <button
@@ -242,24 +242,43 @@ const ProductsShow = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://anzia-electronics-api.onrender.com/api/products`);
+        // Add delay to prevent rapid requests
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        if (response.data.success) {
+        if (!isMounted) return;
+        
+        const response = await axios.get(`https://anzia-electronics-api.onrender.com/api/products`, {
+          timeout: 15000,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (isMounted && response.data.success) {
           // Take only the first 6 products for featured section
           const featuredProducts = response.data.products?.slice(0, 6) || [];
           setProducts(featuredProducts);
-        } else {
+        } else if (isMounted) {
           setError('API temporarily unavailable');
         }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        if (isMounted) setError('Failed to load products');
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchProducts();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const filteredProducts = activeCategory === 'all' 
@@ -324,26 +343,50 @@ const ProductsShow = () => {
           </p>
         </motion.div>
 
-        {/* Category filter */}
-        <motion.div 
-          className="flex flex-wrap justify-center gap-4 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setActiveCategory(category.id)}
-              className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-200
-                ${activeCategory === category.id 
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20' 
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm'}`}
-            >
-              {category.label}
-            </button>
-          ))}
-        </motion.div>
+        {/* Category sections */}
+        <div className="space-y-16">
+          {/* Generators Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Generators</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.filter(product => product.category?.toLowerCase().includes('generator')).slice(0, 3).map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Power Tools Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Power Tools</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.filter(product => product.category?.toLowerCase().includes('power') || product.category?.toLowerCase().includes('tool')).slice(0, 3).map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Electronics Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Electronics</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.filter(product => product.category?.toLowerCase().includes('electronic') || !product.category?.toLowerCase().includes('generator') && !product.category?.toLowerCase().includes('power')).slice(0, 3).map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          </motion.div>
+        </div>
 
         {error && (
           <motion.div 
@@ -356,30 +399,11 @@ const ProductsShow = () => {
           </motion.div>
         )}
 
-        {products.length > 0 ? (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {filteredProducts.map((product) => (
-              <motion.div key={product._id} variants={itemVariants}>
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
+        {products.length === 0 && (
           <div className="text-center py-10 bg-white rounded-xl shadow-sm">
             <i className="fas fa-search text-6xl text-gray-300 mb-4"></i>
             <h3 className="text-xl font-medium text-gray-800 mb-2">No products available</h3>
-            <p className="text-gray-600 mb-6">No products found in this category.</p>
-            <button 
-              onClick={() => setActiveCategory('all')} 
-              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              View All Products
-            </button>
+            <p className="text-gray-600 mb-6">Loading products...</p>
           </div>
         )}
 

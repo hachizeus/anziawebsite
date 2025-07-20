@@ -7,10 +7,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { connectToDatabase } from './config/mongodb.js';
-import { trackAPIStats } from './middleware/statsMiddleware.js';
-import { configureSecurityMiddleware } from './middleware/security.js';
-import cspMiddleware from './middleware/cspMiddleware.js';
-import { securityLogger } from './middleware/securityLogger.js';
+// Removed heavy middleware imports
 
 import productRouter from './routes/ProductRouter.js';
 import productRoutes from './routes/productRoutes.js';
@@ -91,9 +88,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-CSRF-Token', 'Cache-Control', 'Pragma']
 }));
 
-// Log all incoming requests for debugging
+// Minimal request logging
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.get('origin') || 'unknown'}`);
+  if (req.path.includes('/api/')) {
+    console.log(`${req.method} ${req.path}`);
+  }
   next();
 });
 
@@ -140,16 +139,6 @@ app.use((req, res, next) => {
 });
 
 app.use(compression());
-// Apply comprehensive security middleware
-configureSecurityMiddleware(app);
-
-// Apply additional security middleware
-// Import security middleware
-import securityMiddleware from './middleware/securityMiddleware.js';
-securityMiddleware.forEach(middleware => app.use(middleware));
-app.use(cspMiddleware());
-app.use(securityLogger);
-app.use(trackAPIStats);
 
 // Import MongoDB initialization
 import { initializeMongoDB } from './config/initMongoDB.js';

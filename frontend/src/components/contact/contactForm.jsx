@@ -1,6 +1,5 @@
-
 import { motion } from 'framer-motion';
-import { Send } from '../utils/icons.jsx';
+// Using Font Awesome icons
 import useContactForm from './useContactform';
 
 function ContactForm() {
@@ -84,7 +83,7 @@ function ContactForm() {
           type="submit"
           className="w-full bg-blue-600 text-white py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
         >
-          <Send className="w-4 h-4 mr-2" />
+          <i className="fas fa-paper-plane w-4 h-4 mr-2"></i>
           Send Message
         </button>
       </form>
@@ -93,5 +92,3 @@ function ContactForm() {
 }
 
 export default ContactForm;
-
-

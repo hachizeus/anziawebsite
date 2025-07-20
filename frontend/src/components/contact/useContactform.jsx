@@ -48,32 +48,19 @@ export default function useContactForm() {
       try {
         // Send email using Web3Forms (free email service)
         // Send to backend API
-        const response = await fetch('https://formspree.io/f/xdkogqko', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone || 'Not provided',
-            message: formData.message,
-            _replyto: formData.email,
-            _subject: `Contact Form: ${formData.name} - Anzia Electronics`
-          })
-        });
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL || 'https://anzia-electronics-api.onrender.com'}/api/forms/submit`, formData);
         
-        if (response.ok) {
-          toast.success('Message sent successfully! We will get back to you soon.');
+        if (response.data.success) {
+          toast.success('Form submitted successfully!');
         } else {
-          toast.error('Failed to send message. Please try again.');
+          toast.error('Error submitting form. Please try again.');
         }
         
         // Reset form
         setFormData({ name: '', email: '', phone: '', message: '' });
       } catch (error) {
-        toast.error('Failed to send message. Please try again.');
-        console.error('Error sending email:', error);
+        toast.error('Error submitting form. Please try again.');
+        console.error('Error submitting form:', error);
       }
     }
   };

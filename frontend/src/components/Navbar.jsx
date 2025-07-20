@@ -121,10 +121,12 @@ const Navbar = () => {
       }
     };
     
-    updateCartCount();
+    // Delay initial call to prevent rapid requests
+    const timeoutId = setTimeout(updateCartCount, 2000);
     window.addEventListener('cartUpdated', updateCartCount);
     
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener('cartUpdated', updateCartCount);
     };
   }, [user, isLoggedIn, logout]);
