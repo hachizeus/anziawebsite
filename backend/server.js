@@ -58,49 +58,33 @@ app.get('/fix-auth', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'fix-auth-issues.html'));
 });
 
-// CORS Configuration - Allow specific origins and handle preflight requests properly
+// Simple CORS - Allow all origins
 app.use(cors({
-  origin: function(origin, callback) {
-    const allowedOrigins = [
-      process.env.FRONTEND_URL,
-      process.env.WEBSITE_URL,
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:5000',
-      'http://localhost:8000',
-      'http://localhost:8080',
-      'https://anzia-electronics-frontend.vercel.app',
-      'https://anzia-electronics-frontend.netlify.app'
-    ].filter(Boolean);
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin);
-      callback(null, true); // Allow all origins for now to debug
-    }
-  },
-  credentials: true,
+  origin: '*',
+  credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-CSRF-Token', 'Cache-Control', 'Pragma']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
 }));
 
-// Minimal request logging
+// Add CORS headers manually
 app.use((req, res, next) => {
-  if (req.path.includes('/api/')) {
-    console.log(`${req.method} ${req.path}`);
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
   }
-  next();
 });
 
-// Add OPTIONS handling for preflight requests
-app.options('*', cors({
-  origin: true,
-  credentials: true
-}));
+// Remove all request logging
+// app.use((req, res, next) => {
+//   console.log(`${req.method} ${req.path}`);
+//   next();
+// });
+
+// OPTIONS handled above
 
 // Security middlewares - after CORS to avoid blocking CORS headers
 app.use(helmet({

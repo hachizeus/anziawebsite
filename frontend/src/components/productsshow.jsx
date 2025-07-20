@@ -5,6 +5,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from "prop-types";
 import { showNotification } from '../utils/notifications';
+import { cachedFetch } from '../utils/requestCache';
 
 
 const ProductCard = ({ product }) => {
@@ -108,9 +109,10 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative h-48">
         <img
-src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-product.jpg'}
+          src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-product.jpg'}
           alt={product.images?.[0]?.alt || product.name || product.title}
           className="w-full h-full object-cover"
+          loading="lazy"
           onError={(e) => {
             e.target.src = '/images/placeholder-product.jpg';
           }}
@@ -248,7 +250,7 @@ const ProductsShow = () => {
       try {
         setLoading(true);
         // Add delay to prevent rapid requests
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
         if (!isMounted) return;
         
@@ -292,36 +294,38 @@ const ProductsShow = () => {
 
   if (loading) {
     return (
-      <div className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="animate-pulse">
-            <div className="h-10 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
-            <div className="h-5 bg-gray-200 rounded w-1/4 mx-auto mb-16"></div>
-            
-            <div className="h-10 bg-gray-100 rounded-lg w-full max-w-md mx-auto mb-8 flex justify-center gap-4">
-              {[1, 2, 3, 4].map(n => (
-                <div key={n} className="h-8 bg-gray-200 rounded-full w-24"></div>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className="bg-white rounded-xl shadow h-96">
-                  <div className="h-64 bg-gray-200 rounded-t-xl"></div>
-                  <div className="p-6">
-                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                    <div className="flex justify-between">
-                      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-                      <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+      <section className="py-24 bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="h-6 bg-gray-200 rounded w-32 mx-auto mb-4 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-64 mx-auto mb-4 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-96 mx-auto animate-pulse"></div>
+          </div>
+          
+          <div className="space-y-16">
+            {['Generators', 'Power Tools', 'Electronics'].map((section) => (
+              <div key={section}>
+                <div className="h-8 bg-gray-200 rounded w-48 mx-auto mb-6 animate-pulse"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[1, 2, 3, 4].map((n) => (
+                    <div key={n} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden animate-pulse">
+                      <div className="h-48 bg-gray-200"></div>
+                      <div className="p-4">
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                        <div className="flex justify-between items-center">
+                          <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                          <div className="h-8 bg-gray-200 rounded w-20"></div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 

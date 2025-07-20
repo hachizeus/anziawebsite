@@ -122,7 +122,7 @@ const Navbar = () => {
     };
     
     // Delay initial call to prevent rapid requests
-    const timeoutId = setTimeout(updateCartCount, 2000);
+    const timeoutId = setTimeout(updateCartCount, 5000);
     window.addEventListener('cartUpdated', updateCartCount);
     
     return () => {
@@ -187,8 +187,23 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation - Centered */}
-          <div className="hidden md:flex items-center justify-center flex-1">
+          <div className="hidden md:flex items-center justify-center flex-1 space-x-8">
             <NavLinks currentPath={location.pathname} user={user} navLinks={navLinks} />
+            <div className="w-64">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="w-full pl-8 pr-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && e.target.value.trim()) {
+                      window.location.href = `/products?search=${encodeURIComponent(e.target.value.trim())}`;
+                    }
+                  }}
+                />
+                <i className="fas fa-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+              </div>
+            </div>
           </div>
 
           {/* Auth Buttons - Right */}
