@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, X } from '../utils/icons.jsx';
+// Font Awesome icons used directly in JSX
+import { ArrowRight } from '../utils/icons.jsx';
 import { features } from "../assets/featuredata";
 
 // Enhanced animation variants
@@ -58,7 +59,7 @@ const FeatureModal = ({ feature, isOpen, onClose }) => {
               onClick={onClose}
               className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <X className="w-5 h-5" />
+              <i className="fas fa-times"></i>
             </button>
           </div>
           

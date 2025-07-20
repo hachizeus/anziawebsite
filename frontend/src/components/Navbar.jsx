@@ -1,20 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ChevronDown,
-  LogOut,
-  Home,
-  Search,
-  Users,
-  MessageCircle,
-  LayoutDashboard,
-  Settings,
-  Moon,
-  Sun,
-  ShoppingCart,
-  Star,
-} from '../utils/icons.jsx';
+// Font Awesome icons used directly in JSX
 // Use direct path to logo instead of import
 const logoPath = "/images/logo.svg";
 import { useAuth } from "../context/AuthContext";
@@ -145,15 +132,15 @@ const Navbar = () => {
 
   // Navigation links
   const navLinks = [
-    { name: "Home", path: "/", icon: Home },
-    { name: "Products", path: "/products", icon: Search },
-    { name: "Categories", path: "/categories", icon: Search },
-    { name: "About", path: "/about", icon: Users },
-    { name: "Contact", path: "/contact", icon: MessageCircle },
+    { name: "Home", path: "/", icon: "fas fa-home" },
+    { name: "Products", path: "/products", icon: "fas fa-search" },
+    { name: "Categories", path: "/categories", icon: "fas fa-th-large" },
+    { name: "About", path: "/about", icon: "fas fa-users" },
+    { name: "Contact", path: "/contact", icon: "fas fa-envelope" },
     { 
       name: "Help", 
       path: "/help", 
-      icon: Star,
+      icon: "fas fa-question-circle",
       dropdown: [
         { name: "FAQs", path: "/help#faqs" },
         { name: "Shipping", path: "/help#shipping" },
@@ -166,7 +153,7 @@ const Navbar = () => {
   
   // Add Dashboard link for users
   if (isLoggedIn && userRole === 'user') {
-    navLinks.push({ name: "Dashboard", path: "/dashboard", icon: LayoutDashboard });
+    navLinks.push({ name: "Dashboard", path: "/dashboard", icon: "fas fa-tachometer-alt" });
   }
 
   return (
@@ -208,7 +195,7 @@ const Navbar = () => {
             {isLoggedIn ? (
               <div className="flex items-center space-x-4">
                 <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
-                  <ShoppingCart className="w-6 h-6" />
+                  <i className="fas fa-shopping-cart text-xl"></i>
                   {cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount}
@@ -251,7 +238,7 @@ const Navbar = () => {
                       </div>
                       <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border-1 border-white rounded-full"></div>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-gray-600" />
+                    <i className="fas fa-chevron-down text-gray-600"></i>
                   </motion.button>
 
                 {/* Dropdown Menu */}
@@ -280,7 +267,7 @@ const Navbar = () => {
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:text-primary-600 flex items-center space-x-2 transition-colors"
                       >
-                        {darkMode ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4" />}
+                        {darkMode ? <i className="fas fa-sun text-yellow-500"></i> : <i className="fas fa-moon"></i>}
                         <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
                       </button>
 
@@ -289,7 +276,7 @@ const Navbar = () => {
                         onClick={handleLogout}
                         className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 flex items-center space-x-2 transition-colors"
                       >
-                        <LogOut className="w-4 h-4" />
+                        <i className="fas fa-sign-out-alt"></i>
                         <span>Sign out</span>
                       </motion.button>
                     </motion.div>
@@ -300,7 +287,7 @@ const Navbar = () => {
             ) : (
               <div className="flex items-center space-x-4">
                 <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
-                  <ShoppingCart className="w-6 h-6" />
+                  <i className="fas fa-shopping-cart text-xl"></i>
                   {cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount}
@@ -362,7 +349,7 @@ const Navbar = () => {
             <div className="px-2 pt-3 pb-4">
               <div className="flex flex-col space-y-1 pb-3">
                 {/* Navigation Links */}
-                {navLinks.map(({ name, path, icon: Icon, dropdown }) => {
+                {navLinks.map(({ name, path, icon, dropdown }) => {
                   const isActive =
                     path === "/" ? location.pathname === path : location.pathname.startsWith(path);
 
@@ -381,7 +368,7 @@ const Navbar = () => {
                             `}
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            <Icon className="w-5 h-5" />
+                            <i className={icon}></i>
                             {name}
                           </Link>
                         </motion.div>
@@ -417,7 +404,7 @@ const Navbar = () => {
                         `}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <Icon className="w-5 h-5" />
+                        <i className={icon}></i>
                         {name}
                       </Link>
                     </motion.div>
@@ -478,7 +465,7 @@ const Navbar = () => {
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors"
                       >
-                        {darkMode ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
+                        {darkMode ? <i className="fas fa-sun text-yellow-500"></i> : <i className="fas fa-moon"></i>}
                         <span className="font-medium">{darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}</span>
                       </button>
                       
@@ -490,7 +477,7 @@ const Navbar = () => {
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
-                        <LogOut className="w-5 h-5" />
+                        <i className="fas fa-sign-out-alt"></i>
                         <span className="font-medium">Sign out</span>
                       </motion.button>
                     </div>
@@ -558,7 +545,7 @@ const NavLinks = ({ currentPath, navLinks }) => {
 
   return (
     <div className="flex items-center space-x-2">
-      {navLinks.map(({ name, path, icon: Icon, dropdown }) => {
+      {navLinks.map(({ name, path, icon, dropdown }) => {
         const isActive =
           path === "/" ? currentPath === path : currentPath.startsWith(path);
 
@@ -575,7 +562,7 @@ const NavLinks = ({ currentPath, navLinks }) => {
                   }
                 `}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <i className={icon}></i>
                 <span>{name}</span>
                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -612,7 +599,7 @@ const NavLinks = ({ currentPath, navLinks }) => {
               }
             `}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <i className={icon}></i>
             <span>{name}</span>
           </Link>
         );

@@ -1,16 +1,5 @@
 import { useState } from 'react';
-import { 
-  Twitter, 
-  Facebook, 
-  Instagram, 
-  Mail, 
-  MapPin, 
-  Phone,
-  ChevronRight,
-  ArrowRight,
-  ChevronDown,
-  Youtube,
-} from '../utils/icons.jsx';
+// Font Awesome icons used directly in JSX
 import { motion, AnimatePresence } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -40,9 +29,7 @@ const MobileFooterSection = ({ title, children }) => {
         <h3 className="text-sm font-bold tracking-wider text-gray-700 dark:text-gray-300 uppercase">
           {title}
         </h3>
-        <ChevronDown 
-          className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} 
-        />
+        <i className={`fas fa-chevron-down text-gray-400 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`}></i>
       </button>
       
       <AnimatePresence>
@@ -101,7 +88,7 @@ const FooterLink = ({ href, children }) => {
       href={href} 
       className="flex items-center text-base text-gray-600 dark:text-gray-400 transition-all duration-200 hover:text-primary-600 hover:translate-x-1 py-1.5 lg:py-0"
     >
-      <ChevronRight className="w-3.5 h-3.5 mr-1 text-primary-500 opacity-0 transition-all duration-200 group-hover:opacity-100" />
+      <i className="fas fa-chevron-right text-primary-500 opacity-0 transition-all duration-200 group-hover:opacity-100 mr-1"></i>
       {children}
     </a>
   );
@@ -191,7 +178,7 @@ const Newsletter = () => {
       <form onSubmit={handleSubmit} className="mt-3">
         <div className="flex flex-col gap-3">
           <div className="relative flex-grow">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <i className="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             <input
               type="email"
               name="email"
@@ -230,7 +217,7 @@ const Newsletter = () => {
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <>
-                <Mail className="w-4 h-4 mr-2" />
+                <i className="fas fa-envelope mr-2"></i>
                 <span>Subscribe</span>
               </>
             )}
@@ -263,19 +250,17 @@ const helpLinks = [
 
 const contactInfo = [
   { 
-    icon: MapPin, 
     text: 'Nairobi, Kenya - Serving Nationwide',
     href: 'https://maps.google.com/?q=Nairobi,Kenya',
-    imgSrc: locationIcon
+    imgSrc: locationIcon,
+    isLocation: true
   },
   { 
-    icon: Phone, 
     text: '+254 700 000 000',
     href: 'tel:+254700000000',
     imgSrc: phoneIcon
   },
   { 
-    icon: Mail, 
     text: 'info@anziaelectronics.co.ke',
     href: 'mailto:info@anziaelectronics.co.ke',
     imgSrc: emailIcon
@@ -342,18 +327,14 @@ const Footer = () => {
                     <a 
                       href={item.href} 
                       className="flex items-start text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                      target={item.icon === MapPin ? "_blank" : undefined}
-                      rel={item.icon === MapPin ? "noopener noreferrer" : undefined}
+                      target={item.isLocation ? "_blank" : undefined}
+                      rel={item.isLocation ? "noopener noreferrer" : undefined}
                     >
-                      {item.imgSrc ? (
-                        <img 
-                          src={item.imgSrc} 
-                          alt={item.text} 
-                          className="w-5 h-5 mt-1 mr-3 flex-shrink-0" 
-                        />
-                      ) : (
-                        <item.icon className="w-5 h-5 mt-1 mr-3 flex-shrink-0" />
-                      )}
+                      <img 
+                        src={item.imgSrc} 
+                        alt={item.text} 
+                        className="w-5 h-5 mt-1 mr-3 flex-shrink-0" 
+                      />
                       <span className="text-sm">{item.text}</span>
                     </a>
                   </li>
@@ -411,18 +392,14 @@ const Footer = () => {
                     <a 
                       href={item.href} 
                       className="flex items-start text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                      target={item.icon === MapPin ? "_blank" : undefined}
-                      rel={item.icon === MapPin ? "noopener noreferrer" : undefined}
+                      target={item.isLocation ? "_blank" : undefined}
+                      rel={item.isLocation ? "noopener noreferrer" : undefined}
                     >
-                      {item.imgSrc ? (
-                        <img 
-                          src={item.imgSrc} 
-                          alt={item.text} 
-                          className="w-5 h-5 mt-1 mr-3 flex-shrink-0" 
-                        />
-                      ) : (
-                        <item.icon className="w-5 h-5 mt-1 mr-3 flex-shrink-0" />
-                      )}
+                      <img 
+                        src={item.imgSrc} 
+                        alt={item.text} 
+                        className="w-5 h-5 mt-1 mr-3 flex-shrink-0" 
+                      />
                       <span className="text-sm">{item.text}</span>
                     </a>
                   </li>
@@ -466,7 +443,7 @@ const Footer = () => {
             className="flex items-center text-primary-600 hover:text-primary-700 text-sm font-medium"
           >
             Browse Our Products
-            <ArrowRight className="ml-2 h-4 w-4" />
+            <i className="fas fa-arrow-right ml-2"></i>
           </motion.a>
         </div>
       </div>

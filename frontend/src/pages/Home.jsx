@@ -5,10 +5,12 @@ import Features from '../components/Features'
 
 const Home = () => {
   return (
-    <div>
+    <div className="bg-gray-50">
       <Hero />
-      <ProductsShow />
-      <Features />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ProductsShow />
+        <Features />
+      </div>
     </div>
   )
 }

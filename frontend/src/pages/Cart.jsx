@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingCart } from '../utils/icons.jsx';
+// Font Awesome icons used directly in JSX
 import { toast, Toaster } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { cartService } from '../services/cartService';
@@ -87,7 +87,7 @@ const Cart = () => {
     return (
       <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
         <div className="text-center">
-          <ShoppingCart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <i className="fas fa-shopping-cart text-6xl text-gray-400 mb-4"></i>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
           <Link to="/products" className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
             Continue Shopping
@@ -123,7 +123,7 @@ const Cart = () => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center placeholder">
-                        <ShoppingCart className="w-8 h-8 text-primary-400" />
+                        <i className="fas fa-shopping-cart text-2xl text-primary-400"></i>
                       </div>
                     )}
                   </div>
@@ -140,7 +140,7 @@ const Cart = () => {
                       onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity - 1)}
                       className="p-1 border border-gray-300 rounded hover:bg-gray-50"
                     >
-                      <Minus className="w-4 h-4" />
+                      <i className="fas fa-minus"></i>
                     </button>
                     <span className="px-3 py-1 border border-gray-300 rounded">
                       {item.quantity}
@@ -149,7 +149,7 @@ const Cart = () => {
                       onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity + 1)}
                       className="p-1 border border-gray-300 rounded hover:bg-gray-50"
                     >
-                      <Plus className="w-4 h-4" />
+                      <i className="fas fa-plus"></i>
                     </button>
                   </div>
                   
@@ -161,7 +161,7 @@ const Cart = () => {
                       onClick={() => removeItem(item.productId._id || item.productId)}
                       className="text-red-600 hover:text-red-700 mt-2"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <i className="fas fa-trash"></i>
                     </button>
                   </div>
                 </div>

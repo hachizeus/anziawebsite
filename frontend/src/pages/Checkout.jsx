@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, CreditCard, MapPin } from '../utils/icons.jsx';
+// Font Awesome icons used directly in JSX
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -288,7 +288,7 @@ const Checkout = () => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center placeholder">
-                        <ShoppingCart className="w-6 h-6 text-primary-400" />
+                        <i className="fas fa-shopping-cart text-2xl text-primary-400"></i>
                       </div>
                     )}
                   </div>

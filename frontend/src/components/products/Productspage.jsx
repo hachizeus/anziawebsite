@@ -244,16 +244,16 @@ const ProductsPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group"
+        className="bg-white border border-gray-200 hover:shadow-md transition-all duration-300 overflow-hidden group relative"
       >
         <div className="relative">
-          <div className="aspect-w-16 aspect-h-12 bg-gray-200">
+          <div className="aspect-square bg-white p-4">
             {imageUrl ? (
               <img 
                 src={imageUrl} 
                 alt={product.name} 
-                className="w-full h-48 object-cover"
-onError={(e) => {
+                className="w-full h-full object-contain"
+                onError={(e) => {
                   console.error('Image failed to load:', imageUrl);
                   e.target.style.display = 'none';
                   const placeholder = e.target.parentElement.querySelector('.placeholder');
@@ -261,8 +261,8 @@ onError={(e) => {
                 }}
               />
             ) : (
-              <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                <ShoppingCart className="w-16 h-16 text-primary-400" />
+              <div className="w-full h-full bg-gray-50 flex items-center justify-center placeholder">
+                <i className="fas fa-shopping-cart text-4xl text-gray-300"></i>
               </div>
             )}
           </div>
@@ -280,63 +280,52 @@ onError={(e) => {
           </div>
         </div>
 
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-500 font-medium">{product.brand || 'Unknown'}</span>
-            <span className="text-xs text-primary-600 bg-primary-50 px-2 py-1 rounded">
-              {productCode}
-            </span>
-          </div>
-
-          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+        <div className="p-3">
+          <h3 className="text-sm text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">
             {product.name}
           </h3>
 
-          {/* Rating removed */}
-
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <span className="text-lg font-bold text-gray-900">
-                KSh {price.toLocaleString()}
-              </span>
-              {originalPrice > price && (
-                <span className="text-sm text-gray-500 line-through ml-2">
-                  KSh {originalPrice.toLocaleString()}
-                </span>
-              )}
+          <div className="mb-3">
+            <div className="text-lg font-bold text-red-600">
+              KSh {price.toLocaleString()}
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              product.availability === 'in-stock'
-                ? 'text-green-700 bg-green-100'
-                : 'text-red-700 bg-red-100'
-            }`}>
-              {product.availability === 'in-stock' ? 'In Stock' : 'Out of Stock'}
-            </span>
+            {originalPrice > price && (
+              <div className="text-sm text-gray-500 line-through">
+                KSh {originalPrice.toLocaleString()}
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={toggleWishlist}
-              className={`p-2 border rounded-lg transition-colors ${
-                isInWishlist 
-                  ? 'border-red-300 bg-red-50 text-red-600' 
-                  : 'border-gray-300 hover:bg-gray-50 text-gray-600'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} />
-            </button>
+          <div className="text-xs text-gray-500 mb-3">
+            {product.brand || 'Electronics'}
+          </div>
+
+          <div className="space-y-2">
             <button
               onClick={addToCart}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-600"
+              className="w-full bg-red-600 text-white py-2 px-3 text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
             >
-              <ShoppingCart className="w-4 h-4" />
+              <i className="fas fa-shopping-cart"></i>
+              <span>Add to Cart</span>
             </button>
-            <Link
-              to={`/products/${product._id}`}
-              className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors text-center text-sm font-medium"
-            >
-              View Details
-            </Link>
+            <div className="flex space-x-2">
+              <button
+                onClick={toggleWishlist}
+                className={`flex-1 p-2 border text-sm transition-colors ${
+                  isInWishlist 
+                    ? 'border-red-300 bg-red-50 text-red-600' 
+                    : 'border-gray-300 hover:bg-gray-50 text-gray-600'
+                }`}
+              >
+                <i className={`fas fa-heart ${isInWishlist ? 'text-red-500' : ''}`}></i>
+              </button>
+              <Link
+                to={`/products/${product._id}`}
+                className="flex-1 border border-gray-300 text-gray-600 py-2 px-3 hover:bg-gray-50 transition-colors text-center text-sm"
+              >
+                View
+              </Link>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -367,7 +356,7 @@ onError={(e) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
               <input
                 type="text"
                 placeholder="Search products..."
@@ -411,7 +400,7 @@ onError={(e) => {
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                <Grid className="w-5 h-5" />
+                <i className="fas fa-th"></i>
               </button>
               <button
                 onClick={() => setViewMode('list')}
@@ -421,7 +410,7 @@ onError={(e) => {
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                <List className="w-5 h-5" />
+                <i className="fas fa-list"></i>
               </button>
             </div>
           </div>
@@ -451,9 +440,9 @@ onError={(e) => {
         </div>
 
         {/* Products Grid */}
-        <div className={`grid gap-6 ${
+        <div className={`grid gap-4 ${
           viewMode === 'grid'
-            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+            ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
             : 'grid-cols-1'
         }`}>
           {filteredProducts.map((product) => (
