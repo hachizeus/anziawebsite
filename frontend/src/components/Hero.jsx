@@ -129,7 +129,10 @@ const Hero = () => {
                       <div className="text-white">
                         <h2 className="text-3xl font-bold mb-2">{slide.title}</h2>
                         <p className="text-xl mb-4">{slide.subtitle}</p>
-                        <button className="bg-white text-gray-900 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                        <button 
+                          onClick={() => navigate('/products')}
+                          className="bg-white text-gray-900 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                        >
                           {slide.cta}
                         </button>
                       </div>
@@ -146,13 +149,13 @@ const Hero = () => {
                 onClick={prevSlide}
                 className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-md transition-colors"
               >
-                <i className="fas fa-chevron-left"></i>
+                <i className="fas fa-chevron-left text-black"></i>
               </button>
               <button
                 onClick={nextSlide}
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-md transition-colors"
               >
-                <i className="fas fa-chevron-right"></i>
+                <i className="fas fa-chevron-right text-black"></i>
               </button>
               
               {/* Carousel Indicators */}

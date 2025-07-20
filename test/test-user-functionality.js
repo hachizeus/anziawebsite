@@ -7,7 +7,7 @@ const testUser = {
   name: 'Test User',
   email: 'testuser@example.com',
   password: 'password123',
-  phone: '+254700000000',
+  phone: '+254 769 162665',
   address: {
     street: '123 Test Street',
     city: 'Nairobi',

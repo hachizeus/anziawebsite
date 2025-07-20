@@ -167,97 +167,34 @@ const ProductsPage = () => {
     
     const API_URL = 'https://anzia-electronics-api.onrender.com/api';
     
-    useEffect(() => {
-      checkWishlistStatus();
-    }, []);
-    
-    const checkWishlistStatus = async () => {
-      try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user._id) return;
-        
-        const response = await axios.get(`${API_URL}/wishlist/${user._id}`);
-        if (response.data.success) {
-          const inWishlist = response.data.wishlist.some(item => 
-            item.productId._id === product._id
-          );
-          setIsInWishlist(inWishlist);
-        }
-      } catch (error) {
-        console.error('Error checking wishlist status:', error);
-      }
-    };
-    
-    const toggleWishlist = async (e) => {
-      e.stopPropagation();
-      try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user._id) {
-          alert('Please login to add to wishlist');
-          return;
-        }
-        
-        if (isInWishlist) {
-          await axios.delete(`${API_URL}/wishlist/remove`, {
-            data: { userId: user._id, productId: product._id }
-          });
-          setIsInWishlist(false);
-        } else {
-          await axios.post(`${API_URL}/wishlist/add`, {
-            userId: user._id,
-            productId: product._id
-          });
-          setIsInWishlist(true);
-        }
-      } catch (error) {
-        console.error('Error toggling wishlist:', error);
-      }
-    };
+    // Wishlist functionality disabled
     
     const addToCart = async (e) => {
       e.stopPropagation();
       try {
-        // Try API first, fallback to localStorage
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (user._id) {
-          try {
-            const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/cart/add`, {
-              userId: user._id,
-              productId: product._id,
-              quantity: 1
-            }, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            window.dispatchEvent(new CustomEvent('cartUpdated'));
-            alert('Added to cart!');
-            return;
-          } catch (apiError) {
-            console.log('API unavailable, using localStorage');
-          }
+        if (!user._id) {
+          alert('Please login to add items to cart');
+          return;
         }
         
-        // Fallback to localStorage
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const existingItemIndex = cart.findIndex(item => item.id === product._id);
+        const token = localStorage.getItem('token');
+        await axios.post(`${API_URL}/cart/add`, {
+          userId: user._id,
+          productId: product._id,
+          quantity: 1,
+          price: product.price,
+          name: product.name,
+          image: product.processedImageUrl
+        }, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         
-        if (existingItemIndex >= 0) {
-          cart[existingItemIndex].quantity += 1;
-        } else {
-          cart.push({
-            id: product._id,
-            name: product.name,
-            price: product.price,
-            image: product.processedImageUrl,
-            quantity: 1
-          });
-        }
-        
-        localStorage.setItem('cart', JSON.stringify(cart));
         window.dispatchEvent(new CustomEvent('cartUpdated'));
         alert('Added to cart!');
       } catch (error) {
         console.error('Error adding to cart:', error);
+        alert('Failed to add to cart. Please try again.');
       }
     };
     
@@ -294,11 +231,7 @@ const ProductsPage = () => {
             </div>
           )}
           
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50">
-              <Heart className="w-4 h-4 text-gray-600" />
-            </button>
-          </div>
+
         </div>
 
         <div className="p-3">
@@ -329,24 +262,12 @@ const ProductsPage = () => {
               <i className="fas fa-shopping-cart"></i>
               <span>Add to Cart</span>
             </button>
-            <div className="flex space-x-2">
-              <button
-                onClick={toggleWishlist}
-                className={`flex-1 p-2 border text-sm transition-colors ${
-                  isInWishlist 
-                    ? 'border-red-300 bg-red-50 text-red-600' 
-                    : 'border-gray-300 hover:bg-gray-50 text-gray-600'
-                }`}
-              >
-                <i className={`fas fa-heart ${isInWishlist ? 'text-red-500' : ''}`}></i>
-              </button>
-              <Link
-                to={`/products/${product._id}`}
-                className="flex-1 border border-gray-300 text-gray-600 py-2 px-3 hover:bg-gray-50 transition-colors text-center text-sm"
-              >
-                View
-              </Link>
-            </div>
+            <Link
+              to={`/products/${product._id}`}
+              className="w-full border border-gray-300 text-gray-600 py-2 px-3 hover:bg-gray-50 transition-colors text-center text-sm block"
+            >
+              View Details
+            </Link>
           </div>
         </div>
       </motion.div>

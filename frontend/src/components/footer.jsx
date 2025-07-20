@@ -103,7 +103,7 @@ FooterLink.propTypes = {
 const WhatsAppButton = () => {
   const handleWhatsAppClick = () => {
     const message = "Hi, I'm interested in your electronic products. Can you provide more information?";
-    const phoneNumber = "+254700000000";
+    const phoneNumber = "+254769162665";
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -257,7 +257,7 @@ const contactInfo = [
   },
   { 
     text: '+254 700 000 000',
-    href: 'tel:+254700000000',
+    href: 'tel:+254 769 162665',
     imgSrc: phoneIcon
   },
   { 
@@ -341,7 +341,7 @@ const Footer = () => {
                 ))}
                 <li>
                   <a 
-                    href="https://wa.me/254726171515" 
+                    href="https://wa.me/254769162665" 
                     className="flex items-start text-gray-600 hover:text-green-600 transition-colors duration-200"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -406,7 +406,7 @@ const Footer = () => {
                 ))}
                 <li>
                   <a 
-                    href="https://wa.me/254726171515" 
+                    href="https://wa.me/254769162665" 
                     className="flex items-start text-gray-600 hover:text-green-600 transition-colors duration-200"
                     target="_blank"
                     rel="noopener noreferrer"

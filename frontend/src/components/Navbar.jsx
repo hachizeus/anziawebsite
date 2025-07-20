@@ -95,35 +95,26 @@ const Navbar = () => {
       try {
         if (user?._id && isLoggedIn) {
           const token = localStorage.getItem('token');
-          try {
-            const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${user._id}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            
-            if (response.status === 401 || response.status === 403) {
-              logout();
-              return;
+          const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${user._id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
             }
-            
-            const data = await response.json();
-            if (data.success) {
-              const count = data.cart.items?.length || 0;
-              console.log('Cart count updated from API:', count);
-              setCartCount(count);
-              return;
-            }
-          } catch (apiError) {
-            console.log('API unavailable, checking localStorage');
+          });
+          
+          if (response.status === 401 || response.status === 403) {
+            logout();
+            return;
           }
+          
+          const data = await response.json();
+          if (data.success) {
+            const count = data.cart.items?.length || 0;
+            console.log('Cart count updated:', count, 'items in cart:', data.cart.items);
+            setCartCount(count);
+          }
+        } else {
+          setCartCount(0);
         }
-        
-        // Fallback to localStorage
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const count = cart.length;
-        console.log('Cart count updated from localStorage:', count);
-        setCartCount(count);
       } catch (e) {
         console.error('Error getting cart count:', e);
         setCartCount(0);

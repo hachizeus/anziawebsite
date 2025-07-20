@@ -6,15 +6,15 @@ const contactInfo = [
 	{
 		icon: Phone,
 		title: 'Phone',
-		content: '+254 726171515',
-		link: 'tel:+254 726171515',
+		content: '+254 769 162 665',
+		link: 'tel:+254769162665',
 		imgSrc: '/images/32px-VK_icons_phone_36.png',
 	},
 	{
 		icon: MessageCircle,
 		title: 'WhatsApp',
-		content: '+254 726171515',
-		link: 'https://wa.me/254726171515',
+		content: '+254 769 162 665',
+		link: 'https://wa.me/254769162665',
 		imgSrc: '/images/32px-WhatsApp.png',
 	},
 	{

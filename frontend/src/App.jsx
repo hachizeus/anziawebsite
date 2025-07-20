@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import EmailTest from './components/EmailTest';
 // Removed BackendSwitcher and ApiHealthCheck for production
 import PropTypes from 'prop-types';
 import { initLazyLoading } from './utils/lazyLoadImages';
@@ -17,7 +18,7 @@ const Categories = lazy(() => import('./pages/Categories'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Cart = lazy(() => import('./pages/Cart'));
-const Checkout = lazy(() => import('./pages/Checkout'));
+// Checkout removed - using WhatsApp orders
 const Contact = lazy(() => import('./pages/Contact'));
 const About = lazy(() => import('./pages/About'));
 const Help = lazy(() => import('./pages/Help'));
@@ -99,14 +100,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/cart" element={<Cart />} />
-                <Route 
-                  path="/checkout" 
-                  element={
-                    <ProtectedRoute>
-                      <Checkout />
-                    </ProtectedRoute>
-                  } 
-                />
+                {/* Checkout removed - using WhatsApp orders */}
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/help" element={<Help />} />
@@ -133,6 +127,7 @@ function App() {
               </Routes>
             </Suspense>
             <Footer />
+            <EmailTest />
             <Toaster position="top-right" />
           </ThemeProvider>
         </AuthProvider>

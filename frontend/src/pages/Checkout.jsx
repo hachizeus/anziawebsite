@@ -274,13 +274,13 @@ const Checkout = () => {
               {cartItems.map((item, index) => (
                 <div key={item.productId?._id || item.productId || index} className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                    {item.image ? (
+                    {(item.image || item.productId?.images?.[0]?.url || item.productId?.images?.[0]) ? (
                       <img 
-                        src={item.image} 
-                        alt={item.name} 
+                        src={item.image || item.productId?.images?.[0]?.url || item.productId?.images?.[0]} 
+                        alt={item.name || item.productId?.name} 
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
-                          console.error('Image failed to load:', item.image);
+                          console.error('Image failed to load:', e.target.src);
                           e.target.style.display = 'none';
                           const placeholder = e.target.parentElement.querySelector('.placeholder');
                           if (placeholder) placeholder.style.display = 'flex';
@@ -293,7 +293,7 @@ const Checkout = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{item.name}</h4>
+                    <h4 className="font-medium text-gray-900">{item.name || item.productId?.name}</h4>
                     <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                   </div>
                   <p className="font-semibold text-gray-900">

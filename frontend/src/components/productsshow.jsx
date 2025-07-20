@@ -67,47 +67,29 @@ const ProductCard = ({ product }) => {
   const addToCart = async (e) => {
     e.stopPropagation();
     try {
-      // Try API first, fallback to localStorage
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (user._id) {
-        try {
-          const token = localStorage.getItem('token');
-          await axios.post(`${API_URL}/cart/add`, {
-            userId: user._id,
-            productId: product._id,
-            quantity: 1
-          }, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          window.dispatchEvent(new CustomEvent('cartUpdated'));
-          alert('Added to cart!');
-          return;
-        } catch (apiError) {
-          console.log('API unavailable, using localStorage');
-        }
+      if (!user._id) {
+        alert('Please login to add items to cart');
+        return;
       }
       
-      // Fallback to localStorage
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const existingItemIndex = cart.findIndex(item => item.id === product._id);
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_URL}/cart/add`, {
+        userId: user._id,
+        productId: product._id,
+        quantity: 1,
+        price: product.price,
+        name: product.name,
+        image: product.images?.[0]?.url || product.images?.[0]
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       
-      if (existingItemIndex >= 0) {
-        cart[existingItemIndex].quantity += 1;
-      } else {
-        cart.push({
-          id: product._id,
-          name: product.name,
-          price: product.price,
-          image: product.images?.[0]?.url || product.images?.[0],
-          quantity: 1
-        });
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(cart));
       window.dispatchEvent(new CustomEvent('cartUpdated'));
       alert('Added to cart!');
     } catch (error) {
       console.error('Error adding to cart:', error);
+      alert('Failed to add to cart. Please try again.');
     }
   };
 

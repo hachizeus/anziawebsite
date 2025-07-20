@@ -24,21 +24,9 @@ const Cart = () => {
   const loadCart = async () => {
     if (user?._id) {
       console.log('Loading cart for user:', user._id);
-      try {
-        const items = await cartService.getCart(user._id);
-        console.log('Cart items loaded from API:', items);
-        setCartItems(items);
-      } catch (error) {
-        console.log('API failed, loading from localStorage');
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        console.log('Cart items loaded from localStorage:', cart);
-        setCartItems(cart);
-      }
-    } else {
-      // No user, load from localStorage
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      console.log('No user, cart items loaded from localStorage:', cart);
-      setCartItems(cart);
+      const items = await cartService.getCart(user._id);
+      console.log('Cart items loaded:', items);
+      setCartItems(items);
     }
   };
 
@@ -86,13 +74,33 @@ const Cart = () => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const proceedToCheckout = () => {
-    if (!user?._id) {
-      toast.error('Please login to proceed');
-      navigate('/login');
+  const orderViaWhatsApp = () => {
+    if (cartItems.length === 0) {
+      toast.error('Your cart is empty');
       return;
     }
-    navigate('/checkout');
+    
+    // Create order message
+    let message = "Hello! I would like to place an order:\n\n";
+    
+    cartItems.forEach((item, index) => {
+      const itemName = item.name || item.productId?.name || 'Product';
+      const itemPrice = item.price || item.productId?.price || 0;
+      message += `${index + 1}. ${itemName}\n`;
+      message += `   Quantity: ${item.quantity}\n`;
+      message += `   Price: KSh ${itemPrice.toLocaleString()}\n`;
+      message += `   Subtotal: KSh ${(itemPrice * item.quantity).toLocaleString()}\n\n`;
+    });
+    
+    message += `Total Amount: KSh ${getTotalPrice().toLocaleString()}\n\n`;
+    message += "Please confirm availability and delivery details. Thank you!";
+    
+    // WhatsApp phone number
+    const phoneNumber = "+254769162665";
+    
+    // Open WhatsApp
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   if (cartItems.length === 0) {
@@ -121,13 +129,13 @@ const Cart = () => {
               {cartItems.map((item) => (
                 <div key={item.productId._id || item.productId} className="flex items-center space-x-4 border-b pb-6">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                    {item.image ? (
+                    {(item.image || item.productId?.images?.[0]?.url || item.productId?.images?.[0]) ? (
                       <img 
-                        src={item.image} 
-                        alt={item.name} 
+                        src={item.image || item.productId?.images?.[0]?.url || item.productId?.images?.[0]} 
+                        alt={item.name || item.productId?.name} 
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
-                          console.error('Image failed to load:', item.image);
+                          console.error('Image failed to load:', e.target.src);
                           e.target.style.display = 'none';
                           const placeholder = e.target.parentElement.querySelector('.placeholder');
                           if (placeholder) placeholder.style.display = 'flex';
@@ -141,9 +149,9 @@ const Cart = () => {
                   </div>
                   
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{item.name}</h3>
+                    <h3 className="font-medium text-gray-900">{item.name || item.productId?.name}</h3>
                     <p className="text-lg font-semibold text-primary-600">
-                      KSh {item.price.toLocaleString()}
+                      KSh {(item.price || item.productId?.price || 0).toLocaleString()}
                     </p>
                   </div>
                   
@@ -196,11 +204,11 @@ const Cart = () => {
                   Continue Shopping
                 </Link>
                 <button
-                  onClick={proceedToCheckout}
-                  disabled={loading}
-                  className="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                  onClick={orderViaWhatsApp}
+                  className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
                 >
-                  {loading ? 'Processing...' : 'Proceed to Checkout'}
+                  <i className="fab fa-whatsapp"></i>
+                  <span>Order via WhatsApp</span>
                 </button>
               </div>
             </div>

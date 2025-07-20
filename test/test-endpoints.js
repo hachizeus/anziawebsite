@@ -32,7 +32,7 @@ async function testEndpoints() {
         try {
           console.log('Testing Profile Update...');
           const profileResponse = await axios.put(`${API_URL}/users/profile/${userId}`, {
-            phone: '+254700000000',
+            phone: '+254 769 162665',
             address: { city: 'Nairobi', country: 'Kenya' }
           });
           console.log(`✅ Profile Update: ${profileResponse.status} - Success`);
