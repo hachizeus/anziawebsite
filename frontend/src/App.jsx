@@ -6,7 +6,6 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import EmailTest from './components/EmailTest';
 // Removed BackendSwitcher and ApiHealthCheck for production
 import PropTypes from 'prop-types';
 import { initLazyLoading } from './utils/lazyLoadImages';
@@ -127,7 +126,6 @@ function App() {
               </Routes>
             </Suspense>
             <Footer />
-            <EmailTest />
             <Toaster position="top-right" />
           </ThemeProvider>
         </AuthProvider>

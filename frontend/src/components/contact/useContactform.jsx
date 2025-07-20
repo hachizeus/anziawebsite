@@ -47,33 +47,26 @@ export default function useContactForm() {
     if (validateForm()) {
       try {
         // Send email using Web3Forms (free email service)
-        // Add delay to prevent rate limiting
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const response = await fetch('https://api.web3forms.com/submit', {
+        // Send to backend API
+        const response = await fetch('https://formspree.io/f/xdkogqko', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            access_key: 'e96a43e6-afeb-496e-b4e0-aac6a69e65c9',
             name: formData.name,
             email: formData.email,
             phone: formData.phone || 'Not provided',
             message: formData.message,
-            subject: `Contact Form: ${formData.name} - Anzia Electronics`
+            _replyto: formData.email,
+            _subject: `Contact Form: ${formData.name} - Anzia Electronics`
           })
         });
         
-        const result = await response.json();
-        console.log('Web3Forms response:', result);
-        
-        if (result.success) {
+        if (response.ok) {
           toast.success('Message sent successfully! We will get back to you soon.');
         } else {
-          console.error('Web3Forms error:', result);
-          toast.error(`Error: ${result.message || 'Failed to send email'}`);
+          toast.error('Failed to send message. Please try again.');
         }
         
         // Reset form

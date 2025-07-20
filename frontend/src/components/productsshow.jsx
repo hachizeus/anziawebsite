@@ -245,14 +245,14 @@ const ProductsShow = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || 'https://anzia-electronics-api.onrender.com/api'}/products/list`);
+        const response = await axios.get(`https://anzia-electronics-api.onrender.com/api/products`);
         
         if (response.data.success) {
           // Take only the first 6 products for featured section
-          const featuredProducts = response.data.property?.slice(0, 6) || response.data.products?.slice(0, 6) || [];
+          const featuredProducts = response.data.products?.slice(0, 6) || [];
           setProducts(featuredProducts);
         } else {
-          setError('Failed to fetch products');
+          setError('API temporarily unavailable');
         }
       } finally {
         setLoading(false);

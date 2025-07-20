@@ -27,7 +27,11 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error(error.message || 'Login failed');
+      if (error.message.includes('NetworkError') || error.code === 'ERR_NETWORK') {
+        toast.error('Server temporarily unavailable. Please try again later.');
+      } else {
+        toast.error(error.message || 'Login failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }

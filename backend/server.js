@@ -21,6 +21,7 @@ import testProductRoute from './routes/testProductRoute.js';
 import frontendProductRoutes from './routes/frontendProductRoutes.js';
 import trackingRoutes from './routes/trackingRoutes.js';
 import imagekitRoutes from './routes/imagekitRoutes.js';
+import formRouter from './routes/formrouter.js';
 
 // Load environment variables at the very beginning
 try {
@@ -187,6 +188,7 @@ app.use('/api/frontend/products', frontendProductRoutes);
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/imagekit', imagekitRoutes);
 app.use('/api/db', dbCheckRoute);
+app.use('/api/forms', formRouter);
 
 // Test routes removed
 
