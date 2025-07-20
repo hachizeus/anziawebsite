@@ -18,6 +18,7 @@ import {
   Eye
 } from '../../utils/icons.jsx';
 import axios from 'axios';
+import { showNotification } from '../../utils/notifications';
 
 // Add CSS for notifications
 const notificationStyles = `
@@ -256,28 +257,7 @@ const ProductDetail = () => {
       });
       
       if (success) {
-        // Create success notification
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-20 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in-out';
-        notification.innerHTML = `
-          <div class="flex items-center">
-            <div class="mr-3">
-              <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div>
-              <p class="font-bold">Item added to cart</p>
-              <p class="text-sm">${product.name}</p>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.classList.add('fade-out');
-          setTimeout(() => document.body.removeChild(notification), 500);
-        }, 3000);
+        showNotification(`${product.name} added to cart!`, 'success');
       } else {
         alert('Failed to add item to cart');
         return;
@@ -292,26 +272,7 @@ const ProductDetail = () => {
     } catch (error) {
       console.error('Error adding to cart:', error);
       
-      // Show error notification
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-20 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
-      notification.innerHTML = `
-        <div class="flex items-center">
-          <div class="mr-3">
-            <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </div>
-          <div>
-            <p class="font-bold">Error</p>
-            <p class="text-sm">Failed to add item to cart</p>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(notification);
-      
-      // Remove notification after 3 seconds
-      setTimeout(() => document.body.removeChild(notification), 3000);
+      showNotification('Failed to add item to cart', 'error');
     }
   };
 
@@ -438,7 +399,14 @@ const ProductDetail = () => {
                 >
                   <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
                 </button>
-                <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    
+                    showNotification('Link copied to clipboard!', 'success');
+                  }}
+                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
                   <Share2 className="w-5 h-5 text-gray-600" />
                 </button>
               </div>

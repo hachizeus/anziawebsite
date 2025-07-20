@@ -226,7 +226,7 @@ const ProductsPage = () => {
           </div>
           
           {originalPrice > price && (
-            <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+            <div className="absolute top-2 left-2 bg-primary-500 text-white px-2 py-1 rounded text-sm font-medium">
               Save KSh {(originalPrice - price).toLocaleString()}
             </div>
           )}
@@ -240,7 +240,7 @@ const ProductsPage = () => {
           </h3>
 
           <div className="mb-3">
-            <div className="text-lg font-bold text-red-600">
+            <div className="text-lg font-bold text-primary-600">
               KSh {price.toLocaleString()}
             </div>
             {originalPrice > price && (
@@ -257,7 +257,7 @@ const ProductsPage = () => {
           <div className="space-y-2">
             <button
               onClick={addToCart}
-              className="w-full bg-red-600 text-white py-2 px-3 text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+              className="w-full bg-primary-600 text-white py-2 px-3 text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2"
             >
               <i className="fas fa-shopping-cart"></i>
               <span>Add to Cart</span>

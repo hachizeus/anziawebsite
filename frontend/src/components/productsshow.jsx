@@ -4,6 +4,7 @@ import axios from "axios";
 // Font Awesome icons used directly in JSX
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from "prop-types";
+import { showNotification } from '../utils/notifications';
 
 
 const ProductCard = ({ product }) => {
@@ -43,7 +44,7 @@ const ProductCard = ({ product }) => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       if (!user._id) {
-        alert('Please login to add to wishlist');
+        showNotification('Please login to add to wishlist', 'warning');
         return;
       }
       
@@ -69,7 +70,7 @@ const ProductCard = ({ product }) => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       if (!user._id) {
-        alert('Please login to add items to cart');
+        showNotification('Please login to add items to cart', 'warning');
         return;
       }
       
@@ -86,10 +87,10 @@ const ProductCard = ({ product }) => {
       });
       
       window.dispatchEvent(new CustomEvent('cartUpdated'));
-      alert('Added to cart!');
+      showNotification('Added to cart!', 'success');
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Failed to add to cart. Please try again.');
+      showNotification('Failed to add to cart. Please try again.', 'error');
     }
   };
 
@@ -132,10 +133,10 @@ src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-pro
           onClick={toggleWishlist}
           className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 
             ${isInWishlist 
-              ? 'bg-red-500 text-white' 
-              : 'bg-white/80 backdrop-blur-sm text-gray-700 hover:text-red-500'}`}
+              ? 'bg-primary-500 text-white' 
+              : 'bg-white/80 backdrop-blur-sm text-gray-700 hover:text-primary-500'}`}
         >
-          <i className={`fas fa-heart ${isInWishlist ? 'text-red-500' : ''}`}></i>
+          <i className={`fas fa-heart ${isInWishlist ? 'text-primary-500' : ''}`}></i>
         </button>
         
         {/* View overlay on hover */}
@@ -186,12 +187,12 @@ src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-pro
         
         <div className="flex items-center justify-between">
           <div className="flex items-center text-primary-600 font-bold">
-            <span className="text-lg font-bold">KSh {Number(product.price || 0).toLocaleString()}</span>
+            <span className="text-lg font-bold text-primary-600">KSh {Number(product.price || 0).toLocaleString()}</span>
           </div>
           
           <button
             onClick={addToCart}
-            className="text-sm bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 px-3 py-2 rounded-md flex items-center hover:bg-primary-100 transition-colors"
+            className="text-sm bg-primary-500 text-white px-3 py-2 rounded-md flex items-center hover:bg-primary-600 transition-colors"
           >
             <i className="fas fa-shopping-cart mr-1"></i>
             Add to Cart
