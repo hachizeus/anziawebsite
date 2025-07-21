@@ -55,7 +55,7 @@ const About = () => {
               </p>
             </div>
           </div>
-          <div className="bg-primary-100 rounded-lg p-8">
+          <div className="bg-primary-100 rounded-lg p-8 ">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Why Choose Us?</h3>
             <ul className="space-y-3">
               <li className="flex items-center">

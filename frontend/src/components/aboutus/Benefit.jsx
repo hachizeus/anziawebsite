@@ -38,9 +38,9 @@ export default function Benefits() {
 					viewport={{ once: true }}
 					className="text-center mb-16"
 				>
-					<h2 className="text-4xl font-bold mb-4 text-black dark:text-black">Why Choose Anzia Electronics ?</h2>
+					<h2 className="text-4xl font-bold mb-4 text-black">Why Choose Anzia Electronics ?</h2>
 					<div className="w-24 h-1 bg-primary-600 mx-auto mb-6"></div>
-					<p className="text-gray-600 dark:text-black text-lg max-w-2xl mx-auto">
+					<p className="text-black text-lg max-w-2xl mx-auto">
 						Experience the difference with our comprehensive property solutions
 					</p>
 				</motion.div>
@@ -69,8 +69,8 @@ export default function Benefits() {
 										<Icon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
 									)}
 								</div>
-								<h3 className="text-xl font-bold mb-4 text-black dark:text-black">{benefit.title}</h3>
-								<p className="text-gray-600 dark:text-black text-lg">{benefit.description}</p>
+								<h3 className="text-xl font-bold mb-4 text-black">{benefit.title}</h3>
+								<p className="text-black text-lg">{benefit.description}</p>
 							</motion.div>
 						);
 					})}
@@ -90,8 +90,8 @@ export default function Benefits() {
 								className="w-8 h-8"
 							/>
 						</div>
-						<h3 className="text-xl font-bold mb-4 text-black dark:text-black">Comprehensive warranty coverage</h3>
-						<p className="text-gray-600 dark:text-black text-lg">Full warranty coverage on all products with hassle-free claims process.</p>
+						<h3 className="text-xl font-bold mb-4 text-black">Comprehensive warranty coverage</h3>
+						<p className="text-black text-lg">Full warranty coverage on all products with hassle-free claims process.</p>
 					</motion.div>
 				</div>
 			</div>
