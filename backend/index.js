@@ -673,6 +673,31 @@ app.get('/api/admin/users', async (req, res) => {
   }
 });
 
+// Update user role endpoint
+app.put('/api/users/role', async (req, res) => {
+  try {
+    const { userId, role } = req.body;
+    
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role, updatedAt: new Date() },
+      { new: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating user role'
+    });
+  }
+});
+
 // Get single product for editing
 app.get('/api/legacy-products/single/:id', async (req, res) => {
   try {
