@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Admin API Test</h1>
+    <button onclick="testUsers()">Test Users API</button>
+    <button onclick="testStats()">Test Stats API</button>
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'https://anzia-electronics-api.onrender.com';
+        
+        async function testUsers() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/users`);
+                const data = await response.json();
+                document.getElementById('results').innerHTML = `
+                    <h3>Users API Response:</h3>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('results').innerHTML = `
+                    <h3>Users API Error:</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        async function testStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/stats`);
+                const data = await response.json();
+                document.getElementById('results').innerHTML = `
+                    <h3>Stats API Response:</h3>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('results').innerHTML = `
+                    <h3>Stats API Error:</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

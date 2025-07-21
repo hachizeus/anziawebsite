@@ -29,7 +29,7 @@ import Newsletter from "./pages/Newsletter";
 import Orders from "./pages/Orders";
 
 // Config
-export const backendurl = import.meta.env.VITE_BACKEND_URL;
+export const backendurl = "https://anzia-electronics-api.onrender.com";
 
 // Page transition variants
 const pageVariants = {
