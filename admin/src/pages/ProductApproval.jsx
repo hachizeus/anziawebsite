@@ -76,12 +76,12 @@ const ProductApproval = () => {
               <div className="p-4">
                 <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
                 <p className="text-gray-600 mb-2">{product.category}</p>
-                <p className="text-green-600 font-bold mb-4">KSh {product.price?.toLocaleString()}</p>
+                <p className="text-primary-600 font-bold mb-4">KSh {product.price?.toLocaleString()}</p>
                 
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleApproval(product._id, 'approve')}
-                    className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    className="flex-1 bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600"
                   >
                     Approve
                   </button>

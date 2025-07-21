@@ -320,8 +320,8 @@ const Update = () => {
               </div>
               
               {formData.category && formData.subcategory && (
-                <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-md">
-                  <p className="text-xs text-green-700">
+                <div className="mt-3 p-2 bg-primary-50 border border-primary-200 rounded-md">
+                  <p className="text-xs text-primary-700">
                     ✓ Selected: <span className="font-semibold">{formData.category}</span> &gt; <span className="font-semibold">{formData.subcategory}</span>
                   </p>
                 </div>

@@ -12,7 +12,7 @@ const MobileSidebarToggle = () => {
   return (
     <button
       onClick={toggleSidebar}
-      className="fixed bottom-4 right-4 z-50 p-3 rounded-full bg-[#91BB3E] text-white shadow-lg md:hidden"
+      className="fixed bottom-4 right-4 z-50 p-3 rounded-full bg-[#2563EB] text-white shadow-lg md:hidden"
       aria-label="Toggle Sidebar"
     >
       <Menu className="h-6 w-6" />

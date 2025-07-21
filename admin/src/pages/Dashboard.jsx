@@ -249,13 +249,7 @@ const Dashboard = () => {
       color: "bg-indigo-500",
       description: "Registered customers",
     },
-    {
-      title: "Total Views",
-      value: stats.totalViews,
-      icon: Eye,
-      color: "bg-purple-500",
-      description: "Product page views",
-    },
+    // Total Views removed
     {
       title: "Pending Orders",
       value: stats.pendingOrders,
@@ -322,7 +316,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           {statCards.map((stat, index) => (
             <motion.div
               key={stat.title}

@@ -157,7 +157,7 @@ const NotificationBadge = () => {
       case 'agent_request':
         return <User className="w-5 h-5 text-blue-500" />;
       case 'property_approval':
-        return <Home className="w-5 h-5 text-green-500" />;
+        return <Home className="w-5 h-5 text-primary-500" />;
       case 'maintenance':
         return <Wrench className="w-5 h-5 text-orange-500" />;
       case 'inquiry':

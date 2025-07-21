@@ -46,7 +46,6 @@ const Help = () => {
     { id: 'shipping', label: 'Shipping', icon: Truck },
     { id: 'returns', label: 'Returns & Refunds', icon: RefreshCw },
     { id: 'payment', label: 'Payment', icon: CreditCard },
-    { id: 'contact', label: 'Contact Us', icon: Phone }
   ];
 
   return (
@@ -219,11 +218,24 @@ const Help = () => {
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <h4 className="font-medium text-gray-900 mb-2">How to Pay with M-Pesa:</h4>
                     <ol className="list-decimal pl-5 text-gray-700 space-y-2">
-                      <li>Select M-Pesa as your payment method at checkout</li>
-                      <li>You'll receive an STK push to your registered phone number</li>
-                      <li>Enter your M-Pesa PIN to complete the payment</li>
-                      <li>You'll receive a confirmation message once the payment is processed</li>
+                      <li>Order through WhatsApp by clicking "Order via WhatsApp" button</li>
+                      <li>Send your M-Pesa payment to our business number: <strong>+254769162665</strong></li>
+                      <li>Send the M-Pesa confirmation message to our WhatsApp</li>
+                      <li>We'll confirm your payment and process your order</li>
                     </ol>
+                  </div>
+                </div>
+
+                <div className="border-b border-gray-200 pb-6">
+                  <h3 className="text-lg font-semibold mb-3">Cash Payments</h3>
+                  <p className="text-gray-700 mb-4">We also accept cash payments for orders within Nairobi.</p>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-gray-900 mb-2">Cash Payment Options:</h4>
+                    <ul className="list-disc pl-5 text-gray-700 space-y-2">
+                      <li>Cash on delivery (COD) - Pay when your order arrives</li>
+                      <li>Visit our showroom for direct cash payments</li>
+                      <li>Cash payments accepted for pickup orders</li>
+                    </ul>
                   </div>
                 </div>
 
@@ -241,90 +253,7 @@ const Help = () => {
             </div>
           </section>
 
-          {/* Contact Section */}
-          <section ref={sectionRefs.contact} id="contact" className="scroll-mt-24">
-            <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <Phone className="w-6 h-6 mr-2 text-primary-600" />
-                Contact Us
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Get in Touch</h3>
-                  <p className="text-gray-700 mb-6">Have questions or need assistance? Our customer support team is here to help.</p>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <Phone className="w-5 h-5 text-primary-600 mr-3 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-gray-900">Phone</p>
-                        <p className="text-gray-700">+254 700 000 000</p>
-                        <p className="text-sm text-gray-500">Mon-Fri, 8am-6pm</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <Mail className="w-5 h-5 text-primary-600 mr-3 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-gray-900">Email</p>
-                        <p className="text-gray-700">support@anziaelectronics.com</p>
-                        <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <MessageCircle className="w-5 h-5 text-primary-600 mr-3 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-gray-900">WhatsApp</p>
-                        <p className="text-gray-700">+254 700 000 000</p>
-                        <p className="text-sm text-gray-500">Available for quick inquiries</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Send Us a Message</h3>
-                  <form className="space-y-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                      <input 
-                        type="text" 
-                        id="name" 
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" 
-                        placeholder="Your name"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <input 
-                        type="email" 
-                        id="email" 
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" 
-                        placeholder="Your email"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                      <textarea 
-                        id="message" 
-                        rows="4" 
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" 
-                        placeholder="How can we help you?"
-                      ></textarea>
-                    </div>
-                    <button 
-                      type="submit" 
-                      className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors"
-                    >
-                      Send Message
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </section>
+         
         </div>
       </div>
     </div>

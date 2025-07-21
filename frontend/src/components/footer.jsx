@@ -256,7 +256,7 @@ const contactInfo = [
     isLocation: true
   },
   { 
-    text: '+254 700 000 000',
+    text: '+254 769 162665',
     href: 'tel:+254 769 162665',
     imgSrc: phoneIcon
   },

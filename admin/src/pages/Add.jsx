@@ -285,8 +285,8 @@ const ProductForm = () => {
               </div>
               
               {formData.category && formData.subcategory && (
-                <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-md">
-                  <p className="text-xs text-green-700">
+                <div className="mt-3 p-2 bg-primary-50 border border-primary-200 rounded-md">
+                  <p className="text-xs text-primary-700">
                     ✓ Selected: <span className="font-semibold">{formData.category}</span> &gt; <span className="font-semibold">{formData.subcategory}</span>
                   </p>
                 </div>
@@ -465,7 +465,7 @@ const ProductForm = () => {
                 <div className="space-y-1 text-center">
                   <Upload className="mx-auto h-12 w-12 text-gray-400" />
                   <div className="flex text-sm text-gray-600">
-                    <label htmlFor="images" className="relative cursor-pointer bg-white rounded-md font-medium text-[#91BB3E] hover:text-[#7a9e33] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#91BB3E]">
+                    <label htmlFor="images" className="relative cursor-pointer bg-white rounded-md font-medium text-[#2563EB] hover:text-[#7a9e33] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#2563EB]">
                       <span>Upload images</span>
                       <input
                         id="images"

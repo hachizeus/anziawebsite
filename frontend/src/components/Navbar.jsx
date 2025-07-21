@@ -135,7 +135,6 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/", icon: "fas fa-home" },
     { name: "Products", path: "/products", icon: "fas fa-search" },
-    { name: "Categories", path: "/categories", icon: "fas fa-th-large" },
     { name: "About", path: "/about", icon: "fas fa-users" },
     { name: "Contact", path: "/contact", icon: "fas fa-envelope" },
     { 
@@ -147,7 +146,6 @@ const Navbar = () => {
         { name: "Shipping", path: "/help#shipping" },
         { name: "Returns & Refunds", path: "/help#returns" },
         { name: "Payment", path: "/help#payment" },
-        { name: "Contact Us", path: "/help#contact" },
       ]
     },
   ];

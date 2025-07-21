@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, Send } from '../utils/icons.jsx';
+import { showNotification } from '../utils/notifications';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +12,25 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
-    alert('Message sent successfully!');
+    
+    // Create WhatsApp message
+    const message = `*New Contact Form Message*\n\n` +
+      `*Name:* ${formData.name}\n` +
+      `*Email:* ${formData.email}\n` +
+      `*Subject:* ${formData.subject}\n` +
+      `*Message:*\n${formData.message}`;
+    
+    // Send to WhatsApp
+    const phoneNumber = "+254769162665";
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    
+    // Open WhatsApp
+    window.open(whatsappUrl, '_blank');
+    
+    // Show success notification
+    showNotification('Message sent via WhatsApp!', 'success');
+    
+    // Reset form
     setFormData({ name: '', email: '', subject: '', message: '' });
   };
 

@@ -154,101 +154,11 @@ const Sidebar = () => {
             {expanded && <span className="ml-4 whitespace-nowrap">Orders</span>}
           </Link>
           
-          {/* Analytics Dropdown */}
-          <div>
-            <button
-              onClick={() => toggleMenu('analytics')}
-              className={`w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 transition-colors ${
-                isSubActive(['/analytics']) ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
-              }`}
-            >
-              <div className="flex items-center">
-                <BarChart2 className="w-5 h-5 min-w-[20px]" />
-                {expanded && <span className="ml-4 whitespace-nowrap">Analytics</span>}
-              </div>
-              {expanded && (
-                <ChevronRight className={`w-4 h-4 transition-transform ${expandedMenus.analytics ? 'rotate-90' : ''}`} />
-              )}
-            </button>
-            
-            {expanded && expandedMenus.analytics && (
-              <div className="pl-4 space-y-1 bg-gray-50">
-                <Link
-                  to="/analytics/dashboard"
-                  className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/analytics/dashboard') ? 'text-primary-600 font-medium' : 'text-gray-700'
-                  }`}
-                >
-                  <PieChart className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 whitespace-nowrap">Overview</span>
-                </Link>
-                
-                <Link
-                  to="/analytics/financial"
-                  className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/analytics/financial') ? 'text-primary-600 font-medium' : 'text-gray-700'
-                  }`}
-                >
-                  <DollarSign className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 whitespace-nowrap">Financial</span>
-                </Link>
-                
-                <Link
-                  to="/analytics/properties"
-                  className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/analytics/properties') ? 'text-primary-600 font-medium' : 'text-gray-700'
-                  }`}
-                >
-                  <Home className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 whitespace-nowrap">Properties</span>
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Analytics section removed */}
           
           {/* Documents section removed */}
           
-          {/* Blog Management Dropdown */}
-          <div>
-            <button
-              onClick={() => toggleMenu('blogs')}
-              className={`w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 transition-colors ${
-                isSubActive(['/blogs']) ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
-              }`}
-            >
-              <div className="flex items-center">
-                <BookOpen className="w-5 h-5 min-w-[20px]" />
-                {expanded && <span className="ml-4 whitespace-nowrap">Blog</span>}
-              </div>
-              {expanded && (
-                <ChevronRight className={`w-4 h-4 transition-transform ${expandedMenus.blogs ? 'rotate-90' : ''}`} />
-              )}
-            </button>
-            
-            {expanded && expandedMenus.blogs && (
-              <div className="pl-4 space-y-1 bg-gray-50">
-                <Link
-                  to="/blogs"
-                  className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/blogs') ? 'text-primary-600 font-medium' : 'text-gray-700'
-                  }`}
-                >
-                  <List className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 whitespace-nowrap">All Posts</span>
-                </Link>
-                
-                <Link
-                  to="/blogs/create"
-                  className={`flex items-center px-4 py-2 hover:bg-gray-100 transition-colors ${
-                    isActive('/blogs/create') ? 'text-primary-600 font-medium' : 'text-gray-700'
-                  }`}
-                >
-                  <Plus className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 whitespace-nowrap">Create Post</span>
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Blog section removed */}
           
           {/* Users */}
           <Link

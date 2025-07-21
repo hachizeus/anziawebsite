@@ -132,7 +132,7 @@ const ProductListings = () => {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+          <Loader className="w-8 h-8 text-primary-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading products...</p>
         </div>
       </div>
@@ -155,7 +155,7 @@ const ProductListings = () => {
 
           <Link 
             to="/add"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full md:w-auto justify-center"
+            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors w-full md:w-auto justify-center"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add New Product
@@ -171,7 +171,7 @@ const ProductListings = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             </div>
@@ -182,7 +182,7 @@ const ProductListings = () => {
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 w-full"
+                  className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 w-full"
                 >
                   <option value="all">All Categories</option>
                   <option value="Power Tools & Workshop Gear">Power Tools</option>
@@ -194,7 +194,7 @@ const ProductListings = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
+                className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
               >
                 <option value="newest">Newest First</option>
                 <option value="price-low">Price: Low to High</option>
@@ -230,14 +230,14 @@ const ProductListings = () => {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-4 left-4">
-                    <span className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full">
+                    <span className="px-3 py-1 bg-primary-600 text-white text-sm font-medium rounded-full">
                       {product.category}
                     </span>
                   </div>
                   <div className="absolute top-4 right-4 flex space-x-2">
                     <Link 
                       to={`/update/${product._id}`}
-                      className="p-2 bg-white/90 backdrop-blur-sm text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-all"
+                      className="p-2 bg-white/90 backdrop-blur-sm text-primary-600 rounded-full hover:bg-primary-600 hover:text-white transition-all"
                     >
                       <Edit3 className="w-4 h-4" />
                     </Link>
@@ -275,8 +275,8 @@ const ProductListings = () => {
 
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
-                      <BanknoteIcon className="w-5 h-5 mr-2 text-blue-600" />
-                      <p className="text-2xl font-bold text-blue-600">
+                      <BanknoteIcon className="w-5 h-5 mr-2 text-primary-600" />
+                      <p className="text-2xl font-bold text-primary-600">
                         KSh {product.price?.toLocaleString() || '0'}
                       </p>
                     </div>
@@ -316,7 +316,7 @@ const ProductListings = () => {
                         {product.features.slice(0, 3).map((feature, index) => (
                           <span
                             key={index}
-                            className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded"
+                            className="inline-flex items-center px-2 py-1 bg-primary-100 text-primary-600 text-xs rounded"
                           >
                             {feature}
                           </span>

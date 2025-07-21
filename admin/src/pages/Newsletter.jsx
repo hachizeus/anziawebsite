@@ -88,7 +88,7 @@ const Newsletter = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#91BB3E]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
       </div>
     );
   }
@@ -132,7 +132,7 @@ const Newsletter = () => {
               type="text"
               value={newsletter.subject}
               onChange={(e) => setNewsletter({ ...newsletter, subject: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#91BB3E]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
               placeholder="Enter newsletter subject"
               required
             />
@@ -145,7 +145,7 @@ const Newsletter = () => {
               value={newsletter.content}
               onChange={(e) => setNewsletter({ ...newsletter, content: e.target.value })}
               rows={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#91BB3E]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
               placeholder="Enter newsletter content..."
               required
             />
@@ -153,7 +153,7 @@ const Newsletter = () => {
           <button
             type="submit"
             disabled={sending || subscribers.length === 0}
-            className="bg-[#91BB3E] text-white px-6 py-2 rounded-md hover:bg-[#7a9e33] disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            className="bg-[#2563EB] text-white px-6 py-2 rounded-md hover:bg-[#7a9e33] disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {sending ? (
               <>

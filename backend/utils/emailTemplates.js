@@ -119,9 +119,9 @@ const orderConfirmationTemplate = (order, user) => {
         <h3 style="margin-top: 0;">Need Help?</h3>
         <p>Contact our customer support team:</p>
         <p>
-          📞 <strong>+254 700 000 000</strong><br>
+          📞 <strong>+254 769 162665</strong><br>
           📧 <strong>support@anziaelectronics.co.ke</strong><br>
-          💬 <strong>WhatsApp: +254 700 000 000</strong>
+          💬 <strong>WhatsApp: +254 769 162665</strong>
         </p>
       </div>
 
@@ -197,7 +197,7 @@ const orderStatusUpdateTemplate = (order, user, newStatus) => {
         <h3 style="margin-top: 0;">Questions?</h3>
         <p>Contact us anytime:</p>
         <p>
-          📞 <strong>+254 700 000 000</strong><br>
+          📞 <strong>+254 769 162665</strong><br>
           📧 <strong>support@anziaelectronics.co.ke</strong>
         </p>
       </div>

@@ -4,26 +4,26 @@ import { Home, Globe, Headphones, List } from '../utils/icons.jsx';
 const benefits = [
 	{
 		icon: Home,
-		title: 'Verified Properties',
-		description: 'Every property is thoroughly verified for quality and security.',
+		title: 'Genuine products from authorized dealers',
+		description: 'All our products are sourced directly from authorized dealers ensuring authenticity.',
 		imgSrc: '/images/32px-Home_free_icon.png', // Updated path
 	},
 	{
 		icon: Globe,
-		title: 'User-Friendly Platform',
-		description: 'Intuitive navigation and seamless property management.',
+		title: 'Competitive pricing and flexible payment options',
+		description: 'Best prices in the market with flexible payment plans to suit your budget.',
 		imgSrc: '/images/32px-Globe_icon.png', // Updated path
 	},
 	{
 		icon: Headphones,
-		title: '24/7 Support',
-		description: 'Round-the-clock assistance for all your queries.',
+		title: 'Expert technical support and consultation',
+		description: 'Professional technical support and consultation from our expert team.',
 		imgSrc: '/images/32px-Headphones_(1292150)_-_The_Noun_Project.png', // Updated path
 	},
 	{
 		icon: List,
-		title: 'Comprehensive Listings',
-		description: 'Wide range of properties to match every need and budget.',
+		title: 'Fast delivery across Kenya',
+		description: 'Quick and reliable delivery service covering all major cities in Kenya.',
 		imgSrc: '/images/16px-Bimetrical_icon_clipboard_black.png', // Updated path
 	},
 ];
@@ -38,9 +38,9 @@ export default function Benefits() {
 					viewport={{ once: true }}
 					className="text-center mb-16"
 				>
-					<h2 className="text-4xl font-bold mb-4 dark:text-white">Why Choose Anzia Electronics ?</h2>
+					<h2 className="text-4xl font-bold mb-4 text-black dark:text-black">Why Choose Anzia Electronics ?</h2>
 					<div className="w-24 h-1 bg-primary-600 mx-auto mb-6"></div>
-					<p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+					<p className="text-gray-600 dark:text-black text-lg max-w-2xl mx-auto">
 						Experience the difference with our comprehensive property solutions
 					</p>
 				</motion.div>
@@ -55,7 +55,7 @@ export default function Benefits() {
 								whileInView={{ y: 0, opacity: 1 }}
 								viewport={{ once: true }}
 								transition={{ delay: index * 0.2 }}
-								className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+								className="bg-white dark:bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
 								whileHover={{ y: -5 }}
 							>
 								<div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center mb-6 transform transition-transform duration-300 hover:rotate-6">
@@ -69,11 +69,30 @@ export default function Benefits() {
 										<Icon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
 									)}
 								</div>
-								<h3 className="text-xl font-bold mb-4 dark:text-white">{benefit.title}</h3>
-								<p className="text-gray-600 dark:text-gray-300 text-lg">{benefit.description}</p>
+								<h3 className="text-xl font-bold mb-4 text-black dark:text-black">{benefit.title}</h3>
+								<p className="text-gray-600 dark:text-black text-lg">{benefit.description}</p>
 							</motion.div>
 						);
 					})}
+					<motion.div
+						key="warranty"
+						initial={{ y: 20, opacity: 0 }}
+						whileInView={{ y: 0, opacity: 1 }}
+						viewport={{ once: true }}
+						transition={{ delay: 4 * 0.2 }}
+						className="bg-white dark:bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+						whileHover={{ y: -5 }}
+					>
+						<div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center mb-6 transform transition-transform duration-300 hover:rotate-6">
+							<img
+								src="/images/32px-Icon_Shield_72x72^s_BLACK,_TotK.png"
+								alt="Comprehensive warranty coverage"
+								className="w-8 h-8"
+							/>
+						</div>
+						<h3 className="text-xl font-bold mb-4 text-black dark:text-black">Comprehensive warranty coverage</h3>
+						<p className="text-gray-600 dark:text-black text-lg">Full warranty coverage on all products with hassle-free claims process.</p>
+					</motion.div>
 				</div>
 			</div>
 		</section>

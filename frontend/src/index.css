@@ -243,7 +243,7 @@
 /* Add to your global CSS or relevant component */
 
 :root {
-  --primary-color: #91BB3E;
+  --primary-color: #2563EB;
   --primary-dark: #7a9e33;
   --primary-light: #a1c95f;
   --gray-color: #4B4B4B;
@@ -251,7 +251,7 @@
 
 /* Dark mode styles */
 .dark {
-  --primary-color: #91BB3E;
+  --primary-color: #2563EB;
   --primary-dark: #a1c95f;
   --primary-light: #7a9e33;
   --gray-color: #e3e3e3;

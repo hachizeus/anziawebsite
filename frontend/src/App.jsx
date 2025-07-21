@@ -13,7 +13,7 @@ import { initLazyLoading } from './utils/lazyLoadImages';
 // Lazy load components for better performance
 const Home = lazy(() => import('./pages/Home'));
 const Products = lazy(() => import('./pages/Products'));
-const Categories = lazy(() => import('./pages/Categories'));
+// Categories page removed
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Cart = lazy(() => import('./pages/Cart'));
@@ -94,7 +94,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
-                <Route path="/categories" element={<Categories />} />
+                {/* Categories route removed */}
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />

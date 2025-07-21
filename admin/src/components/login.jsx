@@ -67,7 +67,7 @@ const Login = () => {
         <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <div className="flex items-center justify-center mb-6">
-              <div className="p-2 bg-[#91BB3E] rounded-lg">
+              <div className="p-2 bg-primary-600 rounded-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                   <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -75,7 +75,7 @@ const Login = () => {
               </div>
             </div>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-[#4B4B4B] md:text-2xl text-center flex items-center justify-center">
-              <FaShieldAlt className="mr-2 text-[#91BB3E]" /> Secure Admin Login
+              <FaShieldAlt className="mr-2 text-primary-600" /> Secure Admin Login
             </h1>
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               {/* Email Input */}
@@ -90,7 +90,7 @@ const Login = () => {
                   type="email"
                   name="email"
                   id="email"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-[#91BB3E] focus:border-[#91BB3E] block w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   placeholder="admin@example.com"
                   required
                   value={email}
@@ -112,7 +112,7 @@ const Login = () => {
                     name="password"
                     id="password"
                     placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-[#91BB3E] focus:border-[#91BB3E] block w-full p-2.5"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -133,7 +133,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white bg-[#91BB3E] hover:bg-[#7a9e33] focus:ring-4 focus:outline-none focus:ring-[#91BB3E]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-600/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>

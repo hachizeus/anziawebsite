@@ -10,7 +10,7 @@ const SecureRoute = ({ requiredPermission }) => {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-t-[#91BB3E] border-gray-200 border-solid rounded-full animate-spin mx-auto"></div>
+          <div className="w-16 h-16 border-4 border-t-[#2563EB] border-gray-200 border-solid rounded-full animate-spin mx-auto"></div>
           <p className="mt-4 text-gray-600">Verifying security credentials...</p>
         </div>
       </div>

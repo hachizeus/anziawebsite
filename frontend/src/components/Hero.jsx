@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 // Font Awesome icons used directly in JSX
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 const categories = [
@@ -16,8 +15,8 @@ const carouselImages = [
   {
     id: 1,
     title: "Professional Power Tools",
-    subtitle: "Up to 40% Off",
-    image: "/images/hero-tools.jpg",
+    subtitle: "Up to 50% Off",
+    video: "/images/GET THE BEST POWER TOOLS1.mp4",
     cta: "Shop Now",
     bg: "from-blue-600 to-blue-800"
   },
@@ -25,7 +24,7 @@ const carouselImages = [
     id: 2,
     title: "Generators & Power Equipment",
     subtitle: "Reliable Power Solutions",
-    image: "/images/hero-generators.jpg",
+    image: "/images/2.jpg",
     cta: "Explore",
     bg: "from-green-600 to-green-800"
   },
@@ -33,7 +32,7 @@ const carouselImages = [
     id: 3,
     title: "Welding Machines",
     subtitle: "Professional Grade",
-    image: "/images/hero-welding.jpg",
+    image: "/images/3.jpg",
     cta: "View All",
     bg: "from-orange-600 to-orange-800"
   }
@@ -125,19 +124,37 @@ const Hero = () => {
                       index === currentSlide ? 'opacity-100' : 'opacity-0'
                     }`}
                   >
-                    <div className={`h-full bg-gradient-to-r ${slide.bg} flex items-center justify-between px-8`}>
-                      <div className="text-white">
-                        <h2 className="text-3xl font-bold mb-2">{slide.title}</h2>
-                        <p className="text-xl mb-4">{slide.subtitle}</p>
-                        <button 
-                          onClick={() => navigate('/products')}
-                          className="bg-white text-gray-900 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                    {slide.video ? (
+                      <div className="h-full relative">
+                        <video 
+                          autoPlay 
+                          muted 
+                          loop 
+                          className="w-full h-full object-cover"
                         >
-                          {slide.cta}
-                        </button>
+                          <source src={slide.video} type="video/mp4" />
+                        </video>
                       </div>
-                      <div className="w-64 h-64 bg-white/20 rounded-lg flex items-center justify-center">
-                        <span className="text-6xl">📦</span>
+                    ) : (
+                      <div 
+                        className="h-full bg-cover bg-center bg-no-repeat relative"
+                        style={{ backgroundImage: `url(${slide.image})` }}
+                      >
+                      </div>
+                    )}
+                    <div className="absolute inset-0">
+                      <div className="absolute inset-0 bg-black/40"></div>
+                      <div className="relative h-full flex items-center px-8">
+                        <div className="text-white max-w-lg">
+                          <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">{slide.title}</h2>
+                          <p className="text-xl mb-6 drop-shadow-lg">{slide.subtitle}</p>
+                          <button 
+                            onClick={() => navigate('/products')}
+                            className="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors shadow-lg"
+                          >
+                            {slide.cta}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

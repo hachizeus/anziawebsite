@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --primary-color: #91BB3E;
+  --primary-color: #2563EB;
   --secondary-color: #4B4B4B;
 }
 
@@ -98,18 +98,18 @@
 }
 
 /* Override default blue colors with our theme colors */
-.bg-blue-500 { background-color: #91BB3E !important; }
-.bg-blue-600 { background-color: #91BB3E !important; }
+.bg-blue-500 { background-color: #2563EB !important; }
+.bg-blue-600 { background-color: #2563EB !important; }
 .bg-blue-700 { background-color: #7a9e33 !important; }
 .hover\:bg-blue-600:hover { background-color: #7a9e33 !important; }
 .hover\:bg-blue-700:hover { background-color: #5f7a28 !important; }
-.text-blue-500 { color: #91BB3E !important; }
-.text-blue-600 { color: #91BB3E !important; }
+.text-blue-500 { color: #2563EB !important; }
+.text-blue-600 { color: #2563EB !important; }
 .text-blue-700 { color: #7a9e33 !important; }
-.border-blue-500 { border-color: #91BB3E !important; }
-.border-blue-600 { border-color: #91BB3E !important; }
-.focus\:ring-blue-500:focus { --tw-ring-color: #91BB3E !important; }
-.focus\:border-blue-500:focus { border-color: #91BB3E !important; }
+.border-blue-500 { border-color: #2563EB !important; }
+.border-blue-600 { border-color: #2563EB !important; }
+.focus\:ring-blue-500:focus { --tw-ring-color: #2563EB !important; }
+.focus\:border-blue-500:focus { border-color: #2563EB !important; }
 
 /* Update header and navigation colors */
 .bg-gradient-to-r {
@@ -117,7 +117,7 @@
 }
 
 /* Button styles */
-button.bg-indigo-600 { background-color: #91BB3E !important; }
+button.bg-indigo-600 { background-color: #2563EB !important; }
 button.hover\:bg-indigo-700:hover { background-color: #7a9e33 !important; }
 
 /* Navbar styling */
@@ -127,5 +127,5 @@ nav {
 
 /* Active navigation item */
 .text-white.bg-blue-700 {
-  background-color: #91BB3E !important;
+  background-color: #2563EB !important;
 }

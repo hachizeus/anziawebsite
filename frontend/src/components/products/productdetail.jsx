@@ -136,7 +136,7 @@ const ProductDetail = () => {
         { label: 'Warranty', value: rawProduct.warranty || '1 Year' },
       ],
       description: rawProduct.description || 'This premium product offers exceptional quality and performance. Made with high-quality materials and advanced technology, it provides reliable operation and long-lasting durability.',
-      phone: '+254 700 000 000' // Default contact number
+      phone: '+254 769 162665' // Default contact number
     };
   };
 

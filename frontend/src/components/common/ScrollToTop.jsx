@@ -33,7 +33,7 @@ const ScrollToTop = () => {
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 z-50 border-0 outline-none"
           style={{ 
-            backgroundColor: '#91BB3E',
+            backgroundColor: '#2563EB',
             color: 'white',
             width: '40px',
             height: '40px',
