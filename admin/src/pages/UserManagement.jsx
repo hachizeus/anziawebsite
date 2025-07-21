@@ -77,96 +77,9 @@ const UserManagement = () => {
     }
   };
 
-  const handleDeleteTenant = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this tenant? This will also revert the user role to regular user.')) {
-      return;
-    }
-    
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Authentication required');
-        return;
-      }
-      
-      await axios.delete(`${backendurl}/api/tenants/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      setTenants(tenants.filter(tenant => tenant._id !== id));
-      
-      // Update user role in users list
-      const tenant = tenants.find(t => t._id === id);
-      if (tenant && tenant.userId) {
-        setUsers(users.map(user => 
-          user._id === tenant.userId._id ? { ...user, role: 'user' } : user
-        ));
-      }
-      
-      toast.success('Tenant deleted successfully');
-    } catch (err) {
-      console.error('Error deleting tenant:', err);
-      toast.error('Failed to delete tenant');
-    }
-  };
-
-  const handleToggleVisibility = async (agentId, currentVisibility) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Authentication required');
-        return;
-      }
-      
-      const response = await axios.put(
-        `${backendurl}/api/agents/toggle-visibility`,
-        { agentId },
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-      
-      if (response.data.success) {
-        // Update agent in the state
-        setAgents(agents.map(agent => 
-          agent._id === agentId ? { ...agent, visible: !currentVisibility } : agent
-        ));
-        
-        toast.success(`Agent ${currentVisibility ? 'hidden' : 'visible'} successfully`);
-      }
-    } catch (err) {
-      console.error('Error toggling agent visibility:', err);
-      toast.error('Failed to update agent visibility');
-    }
-  };
-
-  const handleConfirmTenant = () => {
-    if (!selectedUser || !selectedProperty) {
-      toast.error('Please select a property');
-      return;
-    }
-    
-    updateUserRole(selectedUser._id, 'tenant', selectedProperty);
-    setShowModal(false);
-    setSelectedUser(null);
-    setSelectedProperty('');
-  };
-
   const filteredUsers = users.filter(user => 
     (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
-  const filteredTenants = tenants.filter(tenant => 
-    (tenant.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    tenant.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tenant.propertyId?.title?.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
-  const filteredAgents = agents.filter(agent => 
-    (agent.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    agent.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agent.email?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {
