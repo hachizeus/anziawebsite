@@ -635,18 +635,36 @@ app.get('/api/admin-notifications', (req, res) => {
 app.get('/api/admin/stats', async (req, res) => {
   try {
     const totalProducts = await Product.countDocuments();
+    const totalUsers = await User.countDocuments();
     res.json({
       success: true,
       stats: {
         totalProducts: totalProducts || 0,
         inStockProducts: totalProducts || 0,
-        totalCustomers: 0,
+        totalCustomers: totalUsers || 0,
         totalViews: 0,
         pendingOrders: 0
       }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Admin users endpoint
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      users: users || []
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching users'
+    });
   }
 });
 
