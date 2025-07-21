@@ -33,4 +33,23 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// Get all users endpoint
+router.get('/users', async (req, res) => {
+  try {
+    const usersCollection = await getCollection('users');
+    const users = await usersCollection.find({}).toArray();
+    
+    res.json({
+      success: true,
+      users: users || []
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching users'
+    });
+  }
+});
+
 export default router;

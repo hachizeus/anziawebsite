@@ -23,7 +23,7 @@ const Users = () => {
         console.log('Fetching users...');
         // Use the backendurl from App.jsx or fallback to localhost in development
         const apiUrl = backendurl || 'http://localhost:4000';
-        const response = await axios.get(`${apiUrl}/api/users/list`, {
+        const response = await axios.get(`${apiUrl}/api/admin/users`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -31,7 +31,7 @@ const Users = () => {
 
         console.log('Users response:', response.data);
         if (response.data.success) {
-          setUsers(response.data.data || response.data.users || []);
+          setUsers(response.data.users || []);
         } else {
           setError('Failed to fetch users');
         }
