@@ -486,6 +486,11 @@ app.get('/api/products', async (req, res) => {
 
 app.get('/api/products/:id', async (req, res) => {
   try {
+    // Skip if id is 'list' to avoid conflict
+    if (req.params.id === 'list') {
+      return res.status(404).json({ success: false, message: 'Route not found' });
+    }
+    
     const product = await Product.findById(req.params.id);
     
     if (!product) {
