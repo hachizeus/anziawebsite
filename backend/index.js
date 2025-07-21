@@ -1203,7 +1203,8 @@ app.post('/api/legacy-products/toggle-availability', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
     
-    product.available = !product.available;
+    // Toggle between in-stock and out-of-stock
+    product.availability = product.availability === 'in-stock' ? 'out-of-stock' : 'in-stock';
     await product.save();
     
     res.json({ success: true, product });

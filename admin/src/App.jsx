@@ -26,7 +26,7 @@ import Update from "./pages/Update";
 import ProductApproval from "./pages/ProductApproval";
 import UserManagement from "./pages/UserManagement";
 import Newsletter from "./pages/Newsletter";
-import Orders from "./pages/Orders";
+// Orders import removed
 
 // Config
 export const backendurl = "https://anzia-electronics-api.onrender.com";
@@ -96,7 +96,7 @@ function App() {
                     <Route path="/list" element={<List />} />
                     <Route path="/add" element={<Add />} />
                     <Route path="/update/:id" element={<Update />} />
-                    <Route path="/orders" element={<Orders />} />
+                    {/* Orders route removed */}
                     <Route path="/users" element={<UserManagement/>} />
                     <Route path="/product-approval" element={<ProductApproval />} />
                     <Route path="/newsletter" element={<Newsletter />} />

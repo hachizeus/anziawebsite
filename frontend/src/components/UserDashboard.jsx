@@ -19,7 +19,7 @@ const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 const UserDashboard = () => {
   const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [orders, setOrders] = useState([]);
+  // Orders removed
   const [wishlist, setWishlist] = useState([]);
   const [profile, setProfile] = useState({
     name: '',
@@ -63,11 +63,7 @@ const UserDashboard = () => {
         });
       }
       
-      // Fetch user orders
-      const ordersRes = await axios.get(`${API_URL}/orders/user/${user._id}`);
-      if (ordersRes.data.success) {
-        setOrders(ordersRes.data.orders);
-      }
+      // Orders functionality removed
       
       // Fetch user wishlist
       const wishlistRes = await axios.get(`${API_URL}/wishlist/${user._id}`);
@@ -121,19 +117,11 @@ const UserDashboard = () => {
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: TrendingUp },
-    { id: 'orders', name: 'My Orders', icon: Package },
     { id: 'wishlist', name: 'Wishlist', icon: Heart },
     { id: 'profile', name: 'Profile', icon: User },
   ];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'delivered': return 'text-green-600 bg-green-100';
-      case 'processing': return 'text-blue-600 bg-blue-100';
-      case 'shipped': return 'text-purple-600 bg-purple-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
+  // Status color function removed
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -196,8 +184,8 @@ const UserDashboard = () => {
                         <Package className="w-6 h-6 text-blue-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm text-gray-600">Total Orders</p>
-                        <p className="text-2xl font-semibold text-gray-900">{orders.length}</p>
+                        <p className="text-sm text-gray-600">Account Status</p>
+                        <p className="text-2xl font-semibold text-gray-900">Active</p>
                       </div>
                     </div>
                   </div>
@@ -227,53 +215,11 @@ const UserDashboard = () => {
                   </div>
                 </div>
 
-                {/* Recent Orders */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
-                  <div className="space-y-4">
-                    {orders.slice(0, 3).map((order) => (
-                      <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <p className="font-medium text-gray-900">Order #{order._id?.slice(-8) || 'N/A'}</p>
-                          <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium text-gray-900">KSh {order.totalAmount?.toLocaleString() || '0'}</p>
-                          <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
-                            {order.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {/* Recent Orders section removed */}
               </div>
             )}
 
-            {activeTab === 'orders' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">My Orders</h3>
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border rounded-lg p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h4 className="font-medium text-gray-900">Order #{order._id?.slice(-8) || 'N/A'}</h4>
-                          <p className="text-sm text-gray-500">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
-                        </div>
-                        <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-600">{order.items?.length || 0} item(s)</p>
-                        <p className="font-semibold text-gray-900">KSh {order.totalAmount?.toLocaleString() || '0'}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Orders tab removed */}
 
             {activeTab === 'wishlist' && (
               <div className="bg-white rounded-lg shadow-sm p-6">

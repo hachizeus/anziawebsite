@@ -143,16 +143,7 @@ const Sidebar = () => {
             {expanded && <span className="ml-4 whitespace-nowrap">Add Product</span>}
           </Link>
           
-          {/* Orders */}
-          <Link
-            to="/orders"
-            className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
-              isActive('/orders') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
-            }`}
-          >
-            <Calendar className="w-5 h-5 min-w-[20px]" />
-            {expanded && <span className="ml-4 whitespace-nowrap">Orders</span>}
-          </Link>
+          {/* Orders removed */}
           
           {/* Analytics section removed */}
           
