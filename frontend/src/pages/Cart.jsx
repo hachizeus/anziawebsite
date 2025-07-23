@@ -161,7 +161,7 @@ const Cart = () => {
                   (i.productId._id || i.productId) === (item.productId._id || item.productId)
                 ) === index
               ).map((item, index) => (
-                <div key={`${item.productId._id || item.productId}-${index}`} className="flex items-center space-x-4 border-b pb-6">
+                <div key={`${item.productId._id || item.productId}-${index}`} className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 border-b pb-6">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
                     {item.productId?.images?.[0]?.url || item.productId?.images?.[0] ? (
                       <img 
@@ -179,41 +179,43 @@ const Cart = () => {
                     </div>
                   </div>
                   
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{item.name || item.productId?.name}</h3>
-                    <p className="text-lg font-semibold text-primary-600">
+                  <div className="flex-1 sm:order-2">
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">{item.name || item.productId?.name}</h3>
+                    <p className="text-base sm:text-lg font-semibold text-primary-600">
                       KSh {(item.price || item.productId?.price || 0).toLocaleString()}
                     </p>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity - 1)}
-                      className="p-1 border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      <i className="fas fa-minus"></i>
-                    </button>
-                    <span className="px-3 py-1 border border-gray-300 rounded">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity + 1)}
-                      className="p-1 border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      <i className="fas fa-plus"></i>
-                    </button>
-                  </div>
-                  
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">
-                      KSh {(item.price * item.quantity).toLocaleString()}
-                    </p>
-                    <button
-                      onClick={() => removeItem(item.productId._id || item.productId)}
-                      className="text-red-600 hover:text-red-700 mt-2"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
+                  <div className="flex items-center justify-between sm:justify-start sm:space-x-4 sm:order-3">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity - 1)}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        <i className="fas fa-minus text-sm"></i>
+                      </button>
+                      <span className="px-3 py-1 border border-gray-300 rounded min-w-[3rem] text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.productId._id || item.productId, item.quantity + 1)}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        <i className="fas fa-plus text-sm"></i>
+                      </button>
+                    </div>
+                    
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                        KSh {(item.price * item.quantity).toLocaleString()}
+                      </p>
+                      <button
+                        onClick={() => removeItem(item.productId._id || item.productId)}
+                        className="text-red-600 hover:text-red-700 mt-1"
+                      >
+                        <i className="fas fa-trash text-sm"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

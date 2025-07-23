@@ -440,8 +440,21 @@ const Navbar = () => {
                   );
                 })}
 
-                {/* Auth Buttons for Mobile */}
+                {/* Cart Icon for Mobile */}
                 <div className="pt-4 mt-2 border-t border-gray-100 dark:border-gray-700">
+                  <Link to="/cart" className="flex items-center justify-center p-3 text-gray-600 hover:text-primary-600 transition-colors mb-4">
+                    <i className="fas fa-shopping-cart text-xl mr-2"></i>
+                    <span>Cart</span>
+                    {cartCount > 0 && (
+                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </div>
+
+                {/* Auth Buttons for Mobile */}
+                <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
                   {isLoggedIn ? (
                     <div className="space-y-3 px-3">
                       <div className="flex items-center space-x-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
