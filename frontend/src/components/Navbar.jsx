@@ -356,39 +356,44 @@ const Navbar = () => {
                     path === "/" ? location.pathname === path : location.pathname.startsWith(path);
 
                   if (dropdown) {
+                    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
                     return (
                       <div key={name} className="space-y-1">
                         <motion.div whileTap={{ scale: 0.97 }}>
-                          <Link
-                            to={path}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                          <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition-colors text-left
                               ${
                                 isActive
                                   ? "bg-primary-500 text-white font-medium"
-                                  : "text-gray-800 hover:bg-primary-500 hover:text-white"
+                                  : "text-gray-800 dark:text-gray-200 hover:bg-primary-500 hover:text-white"
                               }
                             `}
-                            onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            <i className={icon}></i>
-                            {name}
-                          </Link>
+                            <div className="flex items-center gap-3">
+                              <i className={icon}></i>
+                              {name}
+                            </div>
+                            <i className={`fas fa-chevron-down transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}></i>
+                          </button>
                         </motion.div>
                         
-                        <div className="pl-4 space-y-1">
-                          {dropdown.map((item) => (
-                            <motion.div key={item.name} whileTap={{ scale: 0.97 }}>
-                              <Link
-                                to={item.path}
-                                className="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                              >
-                                <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
-                                {item.name}
-                              </Link>
-                            </motion.div>
-                          ))}
-                        </div>
+                        {isDropdownOpen && (
+                          <div className="pl-4 space-y-1">
+                            {dropdown.map((item) => (
+                              <motion.div key={item.name} whileTap={{ scale: 0.97 }}>
+                                <Link
+                                  to={item.path}
+                                  className="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                  <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
+                                  {item.name}
+                                </Link>
+                              </motion.div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   }

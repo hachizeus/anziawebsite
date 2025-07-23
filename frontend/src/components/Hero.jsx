@@ -66,32 +66,28 @@ const Hero = () => {
     <div className="pt-16 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-6">
-          {/* Categories Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Main Content - appears first on mobile */}
+          <div className="lg:col-span-3 lg:order-2 space-y-6">
+            {/* Categories Sidebar - appears second on mobile, first on desktop */}
+          <div className="lg:hidden">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Categories</h3>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {categories.map((category) => (
                   <button
                     key={category.name}
                     onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
-                    className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-left"
+                    className="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-left"
                   >
-                    <div className="flex items-center space-x-3">
-                      <i className={`${category.icon} text-primary-500`}></i>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-gray-100">{category.name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{category.count}</div>
-                      </div>
+                    <i className={`${category.icon} text-primary-500 mr-2`}></i>
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{category.name}</div>
                     </div>
                   </button>
                 ))}
               </div>
             </div>
           </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
             {/* Search Bar */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
               <form onSubmit={handleSubmit} className="flex gap-2">
@@ -185,6 +181,30 @@ const Hero = () => {
                       index === currentSlide ? 'bg-white' : 'bg-white/50'
                     }`}
                   />
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Categories Sidebar - Desktop only */}
+          <div className="hidden lg:block lg:col-span-1 lg:order-1">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Categories</h3>
+              <div className="space-y-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.name}
+                    onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
+                    className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-left"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <i className={`${category.icon} text-primary-500`}></i>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{category.name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{category.count}</div>
+                      </div>
+                    </div>
+                  </button>
                 ))}
               </div>
             </div>
