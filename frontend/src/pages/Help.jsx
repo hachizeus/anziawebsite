@@ -253,6 +253,70 @@ const Help = () => {
             </div>
           </section>
 
+          {/* Customer Support Section */}
+          <section id="support" className="scroll-mt-24">
+            <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <Phone className="w-6 h-6 mr-2 text-primary-600" />
+                Customer Support
+              </h2>
+
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <Phone className="w-8 h-8 text-primary-600 mx-auto mb-3" />
+                    <h3 className="font-semibold mb-2">Phone Support</h3>
+                    <p className="text-gray-600 text-sm mb-2">Call us for immediate assistance</p>
+                    <a href="tel:+254769162665" className="text-primary-600 font-medium">+254 769 162665</a>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <Mail className="w-8 h-8 text-primary-600 mx-auto mb-3" />
+                    <h3 className="font-semibold mb-2">Email Support</h3>
+                    <p className="text-gray-600 text-sm mb-2">Send us your questions</p>
+                    <a href="mailto:info@anziaelectronics.co.ke" className="text-primary-600 font-medium">info@anziaelectronics.co.ke</a>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <MessageCircle className="w-8 h-8 text-primary-600 mx-auto mb-3" />
+                    <h3 className="font-semibold mb-2">WhatsApp Chat</h3>
+                    <p className="text-gray-600 text-sm mb-2">Chat with us instantly</p>
+                    <a href="https://wa.me/254769162665" className="text-primary-600 font-medium">Start Chat</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Terms & Conditions Section */}
+          <section id="terms" className="scroll-mt-24">
+            <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Terms & Conditions</h2>
+              <div className="prose max-w-none text-gray-700">
+                <p className="mb-4">By using our website and services, you agree to these terms and conditions.</p>
+                <h3 className="text-lg font-semibold mb-3">1. Product Information</h3>
+                <p className="mb-4">We strive to provide accurate product information, but we cannot guarantee that all details are error-free.</p>
+                <h3 className="text-lg font-semibold mb-3">2. Pricing</h3>
+                <p className="mb-4">All prices are in Kenyan Shillings (KSh) and are subject to change without notice.</p>
+                <h3 className="text-lg font-semibold mb-3">3. Orders</h3>
+                <p className="mb-4">We reserve the right to refuse or cancel any order for any reason.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Privacy Policy Section */}
+          <section id="privacy" className="scroll-mt-24">
+            <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Privacy Policy</h2>
+              <div className="prose max-w-none text-gray-700">
+                <p className="mb-4">We respect your privacy and are committed to protecting your personal information.</p>
+                <h3 className="text-lg font-semibold mb-3">Information We Collect</h3>
+                <p className="mb-4">We collect information you provide when creating an account, placing orders, or contacting us.</p>
+                <h3 className="text-lg font-semibold mb-3">How We Use Your Information</h3>
+                <p className="mb-4">We use your information to process orders, provide customer service, and improve our services.</p>
+                <h3 className="text-lg font-semibold mb-3">Information Sharing</h3>
+                <p className="mb-4">We do not sell or share your personal information with third parties except as necessary to fulfill orders.</p>
+              </div>
+            </div>
+          </section>
          
         </div>
       </div>

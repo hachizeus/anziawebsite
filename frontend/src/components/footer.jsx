@@ -238,10 +238,10 @@ const companyLinks = [
 ];
 
 const helpLinks = [
-  { name: 'Customer Support', href: '/contact' },
-  { name: 'FAQs', href: '/faqs' },
-  { name: 'Terms & Conditions', href: '/policy-document' },
-  { name: 'Privacy Policy', href: '/policy-document' },
+  { name: 'Customer Support', href: '/help#support' },
+  { name: 'FAQs', href: '/help#faqs' },
+  { name: 'Terms & Conditions', href: '/help#terms' },
+  { name: 'Privacy Policy', href: '/help#privacy' },
 ];
 
 const contactInfo = [
