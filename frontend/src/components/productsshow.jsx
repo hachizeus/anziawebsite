@@ -123,9 +123,13 @@ const ProductCard = ({ product }) => {
           <span className="bg-primary-600 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-md">
             {product.category || 'Electronics'}
           </span>
-          {product.inStock && (
+          {product.availability === 'in-stock' ? (
             <span className="bg-green-600 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-md">
               In Stock
+            </span>
+          ) : (
+            <span className="bg-red-600 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-md">
+              Out of Stock
             </span>
           )}
         </div>
