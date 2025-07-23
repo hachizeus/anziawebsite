@@ -126,8 +126,8 @@ const ProductDetail = () => {
       availability: rawProduct.availability || 'in-stock', // Default to in-stock
       stockQuantity: rawProduct.stock_quantity || 10, // Default to 10
       warranty: rawProduct.warranty || '1 Year', // Default warranty
-      weight: '1.8 kg', // Default value
-      dimensions: '25 x 8 x 20 cm', // Default value
+      weight: rawProduct.weight || 'N/A',
+      dimensions: rawProduct.dimensions || 'N/A',
       features: Array.isArray(rawProduct.features) ? rawProduct.features : ['Premium Quality', 'Durable Design', 'Energy Efficient', 'User Friendly'],
       specifications: Array.isArray(rawProduct.specifications) ? rawProduct.specifications : [
         { label: 'Brand', value: rawProduct.brand || 'Premium Brand' },
@@ -186,7 +186,7 @@ const ProductDetail = () => {
           return;
         }
         
-        const response = await axios.get(`/api/products/category/${currentProduct.category}?limit=10`);
+        const response = await axios.get(`${API_URL}/products?category=${encodeURIComponent(currentProduct.category)}&limit=10`);
         if (response.data && response.data.products) {
           // Filter out current product
           const filtered = response.data.products
@@ -441,10 +441,21 @@ const ProductDetail = () => {
 
             {/* Availability */}
             <div className="flex items-center mb-6">
-              <Check className="w-5 h-5 text-green-500 mr-2" />
-              <span className="text-green-700 font-medium">
-                In Stock ({product.stockQuantity} available)
-              </span>
+              {product.availability === 'in-stock' ? (
+                <>
+                  <Check className="w-5 h-5 text-green-500 mr-2" />
+                  <span className="text-green-700 font-medium">
+                    In Stock ({product.stockQuantity} available)
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className="w-5 h-5 bg-red-500 rounded-full mr-2" />
+                  <span className="text-red-700 font-medium">
+                    Out of Stock
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Key Features */}
@@ -592,10 +603,12 @@ const ProductDetail = () => {
                       <dt className="font-medium text-gray-900">Warranty</dt>
                       <dd className="text-gray-700">{product.warranty}</dd>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-gray-100">
-                      <dt className="font-medium text-gray-900">Weight</dt>
-                      <dd className="text-gray-700">{product.weight}</dd>
-                    </div>
+                    {product.weight !== 'N/A' && (
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <dt className="font-medium text-gray-900">Weight</dt>
+                        <dd className="text-gray-700">{product.weight}</dd>
+                      </div>
+                    )}
                   </dl>
                 </div>
               </div>

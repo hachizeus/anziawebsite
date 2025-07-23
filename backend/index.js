@@ -707,7 +707,11 @@ app.get('/api/legacy-products/single/:id', async (req, res) => {
 // Update product
 app.put('/api/legacy-products/update/:id', upload.any(), async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, {
+    console.log('Updating product:', req.params.id);
+    console.log('Form data:', req.body);
+    console.log('Files received:', req.files?.length || 0);
+    
+    const updateData = {
       name: req.body.name,
       description: req.body.description,
       price: parseFloat(req.body.price),
@@ -720,11 +724,48 @@ app.put('/api/legacy-products/update/:id', upload.any(), async (req, res) => {
       warranty: req.body.warranty,
       specifications: req.body.specifications,
       features: req.body.features ? JSON.parse(req.body.features) : []
-    }, { new: true });
+    };
+    
+    // Handle existing images (from form data)
+    let existingImages = [];
+    if (req.body.existingImages) {
+      try {
+        existingImages = JSON.parse(req.body.existingImages);
+      } catch (e) {
+        console.error('Error parsing existing images:', e);
+      }
+    }
+    
+    // Handle new image uploads
+    const newImages = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        try {
+          const result = await imagekit.upload({
+            file: file.buffer,
+            fileName: `${Date.now()}_${file.originalname}`,
+            folder: '/products'
+          });
+          newImages.push({
+            url: result.url,
+            fileId: result.fileId,
+            alt: req.body.name || 'Product image'
+          });
+        } catch (uploadError) {
+          console.error('Image upload error:', uploadError);
+        }
+      }
+    }
+    
+    // Combine existing and new images
+    updateData.images = [...existingImages, ...newImages];
+    
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
     
     res.json({ success: true, message: 'Product updated successfully', product });
   } catch (error) {
-    res.json({ success: true, message: 'Product updated successfully (fallback)' });
+    console.error('Update error:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

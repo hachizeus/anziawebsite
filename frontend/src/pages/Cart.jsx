@@ -5,6 +5,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { cartService } from '../services/cartService';
 import { showNotification } from '../utils/notifications';
+import axios from 'axios';
 
 const API_URL = 'https://anzia-electronics-api.onrender.com/api';
 
@@ -27,7 +28,30 @@ const Cart = () => {
       console.log('Loading cart for user:', user._id);
       const items = await cartService.getCart(user._id);
       console.log('Cart items loaded:', items);
-      setCartItems(items);
+      console.log('Cart items details:', JSON.stringify(items, null, 2));
+      
+      // Fetch full product details for each cart item
+      const itemsWithImages = await Promise.all(
+        items.map(async (item) => {
+          try {
+            if (!item.productId) return item;
+            const productId = item.productId._id || item.productId;
+            const response = await axios.get(`${API_URL}/products/${productId}`);
+            if (response.data.success) {
+              return {
+                ...item,
+                productId: response.data.product
+              };
+            }
+          } catch (error) {
+            console.error('Error fetching product details:', error);
+          }
+          return item;
+        })
+      );
+      
+      console.log('Items with images:', itemsWithImages);
+      setCartItems(itemsWithImages);
     }
   };
 
@@ -72,7 +96,10 @@ const Cart = () => {
   };
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      const price = item.price || item.productId?.price || 0;
+      return total + (price * item.quantity);
+    }, 0);
   };
 
   const orderViaWhatsApp = () => {
@@ -127,26 +154,29 @@ const Cart = () => {
           
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="space-y-6">
-              {cartItems.map((item, index) => (
+              {cartItems.filter((item, index, self) => 
+                item.productId && 
+                self.findIndex(i => 
+                  i.productId && 
+                  (i.productId._id || i.productId) === (item.productId._id || item.productId)
+                ) === index
+              ).map((item, index) => (
                 <div key={`${item.productId._id || item.productId}-${index}`} className="flex items-center space-x-4 border-b pb-6">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                    {(item.image || item.productId?.images?.[0]?.url || item.productId?.images?.[0]) ? (
+                    {item.productId?.images?.[0]?.url || item.productId?.images?.[0] ? (
                       <img 
-                        src={item.image || item.productId?.images?.[0]?.url || item.productId?.images?.[0]} 
+                        src={item.productId.images[0].url || item.productId.images[0]} 
                         alt={item.name || item.productId?.name} 
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
-                          console.error('Image failed to load:', e.target.src);
                           e.target.style.display = 'none';
-                          const placeholder = e.target.parentElement.querySelector('.placeholder');
-                          if (placeholder) placeholder.style.display = 'flex';
+                          e.target.nextElementSibling.style.display = 'flex';
                         }}
                       />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center placeholder">
-                        <i className="fas fa-shopping-cart text-2xl text-primary-400"></i>
-                      </div>
-                    )}
+                    ) : null}
+                    <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center" style={{display: item.productId?.images?.[0] ? 'none' : 'flex'}}>
+                      <i className="fas fa-shopping-cart text-2xl text-primary-400"></i>
+                    </div>
                   </div>
                   
                   <div className="flex-1">
