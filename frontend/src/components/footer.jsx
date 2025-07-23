@@ -7,10 +7,6 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import logoImg from '../assets/images/logo.svg';
 import whatsAppIcon from '../../public/images/32px-WhatsApp.png';
-import twitterIcon from '../../public/images/32px-X_logo_2023.png';
-import facebookIcon from '../../public/images/64px-Facebook_f_logo_(2019).png';
-import instagramIcon from '../../public/images/32px-Instagram_logo_2022.png';
-import youtubeIcon from '../../public/images/32px-YouTube_full-color_icon_(2017).png';
 import locationIcon from '../../public/images/32px-Pin_point_location_SVG_black.png';
 import phoneIcon from '../../public/images/32px-VK_icons_phone_36.png';
 import emailIcon from '../../public/images/32px-Ic_email_48px.png';
@@ -250,8 +246,8 @@ const helpLinks = [
 
 const contactInfo = [
   { 
-    text: 'Nairobi, Kenya - Serving Nationwide',
-    href: 'https://maps.google.com/?q=Nairobi,Kenya',
+    text: 'Menengai House No.1, Nairobi',
+    href: 'https://maps.google.com/?q=Menengai+House+No.1,+Nairobi',
     imgSrc: locationIcon,
     isLocation: true
   },
@@ -354,6 +350,7 @@ const Footer = () => {
                     <span className="text-sm">WhatsApp Chat</span>
                   </a>
                 </li>
+                
               </ul>
             </FooterColumn>
             
@@ -417,6 +414,24 @@ const Footer = () => {
                       className="w-5 h-5 mt-1 mr-3 flex-shrink-0" 
                     />
                     <span className="text-sm">WhatsApp Chat</span>
+                  </a>
+                </li>
+                <li className="mt-4">
+                  <a 
+                    href="https://maps.google.com/?q=Menengai+House+No.1,+Nairobi" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block cursor-pointer hover:opacity-80 transition-opacity"
+                  >
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8180313700996!2d36.828006099999996!3d-1.2830183999999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f11297ffc5f79%3A0x3c02347d9476f905!2sMenengai%20House%20No.1!5e0!3m2!1sen!2ske!4v1753091102148!5m2!1sen!2ske" 
+                      width="100%" 
+                      height="150" 
+                      style={{border:0, pointerEvents:'none'}} 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="rounded-lg"
+                    ></iframe>
                   </a>
                 </li>
               </ul>

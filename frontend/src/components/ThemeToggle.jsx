@@ -1,25 +1,41 @@
 import { useTheme } from '../context/ThemeContext';
-import { Moon, Sun } from '../utils/icons.jsx';
+import { motion } from 'framer-motion';
 
-const ThemeToggle = () => {
-  const { darkMode, toggleTheme } = useTheme();
+const ThemeToggle = ({ className = '', showLabel = false }) => {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
 
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       onClick={toggleTheme}
-      className="flex items-center justify-center p-2 rounded-full transition-colors
-        dark:bg-gray-700 bg-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600"
-      aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      className={`relative inline-flex items-center justify-center p-2 rounded-lg transition-colors duration-200 ${
+        isDark 
+          ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
+          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+      } ${className}`}
+      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
-      {darkMode ? (
-        <Sun className="h-5 w-5 text-yellow-300" />
-      ) : (
-        <Moon className="h-5 w-5 text-gray-700" />
+      <motion.div
+        initial={false}
+        animate={{ rotate: isDark ? 180 : 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {isDark ? (
+          <i className="fas fa-sun text-lg"></i>
+        ) : (
+          <i className="fas fa-moon text-lg"></i>
+        )}
+      </motion.div>
+      
+      {showLabel && (
+        <span className="ml-2 text-sm font-medium">
+          {isDark ? 'Light' : 'Dark'}
+        </span>
       )}
-    </button>
+    </motion.button>
   );
 };
 
 export default ThemeToggle;
-
-

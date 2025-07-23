@@ -63,25 +63,25 @@ const Hero = () => {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
 
   return (
-    <div className="pt-16 bg-gray-50">
+    <div className="pt-16 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-6">
           {/* Categories Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Categories</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Categories</h3>
               <div className="space-y-2">
                 {categories.map((category) => (
                   <button
                     key={category.name}
                     onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
-                    className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                    className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-left"
                   >
                     <div className="flex items-center space-x-3">
                       <i className={`${category.icon} text-primary-500`}></i>
                       <div>
-                        <div className="font-medium text-gray-900">{category.name}</div>
-                        <div className="text-sm text-gray-500">{category.count}</div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{category.name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{category.count}</div>
                       </div>
                     </div>
                   </button>
@@ -93,7 +93,7 @@ const Hero = () => {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             {/* Search Bar */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
               <form onSubmit={handleSubmit} className="flex gap-2">
                 <div className="flex-1 relative">
                   <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -102,7 +102,7 @@ const Hero = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for products, brands and categories..."
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
                 <button
@@ -115,7 +115,7 @@ const Hero = () => {
             </div>
 
             {/* Carousel */}
-            <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
               <div className="relative h-80">
                 {carouselImages.map((slide, index) => (
                   <div

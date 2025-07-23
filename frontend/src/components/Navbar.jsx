@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const logoPath = "/images/logo.svg";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import ThemeToggle from "./ThemeToggle";
 import PropTypes from "prop-types";
 
 const Navbar = () => {
@@ -187,21 +188,7 @@ const Navbar = () => {
           {/* Desktop Navigation - Centered */}
           <div className="hidden md:flex items-center justify-center flex-1 space-x-8">
             <NavLinks currentPath={location.pathname} user={user} navLinks={navLinks} />
-            <div className="w-64">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full pl-8 pr-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                      window.location.href = `/products?search=${encodeURIComponent(e.target.value.trim())}`;
-                    }
-                  }}
-                />
-                <i className="fas fa-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-              </div>
-            </div>
+            
           </div>
 
           {/* Auth Buttons - Right */}
@@ -308,9 +295,10 @@ const Navbar = () => {
                     </span>
                   )}
                 </Link>
+                <ThemeToggle />
                 <Link
                   to="/login"
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors text-sm"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 font-medium transition-colors text-sm"
                 >
                   Sign in
                 </Link>
@@ -497,11 +485,14 @@ const Navbar = () => {
                     </div>
                   ) : (
                     <div className="flex flex-col space-y-3 px-3">
+                      <div className="flex items-center justify-center py-2">
+                        <ThemeToggle showLabel={true} />
+                      </div>
                       <motion.div whileTap={{ scale: 0.97 }}>
                         <Link
                           to="/login"
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all font-medium"
+                          className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 transition-all font-medium"
                         >
                           Sign in
                         </Link>

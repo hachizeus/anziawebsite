@@ -56,18 +56,18 @@ ProtectedRoute.propTypes = {
 
 // Loading component for suspense fallback
 const LoadingFallback = () => (
-  <div className="min-h-screen flex justify-center items-center pt-20">
+  <div className="min-h-screen flex justify-center items-center pt-20 bg-white dark:bg-gray-900">
     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
   </div>
 );
 
 // 404 Page component
 const NotFound = () => (
-  <div className="min-h-screen pt-20 flex items-center justify-center">
+  <div className="min-h-screen pt-20 flex items-center justify-center bg-white dark:bg-gray-900">
     <div className="text-center p-8 max-w-md">
       <h1 className="text-6xl font-bold text-primary-600 mb-4">404</h1>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Page Not Found</h2>
-      <p className="text-gray-600 mb-8">The page you are looking for doesn't exist or has been moved.</p>
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Page Not Found</h2>
+      <p className="text-gray-600 dark:text-gray-400 mb-8">The page you are looking for doesn't exist or has been moved.</p>
       <a href="/" className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
         Go to Homepage
       </a>
@@ -89,9 +89,10 @@ function App() {
       <Router>
         <AuthProvider>
           <ThemeProvider>
-            <Navbar />
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
+            <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+              <Navbar />
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 {/* Categories route removed */}
@@ -127,6 +128,7 @@ function App() {
             </Suspense>
             <Footer />
             <Toaster position="top-right" />
+            </div>
           </ThemeProvider>
         </AuthProvider>
       </Router>

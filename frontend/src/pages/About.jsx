@@ -56,27 +56,27 @@ const About = () => {
             </div>
           </div>
           <div className="bg-primary-100 rounded-lg p-8 ">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Why Choose Us?</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 force-black">Why Choose Us?</h3>
             <ul className="space-y-3">
               <li className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-primary-600 mr-3" />
-                <span>Genuine products from authorized dealers</span>
+                <span className="force-black">Genuine products from authorized dealers</span>
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-primary-600 mr-3" />
-                <span>Competitive pricing and flexible payment options</span>
+                <span className="force-black">Competitive pricing and flexible payment options</span>
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-primary-600 mr-3" />
-                <span>Expert technical support and consultation</span>
+                <span className="force-black">Expert technical support and consultation</span>
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-primary-600 mr-3" />
-                <span>Fast delivery across Kenya</span>
+                <span className="force-black">Fast delivery across Kenya</span>
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-primary-600 mr-3" />
-                <span>Comprehensive warranty coverage</span>
+                <span className="force-black">Comprehensive warranty coverage</span>
               </li>
             </ul>
           </div>

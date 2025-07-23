@@ -261,7 +261,8 @@
 
 /* Base dark mode styles */
 .dark body {
-  @apply bg-gray-900 text-gray-100;
+  background-color: #111827;
+  @apply text-gray-100;
 }
 
 .dark .bg-white {
@@ -344,4 +345,14 @@
 
 .text-theme-gray {
   @apply text-gray-600;
+}
+
+/* Dark mode textured background */
+.dark {
+  background: linear-gradient(135deg, #111827 0%, #1f2937 25%, #111827 50%, #1f2937 75%, #111827 100%);
+  background-size: 40px 40px;
+}
+
+.dark .force-black {
+  color: #000 !important;
 }

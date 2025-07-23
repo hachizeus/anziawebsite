@@ -6,19 +6,14 @@ const ThemeContext = createContext();
 
 // Theme provider component
 export const ThemeProvider = ({ children }) => {
-  // Check if user has a theme preference in localStorage or prefers dark mode
+  // Always default to light theme first
   const getInitialTheme = () => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       return savedTheme;
     }
     
-    // Check if user prefers dark mode
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    
-    // Default to light theme
+    // Always default to light theme (ignore system preference)
     return 'light';
   };
 
@@ -42,7 +37,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, darkMode: theme === 'dark' }}>
       {children}
     </ThemeContext.Provider>
   );

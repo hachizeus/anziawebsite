@@ -20,7 +20,7 @@ const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [sortBy, setSortBy] = useState('name');
@@ -203,7 +203,7 @@ const ProductsPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white border border-gray-200 hover:shadow-md transition-all duration-300 overflow-hidden group relative"
+        className="bg-white hover:shadow-md transition-all duration-300 overflow-hidden group relative"
       >
         <div className="relative">
           <div className="aspect-square bg-white p-4">
