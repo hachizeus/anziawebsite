@@ -68,27 +68,7 @@ const Hero = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-6">
           {/* Main Content - appears first on mobile */}
           <div className="lg:col-span-3 lg:order-2 space-y-6">
-            {/* Categories Sidebar - appears second on mobile, first on desktop */}
-          <div className="lg:hidden">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Categories</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {categories.map((category) => (
-                  <button
-                    key={category.name}
-                    onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
-                    className="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-left"
-                  >
-                    <i className={`${category.icon} text-primary-500 mr-2`}></i>
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{category.name}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-            {/* Search Bar */}
+            {/* Search Bar - appears first on mobile */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
               <form onSubmit={handleSubmit} className="flex gap-2">
                 <div className="flex-1 relative">
@@ -182,6 +162,27 @@ const Hero = () => {
                     }`}
                   />
                 ))}
+              </div>
+            </div>
+            
+            {/* Categories - appears third on mobile */}
+            <div className="lg:hidden">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Categories</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category.name}
+                      onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
+                      className="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-left"
+                    >
+                      <i className={`${category.icon} text-primary-500 mr-2`}></i>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{category.name}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
