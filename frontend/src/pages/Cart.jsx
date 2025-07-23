@@ -229,16 +229,16 @@ const Cart = () => {
                 </span>
               </div>
               
-              <div className="flex space-x-4">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <Link
                   to="/products"
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg text-center hover:bg-gray-50 transition-colors"
+                  className="flex-1 border border-gray-300 text-gray-700 py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-center hover:bg-gray-50 transition-colors text-sm sm:text-base"
                 >
                   Continue Shopping
                 </Link>
                 <button
                   onClick={orderViaWhatsApp}
-                  className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                  className="flex-1 bg-green-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
                 >
                   <i className="fab fa-whatsapp"></i>
                   <span>Order via WhatsApp</span>
