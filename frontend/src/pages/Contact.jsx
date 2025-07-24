@@ -83,6 +83,32 @@ const Contact = () => {
                 </div>
               </div>
             </div>
+            
+            {/* Google Maps */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Find Us</h3>
+              <div className="rounded-lg overflow-hidden shadow-sm bg-gray-100">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8180313700996!2d36.828006099999996!3d-1.2830183999999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f11297ffc5f79%3A0x3c02347d9476f905!2sMenengai%20House%20No.1!5e0!3m2!1sen!2ske!4v1753330184283!5m2!1sen!2ske"
+                  style={{ border: 0, width: '100%', height: '300px', minHeight: '300px', display: 'block' }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Anzia Electronics Location"
+                ></iframe>
+              </div>
+              <div className="mt-4">
+                <a 
+                  href="https://maps.app.goo.gl/CkBqkmJh6vgunYuk7?g_st=awb"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  <MapPin className="w-4 h-4 mr-2" />
+                  View on Google Maps
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Contact Form */}

@@ -391,13 +391,9 @@ const ProductDetail = () => {
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={toggleWishlist}
-                  className={`p-2 border rounded-lg transition-colors ${
-                    isInWishlist 
-                      ? 'border-red-300 bg-red-50 text-red-600' 
-                      : 'border-gray-300 hover:bg-gray-50 text-gray-600'
-                  }`}
+                  className="p-2 border border-gray-300 rounded-lg transition-all duration-300 shadow-sm hover:bg-gray-50"
                 >
-                  <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
+                  <i className={`fas fa-heart transition-colors ${isInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-red-500'}`}></i>
                 </button>
                 <button 
                   onClick={() => {

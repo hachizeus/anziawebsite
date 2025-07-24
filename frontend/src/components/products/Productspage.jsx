@@ -168,7 +168,52 @@ const ProductsPage = () => {
     
     const API_URL = 'https://anzia-electronics-api.onrender.com/api';
     
-    // Wishlist functionality disabled
+    useEffect(() => {
+      checkWishlistStatus();
+    }, []);
+    
+    const checkWishlistStatus = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user._id) return;
+        
+        const response = await axios.get(`${API_URL}/wishlist/${user._id}`);
+        if (response.data.success) {
+          const inWishlist = response.data.wishlist.some(item => 
+            item.productId._id === product._id
+          );
+          setIsInWishlist(inWishlist);
+        }
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
+      }
+    };
+    
+    const toggleWishlist = async (e) => {
+      e.stopPropagation();
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user._id) {
+          showNotification('Please login to add to wishlist', 'warning');
+          return;
+        }
+        
+        if (isInWishlist) {
+          await axios.delete(`${API_URL}/wishlist/remove`, {
+            data: { userId: user._id, productId: product._id }
+          });
+          setIsInWishlist(false);
+        } else {
+          await axios.post(`${API_URL}/wishlist/add`, {
+            userId: user._id,
+            productId: product._id
+          });
+          setIsInWishlist(true);
+        }
+      } catch (error) {
+        console.error('Error toggling wishlist:', error);
+      }
+    };
     
     const addToCart = async (e) => {
       e.stopPropagation();
@@ -205,13 +250,13 @@ const ProductsPage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white hover:shadow-md transition-all duration-300 overflow-hidden group relative"
       >
-        <div className="relative">
-          <div className="aspect-square bg-white p-4">
+        <div className="relative overflow-hidden">
+          <div className="aspect-square bg-white p-4 relative group">
             {imageUrl ? (
               <img 
                 src={imageUrl} 
                 alt={product.name} 
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                 onError={(e) => {
                   console.error('Image failed to load:', imageUrl);
                   e.target.style.display = 'none';
@@ -224,15 +269,39 @@ const ProductsPage = () => {
                 <i className="fas fa-shopping-cart text-4xl text-gray-300"></i>
               </div>
             )}
+            
+            {/* View Details overlay */}
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <Link
+                to={`/products/${product._id}`}
+                className="bg-white text-gray-900 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300"
+              >
+                <i className="fas fa-eye"></i>
+                View Details
+              </Link>
+            </div>
           </div>
           
+          {/* Stock badge */}
+          <div className="absolute top-2 left-2">
+            <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-md shadow-sm">
+              ✓ Stock
+            </span>
+          </div>
+          
+          {/* Wishlist button */}
+          <button 
+            onClick={toggleWishlist}
+            className="absolute top-2 right-2 p-2 rounded-full transition-all duration-300 shadow-sm bg-white/90 backdrop-blur-sm hover:bg-white"
+          >
+            <i className={`fas fa-heart text-sm transition-colors ${isInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-red-500'}`}></i>
+          </button>
+          
           {originalPrice > price && (
-            <div className="absolute top-2 left-2 bg-primary-500 text-white px-2 py-1 rounded text-sm font-medium">
+            <div className="absolute bottom-2 left-2 bg-primary-500 text-white px-2 py-1 rounded text-sm font-medium">
               Save KSh {(originalPrice - price).toLocaleString()}
             </div>
           )}
-          
-
         </div>
 
         <div className="p-3">
@@ -255,7 +324,7 @@ const ProductsPage = () => {
             {product.brand || 'Electronics'}
           </div>
 
-          <div className="space-y-2">
+          <div>
             <button
               onClick={addToCart}
               className="w-full bg-primary-600 text-white py-2 px-3 text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2"
@@ -263,12 +332,6 @@ const ProductsPage = () => {
               <i className="fas fa-shopping-cart"></i>
               <span>Add to Cart</span>
             </button>
-            <Link
-              to={`/products/${product._id}`}
-              className="w-full border border-gray-300 text-gray-600 py-2 px-3 hover:bg-gray-50 transition-colors text-center text-sm block"
-            >
-              View Details
-            </Link>
           </div>
         </div>
       </motion.div>

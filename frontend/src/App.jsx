@@ -31,8 +31,15 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      <div className="flex justify-center items-center min-h-screen bg-white dark:bg-gray-900">
+        <div className="flex flex-col items-center">
+          <img 
+            src="/images/logo.svg" 
+            alt="Anzia Electronics" 
+            className="w-20 h-20 mb-4"
+          />
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
+        </div>
       </div>
     );
   }
@@ -56,8 +63,15 @@ ProtectedRoute.propTypes = {
 
 // Loading component for suspense fallback
 const LoadingFallback = () => (
-  <div className="min-h-screen flex justify-center items-center pt-20 bg-white dark:bg-gray-900">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+  <div className="min-h-screen flex justify-center items-center bg-white dark:bg-gray-900">
+    <div className="flex flex-col items-center">
+      <img 
+        src="/images/logo.svg" 
+        alt="Anzia Electronics" 
+        className="w-20 h-20 mb-4"
+      />
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
+    </div>
   </div>
 );
 

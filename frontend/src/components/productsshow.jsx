@@ -97,111 +97,72 @@ const ProductCard = ({ product }) => {
 
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-      onClick={handleNavigate}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="bg-white hover:shadow-md transition-all duration-300 overflow-hidden group relative"
     >
-      {/* Product Image */}
-      <div className="relative h-48">
-        <img
-          src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-product.jpg'}
-          alt={product.images?.[0]?.alt || product.name || product.title}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          onError={(e) => {
-            e.target.src = '/images/placeholder-product.jpg';
-          }}
-        />
-        
-        {/* Product badges */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2">
-          <span className="bg-primary-600 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-md">
-            {product.category || 'Electronics'}
-          </span>
-          {product.availability === 'in-stock' ? (
-            <span className="bg-green-600 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-md">
-              In Stock
-            </span>
-          ) : (
-            <span className="bg-red-600 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-md">
-              Out of Stock
-            </span>
-          )}
+      <div className="relative overflow-hidden">
+        <div className="aspect-square bg-white p-4 relative group">
+          <img
+            src={product.images?.[0]?.url || product.images?.[0] || '/images/placeholder-product.jpg'}
+            alt={product.name || product.title}
+            className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+            loading="lazy"
+            onError={(e) => {
+              e.target.src = '/images/placeholder-product.jpg';
+            }}
+          />
+          
+          {/* View Details overlay */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <button
+              onClick={handleNavigate}
+              className="bg-white text-gray-900 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300"
+            >
+              <i className="fas fa-eye"></i>
+              View Details
+            </button>
+          </div>
         </div>
         
-        {/* Bookmark button */}
+        {/* Stock badge */}
+        <div className="absolute top-2 left-2">
+          <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-md shadow-sm">
+            ✓ Stock
+          </span>
+        </div>
+        
+        {/* Wishlist button */}
         <button 
           onClick={toggleWishlist}
-          className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 
-            ${isInWishlist 
-              ? 'bg-primary-500 text-white' 
-              : 'bg-white/80 backdrop-blur-sm text-gray-700 hover:text-primary-500'}`}
+          className="absolute top-2 right-2 p-2 rounded-full transition-all duration-300 shadow-sm bg-white/90 backdrop-blur-sm hover:bg-white"
         >
-          <i className={`fas fa-heart ${isInWishlist ? 'text-primary-500' : ''}`}></i>
+          <i className={`fas fa-heart text-sm transition-colors ${isInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-red-500'}`}></i>
         </button>
-        
-        {/* View overlay on hover */}
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent flex items-center justify-center"
-            >
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                className="px-5 py-3 bg-white dark:bg-gray-800 text-primary-600 rounded-lg font-medium flex items-center gap-2 shadow-lg"
-              >
-                <i className="fas fa-eye"></i>
-                View Details
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
-      
-      {/* Product Content */}
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary-600 transition-colors">
+
+      <div className="p-3">
+        <h3 className="text-sm text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">
           {product.name || product.title}
         </h3>
-        
-        <div className="flex items-center text-gray-600 dark:text-gray-300 mb-4">
-          <i className="fas fa-bolt mr-2 flex-shrink-0 text-primary-500"></i>
-          <span className="line-clamp-1">{product.brand || 'Quality Electronics'}</span>
-        </div>
-        
-        {/* Product Features */}
-        <div className="flex justify-between items-center py-2 border-y border-gray-100 dark:border-gray-700 mb-3">
-          <div className="flex items-center gap-1">
-            <i className="fas fa-star text-yellow-500"></i>
-            <span className="text-sm text-gray-600 dark:text-gray-300">{product.rating || '4.5'} Rating</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-sm text-gray-600 dark:text-gray-300">Model: {product.model || 'N/A'}</span>
+
+        <div className="mb-3">
+          <div className="text-lg font-bold text-primary-600">
+            KSh {Number(product.price || 0).toLocaleString()}
           </div>
         </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center text-primary-600 font-bold">
-            <span className="text-lg font-bold text-primary-600">KSh {Number(product.price || 0).toLocaleString()}</span>
-          </div>
-          
+
+        <div className="text-xs text-gray-500 mb-3">
+          {product.brand || 'Electronics'}
+        </div>
+
+        <div>
           <button
             onClick={addToCart}
-            className="text-sm bg-primary-500 text-white px-3 py-2 rounded-md flex items-center hover:bg-primary-600 transition-colors"
+            className="w-full bg-primary-600 text-white py-2 px-3 text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2"
           >
-            <i className="fas fa-shopping-cart mr-1"></i>
-            Add to Cart
+            <i className="fas fa-shopping-cart"></i>
+            <span>Add to Cart</span>
           </button>
         </div>
       </div>
