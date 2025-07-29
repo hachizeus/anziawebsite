@@ -290,46 +290,46 @@ const Dashboard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen pt-20 sm:pt-24 md:pt-32 px-2 sm:px-4 bg-gray-50"
+      className="min-h-screen pt-16 sm:pt-20 md:pt-24 px-3 sm:px-4 md:px-6 lg:px-8 bg-gray-50"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">Dashboard</h1>
-            <p className="text-gray-600">Overview of your electronics store</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Dashboard</h1>
+            <p className="text-sm sm:text-base text-gray-600">Overview of your electronics store</p>
           </div>
           <button
             onClick={fetchStats}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 
-              transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
+            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 
+              transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto justify-center text-sm sm:text-base"
           >
             <TrendingUp className="w-4 h-4" />
-            Refresh Data
+            <span className="sm:inline">Refresh Data</span>
           </button>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           {statCards.map((stat, index) => (
             <motion.div
               key={stat.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+              className="bg-white p-4 sm:p-5 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
             >
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <div className={`p-2 sm:p-3 rounded-lg ${stat.color}`}>
-                  <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <div className={`p-2.5 sm:p-3 rounded-lg ${stat.color}`}>
+                  <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-gray-500">
+                <span className="text-xs font-medium text-gray-500 hidden sm:inline">
                   Last 30 days
                 </span>
               </div>
-              <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900">{stat.title}</h3>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{stat.value}</p>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">{stat.description}</p>
+              <h3 className="text-sm sm:text-base font-medium text-gray-900 mb-1">{stat.title}</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-gray-500">{stat.description}</p>
             </motion.div>
           ))}
         </div>

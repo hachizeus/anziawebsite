@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import AuthGuard from './components/common/AuthGuard';
 // Removed BackendSwitcher and ApiHealthCheck for production
 import PropTypes from 'prop-types';
 import { initLazyLoading } from './utils/lazyLoadImages';
@@ -111,9 +112,9 @@ function App() {
                 <Route path="/products" element={<Products />} />
                 {/* Categories route removed */}
                 <Route path="/products/:id" element={<ProductDetail />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/cart" element={<Cart />} />
+                <Route path="/login" element={<AuthGuard><Login /></AuthGuard>} />
+                <Route path="/signup" element={<AuthGuard><Signup /></AuthGuard>} />
+                <Route path="/cart" element={<AuthGuard reverse><Cart /></AuthGuard>} />
                 {/* Checkout removed - using WhatsApp orders */}
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about" element={<About />} />

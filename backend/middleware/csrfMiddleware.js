@@ -1,74 +1,57 @@
-/**
- * Simple CSRF protection middleware
- */
-
 import crypto from 'crypto';
 
-// Generate a CSRF token
-export const generateCSRFToken = () => {
-  return crypto.randomBytes(32).toString('hex');
-};
+// Store CSRF tokens (in production, use Redis or database)
+const csrfTokens = new Map();
 
-// CSRF protection middleware
-export const csrfProtection = (req, res, next) => {
-  // Skip CSRF check for GET, HEAD, OPTIONS requests
-  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return next();
-  }
+// Generate CSRF token
+export const generateCSRFToken = (req, res, next) => {
+  const token = crypto.randomBytes(32).toString('hex');
+  const sessionId = req.sessionID || req.ip + req.headers['user-agent'];
   
-  const csrfToken = req.headers['x-csrf-token'];
-  const storedToken = req.cookies?.csrfToken;
+  csrfTokens.set(sessionId, token);
   
-  if (!csrfToken || !storedToken || csrfToken !== storedToken) {
-    // For development, just log and continue
-    console.warn('CSRF token validation failed');
-    // In production, would return 403
-    // return res.status(403).json({
-    //   success: false,
-    //   message: 'CSRF token validation failed'
-    // });
-  }
-  
-  next();
-};
-
-// Middleware to set CSRF token
-export const setCSRFToken = (req, res, next) => {
-  // Only set a new CSRF token if one doesn't exist
-  if (!req.cookies?.csrfToken) {
-    const token = generateCSRFToken();
-    
-    // Set the token as a cookie with less strict SameSite for development
-    res.cookie('csrfToken', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    });
-    
-    // Also send it in the response for the client to use in headers
-    res.locals.csrfToken = token;
-  }
-  
-  next();
-};
-
-// Issue CSRF token handler
-export const issueCsrfToken = (req, res) => {
-  // Generate a new token regardless of existing one
-  const token = generateCSRFToken();
-  
-  // Set the token as a cookie with less strict SameSite for development
-  res.cookie('csrfToken', token, {
-    httpOnly: true,
+  // Set token in cookie
+  res.cookie('XSRF-TOKEN', token, {
+    httpOnly: false, // Allow JS access for AJAX requests
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
+    sameSite: 'strict',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   });
   
-  // Return the token in the response
-  return res.json({
-    success: true,
-    csrfToken: token
-  });
+  req.csrfToken = token;
+  next();
 };
+
+// Verify CSRF token
+export const verifyCSRFToken = (req, res, next) => {
+  // Skip CSRF for GET requests
+  if (req.method === 'GET') {
+    return next();
+  }
+  
+  const sessionId = req.sessionID || req.ip + req.headers['user-agent'];
+  const tokenFromHeader = req.headers['x-xsrf-token'];
+  const tokenFromBody = req.body._csrf;
+  const storedToken = csrfTokens.get(sessionId);
+  
+  const providedToken = tokenFromHeader || tokenFromBody;
+  
+  if (!providedToken || !storedToken || providedToken !== storedToken) {
+    return res.status(403).json({
+      success: false,
+      message: 'Invalid CSRF token'
+    });
+  }
+  
+  next();
+};
+
+// Clean expired tokens (run periodically)
+setInterval(() => {
+  // Simple cleanup - in production, implement proper expiration
+  if (csrfTokens.size > 1000) {
+    csrfTokens.clear();
+  }
+}, 60 * 60 * 1000); // Clean every hour
+
+export default { generateCSRFToken, verifyCSRFToken };

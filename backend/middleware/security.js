@@ -1,19 +1,11 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { apiLimiter, authLimiter, productLimiter } from './rateLimitMiddleware.js';
+import { generateCSRFToken, verifyCSRFToken } from './csrfMiddleware.js';
+import { logSecurityMiddleware } from './securityLogger.js';
 
-// Simple rate limiting implementation
-const requestCounts = new Map();
-const requestTimestamps = new Map();
-
-// Rate limiting middleware - DISABLED
-export const apiLimiter = (req, res, next) => {
-  next();
-};
-
-// Auth rate limiter - DISABLED
-export const authLimiter = (req, res, next) => {
-  next();
-};
+// Export rate limiters
+export { apiLimiter, authLimiter, productLimiter };
 
 // Basic security middleware
 const setSecurityHeaders = (req, res, next) => {
@@ -58,10 +50,16 @@ const xssProtection = (req, res, next) => {
   next();
 };
 
-// Security middleware configuration - NO RATE LIMITING
+// Security middleware configuration
 export const configureSecurityMiddleware = (app) => {
+  // Security logging
+  app.use(logSecurityMiddleware);
+  
   // Set security headers
   app.use(setSecurityHeaders);
+  
+  // CSRF protection
+  app.use(generateCSRFToken);
   
   // Data sanitization against NoSQL query injection
   app.use(sanitizeRequest);
@@ -69,5 +67,11 @@ export const configureSecurityMiddleware = (app) => {
   // Data sanitization against XSS
   app.use(xssProtection);
   
+  // Apply rate limiting to all routes
+  app.use('/api/', apiLimiter);
+  
   return app;
 };
+
+// Export CSRF middleware
+export { generateCSRFToken, verifyCSRFToken };

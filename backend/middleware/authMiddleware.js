@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import { trackFailedAttempt, clearFailedAttempts, checkAccountLockout } from './accountLockout.js';
+import { logSecurityEvent, SECURITY_EVENTS } from './securityLogger.js';
 
 // Protection middleware - Require valid token
 export const protect = async (req, res, next) => {
@@ -7,6 +9,11 @@ export const protect = async (req, res, next) => {
     const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
     if (!token) {
+      logSecurityEvent(SECURITY_EVENTS.UNAUTHORIZED_ACCESS, {
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        path: req.path
+      });
       return res.status(401).json({
         success: false,
         message: 'Access denied. No token provided.'
@@ -40,6 +47,12 @@ export const protect = async (req, res, next) => {
       message: 'Invalid token.'
     });
   } catch (error) {
+    logSecurityEvent(SECURITY_EVENTS.UNAUTHORIZED_ACCESS, {
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+      path: req.path,
+      error: error.message
+    });
     return res.status(401).json({
       success: false,
       message: 'Invalid token.'

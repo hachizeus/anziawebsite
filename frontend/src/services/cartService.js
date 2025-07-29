@@ -4,7 +4,6 @@ export const cartService = {
   // Get cart for user
   getCart: async (userId) => {
     try {
-      console.log('Fetching cart for user:', userId);
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/cart/${userId}`, {
         headers: {
@@ -18,7 +17,6 @@ export const cartService = {
       }
       
       const data = await response.json();
-      console.log('Cart API response:', data);
       return data.success ? data.cart.items || [] : [];
     } catch (error) {
       console.error('Error getting cart:', error);
@@ -65,8 +63,12 @@ export const cartService = {
   // Remove item from cart
   removeFromCart: async (userId, productId) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/cart/remove/${userId}/${productId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       const data = await response.json();
       if (data.success) {
@@ -82,8 +84,12 @@ export const cartService = {
   // Clear cart
   clearCart: async (userId) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/cart/clear/${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       const data = await response.json();
       if (data.success) {

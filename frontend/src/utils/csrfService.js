@@ -1,57 +1,89 @@
-// Simplified CSRF service without complex token refresh
-let csrfToken = null;
-
-export const getTokenFromCookies = () => {
-  const cookies = document.cookie.split(';');
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.startsWith('XSRF-TOKEN=')) {
-      return cookie.substring('XSRF-TOKEN='.length);
-    }
+// CSRF token management
+class CSRFService {
+  constructor() {
+    this.token = null;
   }
-  return null;
-};
-
-export const fetchCsrfToken = async () => {
-  try {
-    const cookieToken = getTokenFromCookies();
-    if (cookieToken) {
-      csrfToken = cookieToken;
-      return csrfToken;
+  
+  // Get CSRF token from cookie
+  getTokenFromCookie() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'XSRF-TOKEN') {
+        return decodeURIComponent(value);
+      }
     }
     return null;
-  } catch (error) {
-    console.error('Error fetching CSRF token:', error);
+  }
+  
+  // Get current CSRF token
+  getToken() {
+    if (!this.token) {
+      this.token = this.getTokenFromCookie();
+    }
+    return this.token;
+  }
+  
+  // Refresh token from server
+  async refreshToken() {
+    try {
+      const response = await fetch('/api/csrf-token', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        this.token = this.getTokenFromCookie();
+        return this.token;
+      }
+    } catch (error) {
+      console.error('Failed to refresh CSRF token:', error);
+    }
     return null;
   }
-};
-
-export const getCsrfToken = async () => {
-  const cookieToken = getTokenFromCookies();
-  if (cookieToken) {
-    csrfToken = cookieToken;
-    return csrfToken;
+  
+  // Add CSRF token to request headers
+  addTokenToHeaders(headers = {}) {
+    const token = this.getToken();
+    if (token) {
+      headers['X-XSRF-TOKEN'] = token;
+    }
+    return headers;
   }
-  return null;
-};
-
-export const clearCsrfToken = () => {
-  csrfToken = null;
-};
-
-export const addCsrfHeader = async (config) => {
-  const token = await getCsrfToken();
-  if (token) {
-    config.headers = {
-      ...config.headers,
-      'X-CSRF-Token': token
-    };
+  
+  // Secure fetch wrapper with CSRF protection
+  async secureFetch(url, options = {}) {
+    // Add CSRF token to headers
+    const headers = this.addTokenToHeaders(options.headers || {});
+    
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'include'
+    });
+    
+    // If CSRF token is invalid, try to refresh and retry once
+    if (response.status === 403 && response.statusText.includes('CSRF')) {
+      await this.refreshToken();
+      const newHeaders = this.addTokenToHeaders(options.headers || {});
+      
+      return fetch(url, {
+        ...options,
+        headers: newHeaders,
+        credentials: 'include'
+      });
+    }
+    
+    return response;
   }
-  return config;
-};
+}
 
-export const setupCsrfProtection = (axiosInstance) => {
-  // Simple CSRF setup without complex interceptors
-  console.log('CSRF protection setup completed');
-};
+// Create singleton instance
+const csrfService = new CSRFService();
 
+// Initialize CSRF token on page load
+document.addEventListener('DOMContentLoaded', () => {
+  csrfService.refreshToken();
+});
+
+export default csrfService;

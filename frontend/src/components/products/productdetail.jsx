@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { getProductById } from '../../services/api.js';
 import { trackProductView, trackAddToCart } from '../../services/trackingService.js';
 import { cartService } from '../../services/cartService.js';
+import YouMightAlsoLike from '../common/YouMightAlsoLike';
 import { 
   Star, 
   Heart, 
@@ -54,7 +55,6 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('description');
-  const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [isInWishlist, setIsInWishlist] = useState(false);
   
@@ -141,11 +141,17 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
+    let isCancelled = false;
+    
     async function loadProduct() {
+      if (isCancelled) return;
+      
       try {
         setLoading(true);
         console.log('Fetching product with ID:', id);
         const result = await getProductById(id);
+        
+        if (isCancelled) return;
         console.log('API result:', result);
         
         if (result.success && result.product) {
@@ -153,17 +159,12 @@ const ProductDetail = () => {
           const formattedProduct = formatProductData(result.product);
           setProduct(formattedProduct);
           
-          // Track product view
-          trackProductView(formattedProduct.id).catch(err => 
-            console.log('Error tracking product view:', err)
-          );
+          // Track product view (silently fail if endpoint doesn't exist)
+          trackProductView(formattedProduct.id).catch(() => {});
           
           // Recently viewed handled by backend tracking
           
-          // Fetch suggested products based on category
-          if (formattedProduct.category) {
-            fetchSuggestedProducts(formattedProduct);
-          }
+          // Suggested products now handled by YouMightAlsoLike component
           
           // Check if product is in wishlist
           checkWishlistStatus(formattedProduct.id);
@@ -176,39 +177,7 @@ const ProductDetail = () => {
         setLoading(false);
       }
     }
-    
-    // Function to fetch suggested products
-    async function fetchSuggestedProducts(currentProduct) {
-      try {
-        // Only fetch if we have a category
-        if (!currentProduct.category) {
-          setSuggestedProducts([]);
-          return;
-        }
-        
-        const response = await axios.get(`${API_URL}/products?category=${encodeURIComponent(currentProduct.category)}&limit=10`);
-        if (response.data && response.data.products) {
-          // Filter out current product
-          const filtered = response.data.products
-            .filter(p => p.id !== currentProduct.id)
-            .map(p => formatProductData(p))
-            .slice(0, 4);
-          
-          // Only set suggested products if we actually have some
-          if (filtered.length > 0) {
-            setSuggestedProducts(filtered);
-          } else {
-            setSuggestedProducts([]);
-          }
-        } else {
-          setSuggestedProducts([]);
-        }
-      } catch (err) {
-        console.error('Error fetching suggested products:', err);
-        // Don't use mock data, just show nothing
-        setSuggestedProducts([]);
-      }
-    }
+    // Suggested products now handled by YouMightAlsoLike component
     
     loadProduct();
     
@@ -232,7 +201,9 @@ const ProductDetail = () => {
     
     loadProduct();
     
-    // Recently viewed removed
+    return () => {
+      isCancelled = true;
+    };
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -263,9 +234,8 @@ const ProductDetail = () => {
         return;
       }
       
-      // Track action in analytics
-      trackAddToCart(product.id, quantity, product.price)
-        .catch(err => console.log('Analytics tracking error:', err));
+      // Track action in analytics (silently fail if endpoint doesn't exist)
+      trackAddToCart(product.id, quantity, product.price).catch(() => {});
       
       // Dispatch custom event to update cart count in navbar
       window.dispatchEvent(new CustomEvent('cartUpdated'));
@@ -614,42 +584,14 @@ const ProductDetail = () => {
           </div>
         </div>
         
-        {/* Suggested Products - Only show if we have real products */}
-        {suggestedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">You Might Also Like</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {suggestedProducts.map((product) => (
-                <Link to={`/products/${product.id}`} key={product.id}>
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="aspect-w-1 aspect-h-1 w-full">
-                      {product.image && product.image.length > 0 ? (
-                        <img 
-                          src={product.image[0].url || product.image[0]} 
-                          alt={product.name}
-                          className="w-full h-48 object-contain"
-                          onError={(e) => {
-                            console.error('Image failed to load:', product.image[0]);
-                            e.target.onerror = null;
-                            e.target.src = '/images/logo.svg';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-                          <ShoppingCart className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
-                      <p className="mt-1 text-lg font-bold text-primary-600">KSh {product.price.toLocaleString()}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* You Might Also Like Section */}
+        <YouMightAlsoLike 
+          currentProductId={product.id}
+          category={product.category}
+          title="You Might Also Like"
+          limit={4}
+          className="mt-16"
+        />
         
         {/* Recently Viewed Products */}
         {recentlyViewed.length > 1 && (

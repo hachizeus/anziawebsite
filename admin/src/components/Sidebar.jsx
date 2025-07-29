@@ -92,8 +92,8 @@ const Sidebar = () => {
       
       {/* Sidebar */}
       <div 
-        className={`fixed left-0 top-16 h-full bg-white shadow-lg z-40 transition-all duration-300 overflow-hidden
-        ${expanded ? 'md:w-64 w-64' : 'md:w-16 w-0'} 
+        className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white shadow-lg z-40 transition-all duration-300 overflow-hidden border-r border-gray-200
+        ${expanded ? 'w-64 sm:w-72 md:w-64' : 'w-0 md:w-16'} 
         ${expanded ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'}`}
       >
       <div className="h-full flex flex-col justify-between py-4">
@@ -113,34 +113,34 @@ const Sidebar = () => {
           {/* Dashboard */}
           <Link
             to="/"
-            className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
+            className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-100 transition-colors rounded-lg mx-2 ${
               isActive('/') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
-            <Home className="w-5 h-5 min-w-[20px]" />
-            {expanded && <span className="ml-4 whitespace-nowrap">Dashboard</span>}
+            <Home className="w-4 h-4 sm:w-5 sm:h-5 min-w-[16px] sm:min-w-[20px] flex-shrink-0" />
+            {expanded && <span className="ml-3 sm:ml-4 whitespace-nowrap text-sm sm:text-base">Dashboard</span>}
           </Link>
           
           {/* Products */}
           <Link
             to="/list"
-            className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
+            className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-100 transition-colors rounded-lg mx-2 ${
               isActive('/list') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
-            <List className="w-5 h-5 min-w-[20px]" />
-            {expanded && <span className="ml-4 whitespace-nowrap">Products</span>}
+            <List className="w-4 h-4 sm:w-5 sm:h-5 min-w-[16px] sm:min-w-[20px] flex-shrink-0" />
+            {expanded && <span className="ml-3 sm:ml-4 whitespace-nowrap text-sm sm:text-base">Products</span>}
           </Link>
           
           {/* Add Product */}
           <Link
             to="/add"
-            className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
+            className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-100 transition-colors rounded-lg mx-2 ${
               isActive('/add') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
-            <Plus className="w-5 h-5 min-w-[20px]" />
-            {expanded && <span className="ml-4 whitespace-nowrap">Add Product</span>}
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 min-w-[16px] sm:min-w-[20px] flex-shrink-0" />
+            {expanded && <span className="ml-3 sm:ml-4 whitespace-nowrap text-sm sm:text-base">Add Product</span>}
           </Link>
           
           {/* Orders removed */}
@@ -154,23 +154,23 @@ const Sidebar = () => {
           {/* Users */}
           <Link
             to="/users"
-            className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
+            className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-100 transition-colors rounded-lg mx-2 ${
               isActive('/users') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
-            <User className="w-5 h-5 min-w-[20px]" />
-            {expanded && <span className="ml-4 whitespace-nowrap">Users</span>}
+            <User className="w-4 h-4 sm:w-5 sm:h-5 min-w-[16px] sm:min-w-[20px] flex-shrink-0" />
+            {expanded && <span className="ml-3 sm:ml-4 whitespace-nowrap text-sm sm:text-base">Users</span>}
           </Link>
           
           {/* Newsletter */}
           <Link
             to="/newsletter"
-            className={`flex items-center px-4 py-3 hover:bg-gray-100 transition-colors ${
+            className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-100 transition-colors rounded-lg mx-2 ${
               isActive('/newsletter') ? 'text-primary-600 font-medium bg-primary-50' : 'text-gray-700'
             }`}
           >
-            <Mail className="w-5 h-5 min-w-[20px]" />
-            {expanded && <span className="ml-4 whitespace-nowrap">Newsletter</span>}
+            <Mail className="w-4 h-4 sm:w-5 sm:h-5 min-w-[16px] sm:min-w-[20px] flex-shrink-0" />
+            {expanded && <span className="ml-3 sm:ml-4 whitespace-nowrap text-sm sm:text-base">Newsletter</span>}
           </Link>
           
 
@@ -184,10 +184,10 @@ const Sidebar = () => {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center px-4 py-3 hover:bg-gray-100 transition-colors text-gray-700"
+            className="w-full flex items-center px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-red-50 hover:text-red-600 transition-colors text-gray-700 rounded-lg mx-2"
           >
-            <LogOut className="w-5 h-5 min-w-[20px]" />
-            {expanded && <span className="ml-4 whitespace-nowrap">Logout</span>}
+            <LogOut className="w-4 h-4 sm:w-5 sm:h-5 min-w-[16px] sm:min-w-[20px] flex-shrink-0" />
+            {expanded && <span className="ml-3 sm:ml-4 whitespace-nowrap text-sm sm:text-base">Logout</span>}
           </button>
         </div>
       </div>

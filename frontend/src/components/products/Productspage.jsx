@@ -218,15 +218,16 @@ const ProductsPage = () => {
     const addToCart = async (e) => {
       e.stopPropagation();
       try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user._id) {
+        const storageUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const userId = storageUser._id;
+        if (!userId) {
           showNotification('Please login to add items to cart', 'warning');
           return;
         }
         
         const token = localStorage.getItem('token');
-        await axios.post(`${API_URL}/cart/add`, {
-          userId: user._id,
+        const response = await axios.post(`${API_URL}/cart/add`, {
+          userId: userId,
           productId: product._id,
           quantity: 1,
           price: product.price,
@@ -236,8 +237,12 @@ const ProductsPage = () => {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
-        window.dispatchEvent(new CustomEvent('cartUpdated'));
-        showNotification('Added to cart!', 'success');
+        if (response.data.success) {
+          window.dispatchEvent(new CustomEvent('cartUpdated'));
+          showNotification('Added to cart!', 'success');
+        } else {
+          showNotification('Failed to add to cart', 'error');
+        }
       } catch (error) {
         console.error('Error adding to cart:', error);
         showNotification('Failed to add to cart. Please try again.', 'error');
@@ -304,33 +309,34 @@ const ProductsPage = () => {
           )}
         </div>
 
-        <div className="p-3">
-          <h3 className="text-sm text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">
+        <div className="p-2 sm:p-3">
+          <h3 className="text-xs sm:text-sm text-gray-900 mb-2 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] leading-tight">
             {product.name}
           </h3>
 
-          <div className="mb-3">
-            <div className="text-lg font-bold text-primary-600">
+          <div className="mb-2 sm:mb-3">
+            <div className="text-sm sm:text-base md:text-lg font-bold text-primary-600">
               KSh {price.toLocaleString()}
             </div>
             {originalPrice > price && (
-              <div className="text-sm text-gray-500 line-through">
+              <div className="text-xs sm:text-sm text-gray-500 line-through">
                 KSh {originalPrice.toLocaleString()}
               </div>
             )}
           </div>
 
-          <div className="text-xs text-gray-500 mb-3">
+          <div className="text-xs text-gray-500 mb-2 sm:mb-3 truncate">
             {product.brand || 'Electronics'}
           </div>
 
           <div>
             <button
               onClick={addToCart}
-              className="w-full bg-primary-600 text-white py-2 px-3 text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2"
+              className="w-full bg-primary-600 text-white py-1.5 sm:py-2 px-2 sm:px-3 text-xs sm:text-sm font-medium hover:bg-primary-700 transition-colors flex items-center justify-center space-x-1 sm:space-x-2 rounded"
             >
-              <i className="fas fa-shopping-cart"></i>
-              <span>Add to Cart</span>
+              <i className="fas fa-shopping-cart text-xs sm:text-sm"></i>
+              <span className="hidden xs:inline sm:hidden md:inline">Add to Cart</span>
+              <span className="xs:hidden sm:inline md:hidden">Add</span>
             </button>
           </div>
         </div>
@@ -358,8 +364,8 @@ const ProductsPage = () => {
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Search */}
             <div className="relative">
               <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -446,10 +452,10 @@ const ProductsPage = () => {
         </div>
 
         {/* Products Grid */}
-        <div className={`grid gap-4 ${
+        <div className={`grid gap-3 sm:gap-4 md:gap-6 ${
           viewMode === 'grid'
-            ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
-            : 'grid-cols-1'
+            ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+            : 'grid-cols-1 max-w-4xl mx-auto'
         }`}>
           {filteredProducts.map((product) => (
             <ProductCard key={product._id} product={product} />

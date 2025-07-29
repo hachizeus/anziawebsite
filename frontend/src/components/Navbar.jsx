@@ -146,24 +146,37 @@ const Navbar = () => {
   useEffect(() => {
     const updateCartCount = async () => {
       try {
-        if (user?._id && isLoggedIn) {
+        // Get user from both context and localStorage to ensure consistency
+        const contextUser = user;
+        const storageUser = JSON.parse(localStorage.getItem('userData') || '{}');
+        const userId = contextUser?._id || storageUser?._id;
+        
+        if (userId && isLoggedIn) {
           const token = localStorage.getItem('token');
-          const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${user._id}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
+          try {
+            const response = await fetch(`https://anzia-electronics-api.onrender.com/api/cart/${userId}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              },
+              signal: AbortSignal.timeout(5000) // 5 second timeout
+            });
+            
+            if (response.status === 401 || response.status === 403) {
+              logout();
+              return;
             }
-          });
-          
-          if (response.status === 401 || response.status === 403) {
-            logout();
-            return;
-          }
-          
-          const data = await response.json();
-          if (data.success) {
-            const count = data.cart.items?.length || 0;
-            console.log('Cart count updated:', count, 'items in cart:', data.cart.items);
-            setCartCount(count);
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success) {
+                const count = data.cart.items?.length || 0;
+                setCartCount(count);
+              }
+            }
+          } catch (fetchError) {
+            // Silently fail for cart count - not critical
+            console.warn('Cart count fetch failed:', fetchError.message);
+            setCartCount(0);
           }
         } else {
           setCartCount(0);
@@ -174,12 +187,11 @@ const Navbar = () => {
       }
     };
     
-    // Delay initial call to prevent rapid requests
-    const timeoutId = setTimeout(updateCartCount, 5000);
+    // Initial call and event listener
+    updateCartCount();
     window.addEventListener('cartUpdated', updateCartCount);
     
     return () => {
-      clearTimeout(timeoutId);
       window.removeEventListener('cartUpdated', updateCartCount);
     };
   }, [user, isLoggedIn, logout]);
@@ -219,20 +231,21 @@ const Navbar = () => {
           : darkMode ? "bg-gray-900 border-b border-gray-700" : "bg-white border-b border-gray-200"
       }`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo - Left */}
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center space-x-1 group">
+            <Link to="/" className="flex items-center space-x-1 sm:space-x-2 group">
               <motion.div
                 whileHover={{ rotate: [0, -10, 10, -10, 0] }}
                 transition={{ duration: 0.5 }}
                 className="p-0.5 rounded-lg"
               >
-                <img src={logoPath} alt="Anzia Electronics  logo" className="w-16 h-16 object-contain" />
+                <img src={logoPath} alt="Anzia Electronics logo" className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain" />
               </motion.div>
-              <span className="text-lg font-bold bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent group-hover:from-primary-600 group-hover:to-primary-500 transition-all duration-300">
-                Anzia Electronics
+              <span className="text-sm sm:text-base md:text-lg font-bold bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent group-hover:from-primary-600 group-hover:to-primary-500 transition-all duration-300 hidden xs:inline">
+                <span className="sm:hidden">Anzia</span>
+                <span className="hidden sm:inline">Anzia Electronics</span>
               </span>
             </Link>
           </div>
@@ -338,27 +351,30 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
-                <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
-                  <i className="fas fa-shopping-cart text-xl"></i>
+              <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+                <Link to="/cart" className="relative p-1.5 sm:p-2 text-gray-600 hover:text-primary-600 transition-colors">
+                  <i className="fas fa-shopping-cart text-lg sm:text-xl"></i>
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs">
                       {cartCount}
                     </span>
                   )}
                 </Link>
-                <ThemeToggle />
+                <div className="hidden sm:block">
+                  <ThemeToggle />
+                </div>
                 <Link
                   to="/login"
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 font-medium transition-colors text-sm"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 font-medium transition-colors text-xs sm:text-sm hidden sm:inline"
                 >
                   Sign in
                 </Link>
                 <Link
                   to="/signup"
-                  className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-all duration-200 font-medium text-sm"
+                  className="bg-primary-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-primary-600 transition-all duration-200 font-medium text-xs sm:text-sm"
                 >
-                  Sign up
+                  <span className="sm:hidden">Join</span>
+                  <span className="hidden sm:inline">Sign up</span>
                 </Link>
               </div>
             )}

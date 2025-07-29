@@ -64,26 +64,26 @@ const Hero = () => {
 
   return (
     <div className="pt-16 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 py-4 sm:py-6">
           {/* Main Content - appears first on mobile */}
-          <div className="lg:col-span-3 lg:order-2 space-y-6">
+          <div className="lg:col-span-3 lg:order-2 space-y-3 sm:space-y-4 md:space-y-6">
             {/* Search Bar - appears first on mobile */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-              <form onSubmit={handleSubmit} className="flex gap-2">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 sm:p-4">
+              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <div className="flex-1 relative">
-                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm sm:text-base"></i>
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search for products, brands and categories..."
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Search products, brands..."
+                    className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium"
+                  className="bg-primary-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm sm:text-base whitespace-nowrap"
                 >
                   Search
                 </button>
@@ -92,7 +92,7 @@ const Hero = () => {
 
             {/* Carousel */}
             <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-              <div className="relative h-80">
+              <div className="relative h-48 sm:h-64 md:h-80 lg:h-96">
                 {carouselImages.map((slide, index) => (
                   <div
                     key={slide.id}
@@ -120,13 +120,13 @@ const Hero = () => {
                     )}
                     <div className="absolute inset-0">
                       <div className="absolute inset-0 bg-black/40"></div>
-                      <div className="relative h-full flex items-center px-8">
-                        <div className="text-white max-w-lg">
-                          <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">{slide.title}</h2>
-                          <p className="text-xl mb-6 drop-shadow-lg">{slide.subtitle}</p>
+                      <div className="relative h-full flex items-center px-4 sm:px-6 md:px-8">
+                        <div className="text-white max-w-xs sm:max-w-sm md:max-w-lg">
+                          <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 drop-shadow-lg leading-tight">{slide.title}</h2>
+                          <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-4 md:mb-6 drop-shadow-lg">{slide.subtitle}</p>
                           <button 
                             onClick={() => navigate('/products')}
-                            className="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors shadow-lg"
+                            className="bg-primary-600 text-white px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors shadow-lg text-sm sm:text-base"
                           >
                             {slide.cta}
                           </button>

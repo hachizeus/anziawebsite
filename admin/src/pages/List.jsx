@@ -140,49 +140,50 @@ const ProductListings = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20 sm:pt-24 md:pt-32 px-2 sm:px-4 bg-gray-50">
+    <div className="min-h-screen pt-16 sm:pt-20 md:pt-24 px-3 sm:px-4 md:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-3 sm:gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
               Product Listings
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               {filteredProducts.length} Products Found
             </p>
           </div>
 
           <Link 
             to="/add"
-            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors w-full md:w-auto justify-center"
+            className="inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors w-full sm:w-auto justify-center text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5 mr-2" />
-            Add New Product
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            <span className="sm:hidden">Add Product</span>
+            <span className="hidden sm:inline">Add New Product</span>
           </Link>
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className="relative flex-1 w-full">
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm mb-4 sm:mb-6">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="relative w-full">
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-2.5 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 flex-1">
                 <Filter className="text-gray-400 w-4 h-4 flex-shrink-0" />
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 w-full"
+                  className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 w-full text-sm sm:text-base"
                 >
                   <option value="all">All Categories</option>
                   <option value="Power Tools & Workshop Gear">Power Tools</option>
@@ -194,7 +195,7 @@ const ProductListings = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
+                className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 flex-1 sm:flex-none sm:min-w-[180px] text-sm sm:text-base"
               >
                 <option value="newest">Newest First</option>
                 <option value="price-low">Price: Low to High</option>
@@ -205,7 +206,7 @@ const ProductListings = () => {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           <AnimatePresence>
             {filteredProducts.map((product) => (
               <motion.div

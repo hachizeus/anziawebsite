@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, Loader } from '../utils/icons.jsx';
 import { toast } from 'react-toastify';
 import { registerUser } from '../services/api.js';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator.jsx';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -22,7 +23,7 @@ const Signup = () => {
       const { confirmPassword, ...signupData } = formData;
       const result = await registerUser(signupData);
       if (result.success) {
-        toast.success('Registration successful! Please check your email to verify your account.');
+        toast.success('Registration successful! You can now sign in.');
         navigate('/login');
       } else {
         toast.error('Registration failed');
@@ -93,6 +94,7 @@ const Signup = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              <PasswordStrengthIndicator password={formData.password} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>

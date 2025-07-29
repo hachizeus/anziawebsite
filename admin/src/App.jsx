@@ -9,6 +9,7 @@ import initClientSecurity from "./utils/clientSecurity";
 import initSecureReload from "./utils/secureReload";
 import { SecurityProvider } from "./context/SecurityContext";
 import SecureRoute from "./components/SecureRoute";
+import AdminAuthGuard from "./components/AdminAuthGuard";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -87,7 +88,7 @@ function App() {
               <MainContent>
                 <Routes>
                   {/* Public Routes */}
-                  <Route path="/login" element={<Login />} />
+                  <Route path="/login" element={<AdminAuthGuard><Login /></AdminAuthGuard>} />
                   <Route path="/" element={<Dashboard />} />
 
                   {/* Protected Routes */}

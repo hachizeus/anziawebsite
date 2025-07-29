@@ -6,6 +6,14 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
+    screens: {
+      'xs': '475px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         primary: {
@@ -34,7 +42,30 @@ module.exports = {
           900: "#141414",
           950: "#0d0d0d",
         }
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+        '128': '32rem',
+      },
+      maxWidth: {
+        '8xl': '88rem',
+        '9xl': '96rem',
+      },
+      minHeight: {
+        'screen-75': '75vh',
+        'screen-50': '50vh',
       }
+    },
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1rem',
+        sm: '1.5rem',
+        lg: '2rem',
+        xl: '2.5rem',
+        '2xl': '3rem',
+      },
     },
     fontFamily: {
       'body': [
@@ -72,5 +103,57 @@ module.exports = {
         'Noto Color Emoji'
       ]
     }
-  }
+  },
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.text-responsive-xs': {
+          fontSize: '0.75rem',
+          '@screen sm': {
+            fontSize: '0.875rem',
+          },
+        },
+        '.text-responsive-sm': {
+          fontSize: '0.875rem',
+          '@screen sm': {
+            fontSize: '1rem',
+          },
+        },
+        '.text-responsive-base': {
+          fontSize: '1rem',
+          '@screen sm': {
+            fontSize: '1.125rem',
+          },
+        },
+        '.text-responsive-lg': {
+          fontSize: '1.125rem',
+          '@screen sm': {
+            fontSize: '1.25rem',
+          },
+          '@screen md': {
+            fontSize: '1.5rem',
+          },
+        },
+        '.text-responsive-xl': {
+          fontSize: '1.25rem',
+          '@screen sm': {
+            fontSize: '1.5rem',
+          },
+          '@screen md': {
+            fontSize: '1.875rem',
+          },
+        },
+        '.text-responsive-2xl': {
+          fontSize: '1.5rem',
+          '@screen sm': {
+            fontSize: '1.875rem',
+          },
+          '@screen md': {
+            fontSize: '2.25rem',
+          },
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 }
